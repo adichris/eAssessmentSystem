@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+    {% if has_student %}
+        <div class="row">
+            <div class="col-12 mx-auto mt-3">
+                <h5 class="text-center">All Registered Student</h5>
+                <hr>
+            </div>
+            <div class="col-12 mb-3">
+                <form action="" method="get">
+                    <div class="input-group">
+                        <input type="search" class="form-control" value="{{ query|default_if_none:"" }}" placeholder="find by student name or index number" name="query">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="submit" title="Find" aria-label="Find"><span class="fa fa-search"></span></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+        <div class="col-md-12">
+            {% if query %}
+                {% if student_list.count > 1 %}
+                    <p>"{{ query }}" matches {{ student_list.count }} students</p>
+                {% else %}
+                    <p>"{{ query }}" matches {{ student_list.count }} students</p>
+                {% endif %}
+            {% else %}
+                <p>Showing total of <b>{{ student_list.count|default:"0" }}</b> registered student in {{ request.user.lecturemodel.programme }}</p>
+            {% endif %}
+            <hr>
+        </div>
+    </div>
+
+        {% regroup student_list by programme as student_programmes %}
+        {% for student_programme in student_programmes %}
+            <div class="row my-3">
+                <div class="table-responsive">
+                    <p>{{ student_programme.grouper }} {{ student_programme.grouper.level }}</p>
+                    <hr>
+                    <table class="table table-hover table-bordered">
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Index Number</th>
+                            <th>Level</th>
+                            <th>Programme</th>
+                        </tr>
+                        {% for student in student_programme.list %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ student.get_name }}</td>
+                                <td><a href="{{ student.get_absolute_url }}">{{ student.index_number }}</a></td>
+                                <td>{{ student.level }}</td>
+                                <td>{{ student.programme|default_if_none:"---" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="row " style="margin-top: 20vh;">
+            <div class="col-md-6 mx-auto">
+                <div class="alert alert-info text-center">
+                    <p class="lead text-center">{{ request.user.first_name }}, your not assigned to any courses yet.</p>
+                    <hr>
+                    <p><i class="fa fa-exclamation-circle mr-2"></i>Contact the administrator</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    </div>
+{% endblock %}

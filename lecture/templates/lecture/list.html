@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{%  block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mt-3 mt-md-4 mt-lg-5">
+                <h6>Lectures Registered in eAssessment System</h6>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 mt-2 mb-3">
+                <form action="" class="input-group">
+                    <input type="search" class="form-control" name="query" value="{{ query|default_if_none:"" }}" placeholder="search for lectures by name, and username">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-primary" aria-label="find" title="find"><span class="fa fa-search"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    
+    <div class="row">
+        <div class="col-12">
+            {% if query %}
+                <p>"{{ query }}" matches {{ lecturemodel_list.count }} lecture\s</p>
+            {% else %}
+                <p>Show all lectures <span class="badge badge-light">({{ lecturemodel_list.count }}) </span></p>
+            {% endif %}
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Phone Number</th>
+                    <th>Department</th>
+                </tr>
+                {% for lecturemodel in lecturemodel_list %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td>{{ lecturemodel }}</td>
+                        <td><a href="{{ lecturemodel.get_absolute_url }}">{{ lecturemodel.profile.username }}</a></td>
+                        <td>{{ lecturemodel.profile.phone_number }}</td>
+                        <td>{{ lecturemodel.department|default_if_none:"---" }}</td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+    </div>
+{%  endblock content %}

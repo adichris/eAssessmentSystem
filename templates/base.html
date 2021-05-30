@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {% if title %}
+    {{ title }} | e-Assessment
+        {% else %}
+        e-Assessment System
+    {% endif %}  </title>
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'custom.css' %}">
+
+</head>
+<body>
+{% if request.user.is_admin   %}
+        {% include 'snippet/admin-navbar.html' %}
+    {% elif request.user.is_lecture  %}
+        {% include 'snippet/staff_navbar.html' %}
+    {% elif request.user.student %}
+        {% include 'snippet/student-navbar.html' %}
+    {% else %}
+        {% include 'snippet/navbar.html' %}
+{% endif %}
+    {% block content %}
+        
+    {% endblock content %}
+    <script src="{% static 'bootstrap/js-markup/jquery-3.4.1.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+    {% block afterScripts %} {% endblock afterScripts %}
+
+<script>
+    var dobDiv = $("div #id_dob_month").parent();
+    dobDiv.addClass("input input-group");
+
+</script>
+</body>
+</html>

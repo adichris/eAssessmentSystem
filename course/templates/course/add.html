@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mt-3 mt-md-4">
+                <h5 class="text-center">Register New Course to {{ programme|title }}</h5>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary">Add Course</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{%  block afterScripts %}
+    <script>
+        var programmeEle = document.getElementById("id_programme");
+        programmeEle.setAttribute("readOnly", true);
+        programmeEle.classList.add("no-pointer")
+    </script>
+{%  endblock afterScripts %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-3">
+            <div class="col-md-8 col-lg-6 mx-auto">
+                <form action="" method="POST" class="form-group">
+                <p class="text-center">{{ course }} Assessment</p>
+                <hr>
+                <h6 class="text-capitalize">Start by providing question information</h6>
+                    {% csrf_token %}
+                   {{ form|crispy }}
+                    <input type="submit" class="btn btn-primary btn-block" value="Submit">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block afterScripts %}
+    <script>
+    {#var course = {{ course.pk }}#}
+    var course_select = document.getElementById("id_course");
+        {#if (course == course_select.selectedOptions[0].value){#}
+            course_select.setAttribute("readOnly", true);
+            course_select.classList.add("no-pointer");
+//        {
+    </script>
+{% endblock %}

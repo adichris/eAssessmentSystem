@@ -1,0 +1,44 @@
+{% url 'landing-page' as home_page %}
+{% url 'accounts:student_login' as student_login %}
+{% url 'accounts:staff-login-page' as staffLogin %}
+{% url 'accounts:admin-login-page' as adminLogin %}
+{% url 'student:register' as register_student %}
+{% load static %}
+
+<nav  class="navbar navbar-expand-lg navbar-primary sticky-top shadow-sm transparentBlur bg-white50" >
+    <div class="container">
+        <a class="navbar-brand {% if request.path  == home_page %} active {% endif %}" href="{{ home_page }} ">
+            <img src="{% static 'DefaultImg/class_logo.png' %}" alt="class_logo" class="img-fluid" style="height: 1.5em;">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation"><span class="fa fa-list-ul"></span> </button>
+        <div class="collapse navbar-collapse" id="ftco-nav">
+            <ul class="navbar-nav">
+
+                <li class="nav-item">
+                    <a href="" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="" class="nav-link">Help & support</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav navbar-end ml-auto">
+                <li class="dropdown nav-item">
+                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                       <span class="caret">Login</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right transparentBlur bg-white50">
+                        <a href="{% if request.path == home_page %}#studentLogin{% else %} {{ student_login }} {% endif %}" class="dropdown-item">Student Login</a>
+                        <a href="{{ staffLogin }}" class="dropdown-item">Staff Login</a>
+                        <p class="dropdown-divider"></p>
+                        <a href="{{ adminLogin }}" class="dropdown-item">Administrator</a>
+                    </div>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{{ register_student }}" class="nav-link {% if request.path == studentRegister %} active {% endif %} "><span class="fa fa-sign-out"></span>Register student</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

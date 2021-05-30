@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+ {% block content %}
+     <div class="container">
+        <div class="row mt-4">
+            <div class="col-12">
+                <h5 class="text-center">{% if course %}
+                {{ course }}
+                    {% else %}
+                    {{ question_group.course }}
+                {% endif %}  course</h5>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    {% if question_group %}
+                        <p>Add another question to {{ question_group.get_title_display }}</p>
+                        <p class="text-center">Prepare Multi choice Question</p>
+                        <p>{{ question_group.get_title_display }} currently have {% if tt_question_num %}{{ tt_question_num }} {% else %} {{ question_group.question_set.count }} {% endif %} questions</p>
+                    {% else %}
+                        <p><span class="bg-light">Type in the questions and their respective options</span> click on <a href="" class="btn btn-primary no-pointer btn-sm m-1">save and add another</a> to add more question; when ur done click on
+                            <a href="" class="btn btn-primary no-pointer btn-sm">save</a>.</p>
+                    {% endif %}
+                </div>
+                <hr>
+            </div>
+        </div>
+
+     {% if question_group.status == "prepared" or is_new %}
+     
+     <form action="" method="post">
+         <div class="row">
+             <div class="col-12">
+                  {% csrf_token %}
+                 {{ questionGroupSelectForm|crispy }}
+                <p class="text-center">Prepare Multiple Choice Question</p>
+                 <hr>
+                 {% if multiChoiceQFormset.non_form_errors %}
+                     <div class="alert alert-danger">
+                         <ul class="list-group list-group-flush">
+                             {% for non_form_error in multiChoiceQFormset.non_form_errors %}
+                                <li class="list-group-item bg-transparent" >{{ non_form_error }}</li>
+                             {% endfor %}
+                         </ul>
+                     </div>
+                 {% endif %}
+             </div>
+
+             <div class="table-responsive">
+                 {{ multiChoiceQFormset.management_form }}
+                 <table class="table table-bordered">
+                     <tr>
+                         <th>#</th>
+                         <th>Question</th>
+                         <th>Options/ Objectives</th>
+                     </tr>
+                        <tr>
+                         <th>{% if question_number %} {{ question_number }} {% else %}1{% endif %}</th>
+                         <td>{{ questionForm|crispy }}</td>
+                         <td>
+                             <table class="table" id="id_optionsTable">
+                                 {% for multiChoiceQForm in multiChoiceQFormset %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ multiChoiceQForm|crispy }}</td>
+                                    </tr>
+                                 {% endfor %}
+
+                             </table>
+                             <hr>
+                             <button type="button" class="btn btn-light btn-block" onclick="addAnotherOption()">Add another Option</button>
+                         </td>
+                        </tr>
+                 </table>
+             </div>
+
+                <div class="col-md-6 mx-auto mb-4">
+                    <button type="submit" class="btn btn-primary btn-block">Save</button>
+                </div>
+         </div>
+     </form>
+         
+         {% else %}
+     <div class="row">
+        <div class="col-md-6 mt-10vh text-center mx-auto">
+            <p class="lead">Sorry {{ request.user }}, you can not modify {{ question_group.get_title_display }} anymore</p>
+            <hr>
+            <p>{{ question_group.get_title_display }} status is {{ question_group.get_status_display }}</p>
+        </div>
+     </div>
+     {% endif %} 
+     </div>
+ {% endblock %}
+
+{% block afterScripts %}
+    <script >
+
+        function addAnotherOption() {
+            var objTable = document.getElementById("id_optionsTable");
+            var newRow = objTable.insertRow();
+            var  rowNumber = newRow.insertCell()
+            rowNumber.innerText = objTable.rows.length
+            var optionCellForm = newRow.insertCell();
+            var multichoiceTOTAL_FORMS = document.getElementById("id_multichoicequestion_set-TOTAL_FORMS");
+            multichoiceTOTAL_FORMS.value = objTable.rows.length;
+            optionCellForm.innerHTML = `{{ multiChoiceQFormset.empty_form|crispy }}`;
+
+        }
+
+    </script>
+{% endblock %}

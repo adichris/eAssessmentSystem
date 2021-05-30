@@ -1,0 +1,42 @@
+{% load static %}
+<div class="navbar navbar-expand-lg navbar-default sticky-top transparentBlur">
+    <div class="container">
+        <a class="navbar-brand" href="{%  url 'landing-page' %}"><img src="{% static 'DefaultImg/class_logo.png' %}" alt="Assessment logo" class="img-fluid" style="height: 1.5em;"></a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#studentNavbar" aria-controls="studentNavbar" aria-expanded="false" aria-label="toggle Navigation bar">
+            <span class="fa fa-list-ul"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="studentNavbar">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="{% url 'assessment:student' %}" class="nav-link">Assessment</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'records:student' %}" class="nav-link">Records</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'assessment:student_result' %}" class="nav-link">Result</a>
+                </li>
+                {% if request.user.student %}
+                 <li class="nav-item">
+                    <a href="{% url 'department:student_programme' %}" class="nav-link">{{ request.user.student.programme }} Programme</a>
+                </li>
+                {% endif %}
+
+            </ul>
+
+            <ul class="navbar-nav ml-md-auto">
+                <li class="nav-item dropdown">
+                    <a href="" class="nav-link dropdown-toggle" id="student_profile" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-graduation-cap fa-fw mr-2"></i>{{ request.user }}</a>
+                    <div class="dropdown-menu" aria-labelledby="student_profile">
+                        <a href="{{ request.user.get_absolute_url }}" class="dropdown-item"><i class="fa fa-id-card mr-2"></i>Profile</a>
+                        <a href="" class="dropdown-item"><i class="fa fa-envelope mr-2"></i>Message</a>
+                        <a href="" class="dropdown-item"><i class="fa fa-cog fa-1x fa-fw mr-2"></i>Setting</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'accounts:logout' %}" class="dropdown-item">Logout</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

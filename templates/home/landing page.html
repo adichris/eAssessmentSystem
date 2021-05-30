@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container-fluid" style="height: 95vh; background: url({% static 'DefaultImg/bgs/bg2.jpg'  %}) no-repeat center; background-size: cover">
+        <div class="row">
+            <div class="col-auto mx-auto mt-10vh pt-lg-5 text-monospace ">
+                {%  if request.user.is_authenticated %}
+                    <h1><mark>Welcome back, {{ request.user }} to,</mark></h1>
+                {% endif %}
+                <h1 class=""><mark>Continuous Electronic Assessment System</mark></h1>
+            </div>
+        </div>
+   </div>
+
+<div class="container">
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <h6>Continuous e-Assessment System</h6>
+                <p>{% lorem %}</p>
+            </div>
+            {% if request.user.is_authenticated %}
+                <div class="col-md-6 col-lg-4 ml-auto">
+                    <img src="{% static 'DefaultImg/ball_point_pen.svg' %}" alt="" class="img-fluid">
+                </div>
+            {% else %}
+            <div class="col-md-6 col-lg-4 ml-auto" id="studentLogin">
+                <p class="small">Student login</p>
+                <div class="card shadow">
+                    <img src="{% static 'DefaultImg/student circle.png' %}" alt="" style="height: 5em;" class="mx-auto mt-n5 ">
+                    <div class="card-body">
+                        <form action="{% url 'accounts:student_login' %}" method="post">
+                            {% csrf_token %}
+                            {{ student_login_form|crispy }}
+                            <input type="submit" value="Login" class="btn btn-outline-primary btn-block">
+                            <a href="" class="card-link small" style="color: crimson">forgotten your password?</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <img src="{% static 'DefaultImg/courses.svg' %}" alt="" class="img-fluid">
+        </div>
+        <div class="col-md-6">
+            <h6>eAssessment Features</h6>
+            <p>{% lorem %}</p>
+            <p>{% lorem %}</p>
+        </div>
+    </div>
+    <div class="row mt-3 my-3">
+        <div class="col-md-6">
+            <h6>eAssessment Multi Choice Question and Theoretical</h6>
+            <p>{% lorem %}</p>
+            <p>{% lorem %}</p>
+        </div>
+        <div class="col-md-6">
+            <img src="{% static 'DefaultImg/course.png' %}" alt="" class="img-fluid">
+        </div>
+    </div>
+
+
+<footer>
+
+</footer>
+    </div>
+{% endblock %}

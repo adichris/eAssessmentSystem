@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-3 mt-lg-4">
+            <div class="col-md-6 mx-auto text-center">
+                <h4>{{ programme }} Programme</h4>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <div class="card-group">
+                    {%  include 'snippet/H_label_value_card.html' with label="Number of courses" value=programme.coursemodel_set.count fa_icon="fa fa-database" %}
+                    {%  include 'snippet/H_label_value_card.html' with label=student.level %}
+                    {%  include 'snippet/H_label_value_card.html' with label="Number of student" value=class_mates.count %}
+                </div>
+            </div>
+        </div>
+
+    <div class="row">
+        <div class="table-responsive mt-3 mt-lg-4">
+            <p>{{ programme }} programme course for {{ student.level }}</p>
+            <table class="table table-bordered">
+                <tr>
+                    <th>#</th>
+                    <th>Course</th>
+                    <th>Course Short Code</th>
+                    <th>Quizzes</th>
+                    <th>Lecture</th>
+                </tr>
+                {% for course in courses %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ course.name }}</td>
+                    <td>{{ course.code }}</td>
+                    <td class="quizzes">
+                        {% for question_group in course.questiongroup_set.all %}
+                            {% if question_group.status == "conducted" %}
+                                <span>{{ question_group.get_title_display }}</span>
+                                {% if not forloop.last %}
+                                    ,
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{ course.lecture }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+        <div class="row">
+        <div class="table-responsive mt-3 mt-lg-4">
+            <p>{{ request.user.get_short_name }}, these are your class mate</p>
+            <table class="table table-bordered">
+                <tr>
+                    <th>#</th>
+                    <th>Index Number</th>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                </tr>
+                {% for mate in class_mates %}
+                <tr class=" {% if mate.profile == request.user %} table-active" title="This is you" {% else %} " {% endif %}>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ mate }}</td>
+                    <td>{{ mate.get_name }}</td>
+                    <td>{{ mate.profile.phone_number }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+

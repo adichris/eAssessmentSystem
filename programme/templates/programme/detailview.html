@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+    {% if course_deleted_name %}
+        <div class="alert alert-success text-center mt-3">
+            <button class="close" data-dismiss="alert" style="color: crimson"><i class="fa fa-times"></i></button>
+            <p style="color: #174500">{{ course_deleted_name }} and it's assessment records is completely <span style="color: darkred">deleted</span> from this system.
+            {{ programme }} no more has {{ course_deleted_name }} as a registered course. <br>Its was deleted by {{ request.user }}
+               <span class="text-muted">In other to restore it, re-register it again.</span>
+            </p>
+        </div>
+    {% endif %}
+
+        <div class="row">
+            <div class="col-12 mx-auto mt-3">
+                <p class="display-4 text-center">{{ programme }} Programme</p>
+            </div>
+        </div>
+
+
+    {% if request.user.is_staff %}
+        <div class="row">
+            <div class="col-md-6 col-lg-4 ml-2 ml-lg-auto">
+                <div class="btn-group btn-block">
+                    <a href="{% url 'department:programme:course:add'  %}" class="btn btn-outline-primary">Add Course</a>
+                    <a href="{% url 'student:register'  %}" class="btn btn-outline-primary"> Add Student</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if courses %}
+        <div class="row">
+            <div class="col-12">
+                <h5 class="text-center">Programme Courses <span class="badge badge-light">({{ programme.coursemodel_set.count }})</span></h5>
+                <hr>
+            </div>
+        </div>
+
+
+        <div class="row">
+            {% for course in courses %}
+                <div class="col-md-5 col-lg-4">
+                    <div class="card card-body my-2">
+                        <a href="{{ course.get_absolute_url }}" class="card-link">
+                            <p class="card-title text-center">{{ course }}</p></a>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">0 Assigment</li>
+                                <li class="list-group-item">0 Quizzes</li>
+                                <li class="list-group-item">0 Midsem</li>
+                            </ul>
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <a href="{{ course.get_absolute_url }}" class="btn btn-sm btn-outline-secondary">View</a>
+                                {% if request.user.is_admin %}
+                                    <a href="{{ course.get_update_url }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{{ course.level }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-auto mx-auto" style="margin-top: 20vh">
+                {%  if request.user.is_lecture %}
+                    <p class="lead text-center">{{ request.user.first_name }}, you courses are not assigned yet if they are registered in the system</p>
+                {% elif request.user.is_staff %}
+                    <p class="lead text-center">{{ programme }} has no course registered</p>
+                {% endif %}
+                <hr>
+                <p class="text-center">Date registered: {{ programme.timestamp }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+
+    {% if programme.student_set.exists %}
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="text-center" style="margin-top: 5vh;">Programme Students</h5>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Index Number</th>
+                    <th>level</th>
+                    <th>Number of assignment taken</th>
+                </tr>
+                {% for student in programme.student_set.all %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td><a href="{{ student.get_absolute_url }}">{{ student.profile.get_full_name }}</a></td>
+                        <td>{{ student.index_number }}</td>
+                        <td>{{ student.level }}</td>
+                        <td>0</td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+    {% else %}
+        <div class="row">
+            <div class="col-md-6 mx-auto" style="margin-top: 20vh">
+                <hr>
+                <p class="text-center">No student</p>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

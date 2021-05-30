@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+ {% block content %}
+     <div class="container">
+        <div class="row mt-4">
+            <div class="col-12">
+                <h5 class="text-center">{{ question_group.course }} course</h5>
+                <hr>
+            </div>
+        </div>
+
+    <form action="" method="post">
+         <div class="row">
+             <div class="col-md-12 col-lg-8">
+                 {% csrf_token %}
+                 {{ question_group_form|crispy }}
+                 {% if questionFormSet.non_form_errors %}
+                     <div class="alert alert-danger">
+                         <ul class="list-group list-group-flush">
+                             {% for non_form_error in questionFormSet.non_form_errors %}
+                                <li class="list-group-item bg-transparent" >{{ non_form_error }}</li>
+                             {% endfor %}
+                         </ul>
+                     </div>
+                 {% endif %}
+              <p>Fill in Question in the forms below</p>
+                 <hr>
+             </div>
+
+         <div class="col-12 my-3">
+             <div class="table-responsive">
+                 {{ questionFormSet.management_form }}
+                 <table class="table table-bordered" id="id_theoryQuestion_table">
+                     <tr>
+                         <th>#</th>
+                         <th>Question</th>
+                     </tr>
+                     {% for questionForm in questionFormSet %}
+                        <tr>
+                            <th>{{ forloop.counter }}</th>
+                            <td>{{  questionForm|crispy }}</td>
+                        </tr>
+                     {% endfor %}
+                 </table>
+
+             </div><button type="button" class="btn btn-light btn-block" onclick="addAnotherQuestion()">Add Another Question</button>
+        </div>
+             <div class="col-md-6 mx-auto mb-4">
+                    <button type="submit" class="btn btn-primary btn-block">Save</button>
+
+             </div>
+         </div>
+        </form>
+     </div>
+ {% endblock %}
+
+{% block afterScripts %}
+    <script >
+
+        function addAnotherQuestion() {
+            const objTable = document.getElementById("id_theoryQuestion_table");
+            const newRow = objTable.insertRow();
+            const rowNumber = newRow.insertCell();
+            rowNumber.innerText = objTable.rows.length -1;
+            const optionCellForm = newRow.insertCell();
+            optionCellForm.innerHTML = `{{ questionFormSet.empty_form|crispy }}`
+
+
+            const theoryTOTAL_FORMS = document.getElementById("id_theory_form-TOTAL_FORMS");
+            theoryTOTAL_FORMS.value = objTable.rows.length -1;
+        }
+
+        {#function onDeleteQuestion(theDeleteTag) {#}
+        {#    const rowIndex = parseInt(theDeleteTag.id.split("-")[1]) + 1;#}
+        {#    const objTable = document.getElementById("id_theoryQuestion_table");#}
+        {#    const theRow = objTable.rows[rowIndex];#}
+        {##}
+        {#    if (theDeleteTag.checked){#}
+        {#        theRow.bgColor = "#ffcdd2";#}
+        {#    }#}
+        {#    else{#}
+        {#        theRow.bgColor = "#ffffff";#}
+        {#    }#}
+        {##}
+        //}
+
+    </script>
+{% endblock %}

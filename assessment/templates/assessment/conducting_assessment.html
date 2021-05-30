@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mt-3 mt-lg-4 ">
+                <h4>{{ question_group.course }} {{ question_group.get_title_display }} Assessment</h4>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row text-center ">
+            <div class="col-md-6 col-lg-3 my-2 h-100">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Duration:</h5>
+                        <p>{{ question_group.preference.duration|time }}</p>
+                        <hr>
+                        <h5>Due Date and Time</h5>
+                        <p>{{ question_group.preference.due_date }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 my-2 h-100">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Environment</h5>
+                        <p>{{ question_group.preference.get_environment_display }}</p>
+                        <hr>
+                        <h5>Shuffle Questions</h5>
+                        <p>{%  if question_group.preference.is_question_shuffle %} On {% else  %} Off {% endif %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 my-2 h-100">
+                <div class="card">
+                    <div class="card-body">
+                        <a href="#" class="card-link" title="preview questions">
+                            <h5>Number of Questions</h5>
+                            <h6>{{ question_group.question_set.count }}</h6>
+                            <hr>
+                            <h5>Questions Type</h5>
+                            <p>{{ question_group.get_questions_type_display }}</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 my-2 h-100">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Number of Student</h5>
+                        <h6>{{ student_total }}</h6>
+                        <hr>
+                        <h5>Active</h5>
+                        <p>{{ student_total_active }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card-group">
+                    {% include 'snippet/H_label_value_card.html' with label="Start time" value=question_group.preference.due_date fa_icon="fa fa-clock mr-2" new_line=1 %}
+                    {% include 'snippet/H_label_value_card.html' with label="Time left" value="10:00 am" fa_icon="fa fa-clock mr-2" new_line=1 %}
+                    {% include 'snippet/H_label_value_card.html' with label="End Time" value=question_group.preference.duration|default_if_none:"---" fa_icon="fa fa-clock mr-2" new_line=1 %}
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 mx-auto">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6 col-md-4 col-lg-3 my-2">
+                <a href="" class="btn btn-outline-secondary btn-block">Add 10 more minutes</a>
+            </div>
+
+            <div class="col-6 col-md-4 col-lg-3 my-2">
+                <a href="" class="btn btn-outline-secondary btn-block">Stop Work</a>
+            </div>
+
+            <div class="col-6 col-md-4 col-lg-3 my-2">
+                <a href="" class="btn btn-outline-secondary btn-block">Stop a student</a>
+            </div>
+
+            <div class="col-6 col-md-4 col-lg-3 my-2">
+                <a href="" class="btn btn-outline-secondary btn-block">Pause {{ question_group.get_title_display }}</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 mx-auto">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mx-auto mt-3 mt-lg-4 ">
+                <p>Students Online</p>
+                <p>Students Offline</p>
+                <p>Time left</p>
+                <p>Due Date</p>
+                <p>Results</p>
+            </div>
+        </div>
+
+    {% if online_students %}
+        <div class="row">
+        <div class="table-responsive">
+            <p>Active Students Taking the Exams</p>
+            <table class="table table-bordered">
+                <tr>
+                    <th>#</th>
+                    <th>Index Number</th>
+                    <th>Name</th>
+                    <th>Programme</th>
+                    <th>Level</th>
+                    <th>Time Spent</th>
+                    <th>Actions</th>
+                </tr>
+                {% for online_student in online_students %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ online_student.index_number }}</td>
+                        <td>{{ online_student.profile.get_full_name }}</td>
+                        <td>{{ online_student.programme }}</td>
+                        <td>{{ online_student.level }}</td>
+                        <td>{{ online_student.assessment.time_spent }}</td>
+                        <td>{{ online_student.assessment.score }}</td>
+                        <td>
+                            <a href="" class="btn btn-outline-secondary">Pause Work</a>
+                            <a href="" class="btn btn-outline-secondary">Stop Work</a>
+                            <a href="" class="btn btn-outline-secondary">Cancel Work</a>
+                            <a href="" class="btn btn-outline-secondary">Add 10 minutes</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    </div>
+
+{% endblock content %}

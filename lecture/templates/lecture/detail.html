@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mx-auto mt-3 mt-md-4 mt-lg-5">
+                <h6>Lecture {{ lecturemodel }} detail</h6>
+                <hr>
+                <p>page under construction</p>
+                <ul class="list-group">
+                    <li class="list-group-item" style="background: #e1f5fe;">{{ lecturemodel }}</li>
+                    <li class="list-group-item" style="background: #e1edfe;">{{ lecturemodel.department }} Department</li>
+                    <li class="list-group-item" style="background: #e1f5fe;">{{ lecturemodel.profile.phone_number }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

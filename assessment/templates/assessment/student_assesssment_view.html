@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="jumbotron">
+    <div class="row">
+        <div class="container">
+                <div class="col-auto text-center">
+                    <h4>Do Various Courses Quizzes and Midsem in {{ request.user.student.programme }}</h4>
+                </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    {% if question_groups %}
+        {% regroup question_groups by course as courses_list %}
+        {% for cour in courses_list %}
+            <div class="row">
+                <div class="col-12">
+                    <p>Course: {{ cour.grouper }}</p>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                {% for question_group in cour.list %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table">
+                                    <tr>
+                                        <td colspan="2" class="text-center h5">{{ question_group.get_title_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Question Type</td>
+                                        <td>{{ question_group.get_questions_type_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total Marks</td>
+                                        <td>{{ question_group.total_marks }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Duration</td>
+                                        <td>{{ question_group.preference.duration }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Due Date</td>
+                                        <td>{{ question_group.preference.due_date }}</td>
+                                    <tr>
+                                        <td>Environment</td>
+                                        <td>{{ question_group.preference.environment }}</td>
+                                    </tr>
+                                </table>
+                                <a href="{% url 'assessment:student_assessing' QGPK=question_group.pk QGT=question_group.title %}" class="btn btn-primary btn-block">Enter Hall</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+    {% else %}
+        <div class="row">
+            <div class="col-md-8 col-lg-6 mx-auto mt-10vh">
+                <h5 class="text-center">Come back later</h5>
+                <hr>
+                <p class="text-center">There is no Quizzes or Midsem available.</p>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="jumbotron text-center mt-2 mt-md-4" style="background-color: #fff1f2">
+                    <h6>Delete Course</h6>
+                    <h3 class="text-center mt-4" style="color: crimson"> {{ coursemodel }}</h3>
+                    <p class="lead" style="color: #6b050f">{% lorem %}</p>
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="parent_pk" value="{{ coursemodel.get_programme.pk }}">
+                        <input type="hidden" name="parent_name" value="{{ coursemodel.get_programme.name }}">
+                        <input type="hidden" name="course_name" value="{{ coursemodel }}">
+                        <a href="{% url 'department:programme:course:detail' courseName=coursemodel.name pk=coursemodel.pk %}" class="btn btn-primary">Cancel</a>
+                        <button class="btn btn-danger" type="submit">Delete </button>
+                    </form>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

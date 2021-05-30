@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load  crispy_forms_tags %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-4">
+            <div class="col-12 mx-auto">
+                <h5 class="text-center ">{{ questiongroup.course }} {{ object.get_title_display }}</h5>
+                <hr>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-4 col-lg-3">
+                <p class="lead">{{ questiongroup.get_title_display }} Details:</p>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>Course</b><br> {{ questiongroup.course }} </li>
+                    <li class="list-group-item"><b>Number of Questions</b><br> {{ questiongroup.question_set.count }} </li>
+                    <li class="list-group-item"><b>Total marks</b><br> {{ questiongroup.total_marks|default_if_none:"---" }}</li>
+                    <li class="list-group-item"><b>Programme</b><br> {{ questiongroup.course.programme }}</li>
+                    <li class="list-group-item"><b>Level</b><br> {{ questiongroup.course.level }}</li>
+                    <li class="list-group-item"><b>Last update:</b><br> {{ questiongroup.updated }}</li>
+                    {% if not questiongroup.status == "conduct" %}
+                    <li class="list-group-item">  <a href="{% url 'assessment:update_group' title=questiongroup.title pk=questiongroup.pk coursePK=questiongroup.course_id courseName=questiongroup.course.name %}" class="btn btn-outline-secondary btn-block ">Edit</a></li>
+                    {% endif %}
+                </ul>
+
+            </div>
+            
+            <div class="col-md-8 col-lg-9">
+                <p class="lead">{{ questiongroup.get_title_display }} Activity</p>
+                <div class="{% if not questiongroup.preference %} card {% endif %} my-2">
+                    <div class="{% if not questiongroup.preference %} card-body {% endif %}">
+                        {% if questiongroup.preference %}
+                            <div class="card-group">
+                                {%  include "snippet/H_label_value_card.html" with label="Duration" value=questiongroup.preference.duration|time new_line=1 %}
+                                {%  include "snippet/H_label_value_card.html" with label="Due Date" value=questiongroup.preference.due_date|timeuntil caption=questiongroup.preference.due_date new_line=1 %}
+                                {%  include "snippet/H_label_value_card.html" with label="Environment" value=questiongroup.preference.get_environment_display new_line=1 %}
+                                {%  include "snippet/H_label_value_card.html" with label="Shuffle " value=questiongroup.preference.is_question_shuffle|yesno:"ON,OFF" color_bg=1 new_line=1 %}
+                            </div>
+
+                        {% else %}
+                            <p class="text-center">Your using no preference</p>
+                            <hr class="w-50">
+                            <p class="text-center"><a href="{% url 'assessment:preference' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-outline-secondary">Add a preference</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+                {%  if  questiongroup.status == "conduct" %}
+                    <div class="card my-2 text-center">
+                        <div class="card-body">
+                            <a href="{% url 'assessment:conducting' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-link btn-lg">This Assessment is set to conduct</a>
+                        </div>
+                    </div>
+                {% elif questiongroup.status == "prepared" %}
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="lead text-center">{{ questiongroup.get_title_display }} Records are empty</p>
+                             <hr class="w-50">
+                            <p class="text-center"><a href="{% url 'assessment:conduct' question_group_pk=questiongroup.pk question_group_title=questiongroup.title %}" class="btn btn-outline-secondary">Conduct this {{ questiongroup.get_title_display }} Assessment</a></p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    <div class="row">
+        <div class="col-12">
+            <hr>
+            <h6 class="text-center">{{ questiongroup.get_title_display }} Questions</h6>
+        {% if not questiongroup.status == "conduct" %}
+            <hr>
+            <div class="btn-group btn-block mb-3">
+                {% if questiongroup.questions_type == "multichoice" %}
+                    <a href="{% url 'assessment:prepare_MCQ' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-secondary">Add Another Question in {{ questiongroup.get_title_display }} </a>
+                    {% elif questiongroup.questions_type == "theory" %}
+                    <a href="{% url 'assessment:prepare_theory' QGPK=questiongroup.pk QGT=questiongroup.title %}" class="btn btn-outline-secondary">Edit {{ questiongroup.get_title_display }}</a>
+                {% endif %}
+                    <a href="{% url 'assessment:generate_marks' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-secondary" title="generate base on the total marks">Generate Marks </a>
+                    <a href="{% url 'assessment:delete_question_group' coursePK=questiongroup.course.pk courseName=questiongroup.course.name pk=questiongroup.pk %}" class="btn btn-outline-danger">Remove {{ questiongroup.get_title_display }} Questions</a>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+
+    {% if questiongroup.questions_type == "multichoice" %}
+    <div class="row">
+        <div class="table-responsive {% if questiongroup.status == "conduct" %} table-primary {% endif %}">
+            <table class="table table-bordered table-hover">
+                <tr>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th class="text-nowrap">Score Mark</th>
+                    <th class="text-nowrap">Options/ Objectives</th>
+                    <th class="text-nowrap">Last Update</th>
+                    {% if not questiongroup.status == "conduct" %}
+                    <th class="text-nowrap">Action</th>
+                    {% endif %}
+                </tr>
+                {% for question in questions %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td class="w-50">{{ question.question|safe }}</td>
+                        <td class="text-center">{{ question.max_mark|floatformat:2|default_if_none:"---" }}</td>
+                        <td class="w-25">
+
+                        <table class="w-100">
+                            {% for option in question.multichoicequestion_set.all %}
+                                <tr class=" {% if option.is_answer_option %} table-success {% endif %}">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ option.option }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+
+                        </td>
+                        <td>{{ question.updated|date }}</td>
+                        {% if not questiongroup.status == "conduct" %}
+                        <td>
+                            <a href="{%  url 'assessment:update_mcq' group_title=questiongroup.title questionPK=question.pk %}" class="btn btn-outline-secondary btn-block">Edit</a>
+                            <a href="" class="btn btn-outline-danger btn-block">Remove</a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+
+    {% elif questiongroup.questions_type == "theory" %}
+        <div class="row">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <tr>
+                    <th class="text-nowrap">#</th>
+                    <th class="text-nowrap">Question</th>
+                    <th class="text-nowrap">Marks</th>
+                    <th class="text-nowrap">Last Updated</th>
+                {% if not questiongroup.status == "conduct" %}
+                    <th class="text-nowrap">Action</th>
+                {% endif %}
+                </tr>
+
+                {% for question in questions %}
+                        <tr>
+                            <th>{{ forloop.counter }}</th>
+                            <td>{{ question }}</td>
+                            <td class="text-center">{{ question.max_mark|floatformat:2|default_if_none:"---" }}</td>
+                            <td>{{ question.updated }}</td>
+                            {% if not questiongroup.status == "conduct" %}
+                            <td>
+                                <a href="{% url 'assessment:update_theory' group_title=question.group.title pk=question.pk %}" class="btn btn-outline-secondary btn-block">Edit</a>
+                                <a href="{{ question.get_absolute_delete_url }}" class="btn btn-outline-danger btn-block">Remove</a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+        </div>
+    {% endif %}
+
+
+    </div>
+
+    <div class="footer mt-3">
+
+    </div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{%  extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-3">
+            <div class="col-12">
+                <h6 class="text-center">Edit {{ question_group.course }} {{ question_group.get_title_display }} Question</h6>
+                <hr>
+            </div>
+        </div>
+    {% if question_group.status == "prepared" %}
+        <div class="row">
+            <div class="col-md-12 col-lg-8 mx-auto mb-3">
+
+                    <form action="" method="post">
+                    {% csrf_token %}
+                    {% if question_group.questions_type == "multichoice" %}
+                        <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>#</th>
+                                <th>Questions</th>
+                                <th>Options</th>
+                            </tr>
+
+                        </table>
+                        </div>
+                        {% elif question_group.questions_type == "theory" %}
+                            {{ form|crispy }}
+                            <button type="submit" class="btn btn-primary btn-block">Save</button>
+                    {% endif %}
+                    </form>
+            </div>
+        </div>
+
+    {% else %}
+         <div class="row">
+            <div class="col-md-6 mt-10vh text-center mx-auto">
+                <p class="lead">Sorry {{ request.user }}, you can not modify {{ question_group.get_title_display }} anymore</p>
+                <hr>
+                <p>{{ question_group.get_title_display }} status is {{ question_group.get_status_display }}</p>
+            </div>
+        </div>
+    {% endif %}
+    </div>
+{% endblock %}

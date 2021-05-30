@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block links %}
+    <style>
+    html{
+        background-size: contain;
+        background: url("{% static 'DefaultImg/500.webp' %}") center fixed no-repeat;
+    }
+    </style>
+
+
+{% endblock %}
+
+
+{% block content %}
+    <div class="row mt-4 bg-light rounded">
+        <div class="col mx-auto">
+            <p class=" text-center">Sorry the page your looking for is not available</p>
+        </div>
+    </div>
+{% endblock %}

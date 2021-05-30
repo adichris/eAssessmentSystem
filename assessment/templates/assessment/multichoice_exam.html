@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <h5 class="text-center">{{ question.group.get_title_display }}</h5>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card-group">
+                    {% include 'snippet/H_label_value_card.html' with new_line=1 label="Duration"  value=question.group.preference.duration|time:"h \h\o\u\r\s \: i \m\i\n\u\t\e\s" %}
+                    {% include 'snippet/H_label_value_card.html' with new_line=1 label="Remaining Time" value_id="id_time_remaining" value=question.group.preference.duration|time:"h \h\o\u\r\s \: i \m\i\n\u\t\e\s" %}
+                    {% include 'snippet/H_label_value_card.html' with new_line=1 label="Start Time" value=today.time  %}
+                    {% include 'snippet/H_label_value_card.html' with new_line=1 label=today %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="col-md-8 mx-auto">
+                <form action="" method="post">
+                {% csrf_token %}
+                    <p>Question 1</p>
+                    <hr>
+                    <h5>{{ question.question }}</h5>
+                    {{ answer_form | crispy }}
+                    <div class="btn-group btn-block">
+                        <a href="" class="btn btn-secondary">Previous Question</a>
+                        <button type="submit" class="btn btn-primary">Next Question</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block afterScripts %}
+    <script>
+
+    </script>
+{% endblock %}

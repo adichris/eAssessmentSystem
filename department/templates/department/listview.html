@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-12">
+                <p class="display-4 text-center">All Department in Assessment System</p>
+            </div>
+        </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <form action="" method="get" class="input-group">
+                <input type="search" value="{{ query }}" name="query" placeholder="{{ queryPlaceholder|title }}" id="id_searchDepartment" class="form-control">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-primary">Search</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-12 mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <p>{{ queryInfo|safe }} {% if query %}
+                    <mark class="mark">{{ query }}</mark></p>
+            {% endif %}
+            </div>
+            <div class="col-md-4 col-lg-3 ml-auto">
+                <a href="{% url 'department:create' %}" class="btn btn-outline-secondary"><i class="fa fa-plus mr-2"></i>Add Department</a>
+            </div>
+        </div>
+            <hr>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% for department in department_list %}
+            <div class="col-auto">
+                <div class="card card-body">
+                    <p class="text-center">{{ department }}</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">{{ department.students_count }} student registered </li>
+                        <li class="list-group-item">{{ department.programme.count }} programmes registered </li>
+                        <li class="list-group-item">{{ department.lectures_count }} lectures joined    </li>
+                    </ul>
+                    <a href="{{ department.get_absolute_url }}" class="btn btn-outline-secondary btn-block mt-2">Detail</a>
+                </div>
+            </div>
+        {% endfor %}
+        
+    </div>
+    
+    </div>
+{% endblock %}

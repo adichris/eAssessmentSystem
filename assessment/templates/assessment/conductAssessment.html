@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if not has_conducted %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mx-auto text-center mt-3 mt-lg-4 ">
+                    <h4>Conduct {{ question_group.get_title_display }} Assessment</h4>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8 col-lg-6 mx-auto">
+                    <table class="table table-bordered">
+                        <tr>
+                            <td>Course</td>
+                            <td>{{ course }}</td>
+                        </tr>
+                        <tr>
+                            <td>Programme</td>
+                            <td>{{ question_group.course.programme }}</td>
+                        </tr>
+                        <tr>
+                            <td>Number Of Students</td>
+                            <td><a href="{% url 'student:listLectureStudent' %}">{{ total_student }} <i>( {{ course.level }} )</i></a></td>
+                        </tr>
+                        <tr>
+                            <td>Level</td>
+                            <td>{{ student_level }}</td>
+                        </tr>
+                    {% if question_group.preference %}
+                        <tr>
+                            <td>Due Date</td>
+                            <td>{{ question_group.preference.due_date|date|default:"---" }}</td>
+                        </tr>
+                        <tr>
+                            <td>Duration</td>
+                            <td>{{ question_group.preference.duration|time |default:"---"}}</td>
+                        </tr>
+                          <tr>
+                            <td>Environment</td>
+                            <td>{{ question_group.preference.get_environment_display|default:"---" }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td>Due Date</td>
+                            <td>--- <a href="{% url 'assessment:preference' question_group_title=question_group.title question_group_pk=question_group.pk %}" class="">(set due date)</a></td>
+                        </tr>
+                        <tr>
+                            <td>Duration</td>
+                            <td>--- <a href="{% url 'assessment:preference' question_group_title=question_group.title question_group_pk=question_group.pk %}" class="">set duration</a></td>
+                        </tr>
+                          <tr>
+                            <td>Environment</td>
+                            <td>--- <a href="{% url 'assessment:preference'  question_group_title=question_group.title question_group_pk=question_group.pk %}">set environment</a></td>
+                        </tr>
+                    {% endif %}
+                        <tr>
+                            <td> Question Type</td>
+                            <td>{{ question_group.get_questions_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <td>Number of Questions</td>
+                            <td><a href="{{ question_group.get_absolute_url }}" >{{ question_group.question_set.count }}</a></td>
+                        </tr>
+                    {% if question_group.preference %}
+                        <tr>
+                              {% if question_group.preference.is_question_shuffle %}
+                                <td COLSPAN="2" class="bg-light"><a href="{% url 'assessment:preference_update' environment=question_group.preference.environment pk=question_group.preference_id question_group_pk=question_group.pk question_group_title=question_group.title %}" title="change">The questions are on shuffle</a></td>
+                              {% else %}
+                                  <td COLSPAN="2"><a href="{% url 'assessment:preference_update' environment=question_group.preference.environment pk=question_group.preference_id question_group_pk=question_group.pk question_group_title=question_group.title %}" title="change">The questions are in ordered form</a></td>
+                              {% endif %}
+                        </tr>
+                    {% endif %}
+                        <tr>
+                            <td>Total Marks</td>
+                            {% if calculated_total_marks > question_group.total_marks %}
+                                <td>
+                                    <ul class="list-group  list-group-horizontal">
+                                        <li class="list-group-item">{{ question_group.total_marks }}</li>
+                                        <li class="list-group-item list-group-item-danger" title="Individual questions mark sum">{{ calculated_total_marks }}</li>
+                                    </ul>
+                                    <small><a href="{% url 'assessment:update_group' courseName=question_group.course.name coursePK=question_group.course.pk title=question_group.title pk=question_group.pk %}">Change total marks</a></small>
+                                </td>
+                            {% else %}
+                                <td>{{ question_group.total_marks  }}</td>
+                            {% endif %}
+                        </tr>
+                    </table>
+                    <a href="{% url 'assessment:conducting' question_group_title=question_group.title question_group_pk=question_group.pk %}" class="btn btn-primary btn-block">Conduct {{ question_group.get_title_display }}</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-auto mx-auto mt-10vh">
+                    <p>Sorry, {{ request.user.get_short_name }},
+                        {{ question_group.course }} {{ question_group.get_title_display }} has been conducted already on {{ question_group.preference.due_date }}</p>
+                    <hr>
+                    <p class="text-center"><a href="" class="btn btn-outline-secondary">View {{ question_group.get_title_display }} records</a></p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

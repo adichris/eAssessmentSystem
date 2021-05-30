@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-4">
+            <div class="col-12">
+                <p class="h4 text-center">{{ HeaderTitle }}</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <form action="" method="post">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <h6 class="text-center">Personal Information</h6>
+                            {% csrf_token %}
+                            {{ profile_form|crispy }}
+                        </div>
+                        <div class="col-md-1 " id="id_veritcalDivider">
+                            <div class="mx-auto mt-4" style="width: 3px; background-color: #1d212454; height: 90%;"></div>
+                        </div>
+                        <div class="col-md-5">
+                            <h6 class="text-center">School Information</h6>
+                            {{ student_form|crispy }}
+                            {{ programme_form|crispy }}
+                            {{ pwd_form|crispy }}
+                        </div>
+                    </div>
+                    <div class="row my-3">
+                        <div class="col-md-5 col-lg-4 ml-auto">
+                            <input type="submit" value="Register" class="btn btn-primary btn-block">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block afterScripts %}
+    <script>
+    var programme = {{ programme_default|default_if_none:"-1" }}
+    var programme_select = document.getElementById("id_programme");
+        if (programme == programme_select.selectedOptions[0].value){
+            programme_select.setAttribute("readOnly", true);
+            programme_select.classList.add("no-pointer");
+        }
+    </script>
+{% endblock %}

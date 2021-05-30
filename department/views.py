@@ -1,0 +1,130 @@
+from django.shortcuts import redirect
+from .forms import DepartmentCreateForm, Department
+from django.views.generic import CreateView, DetailView, ListView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from programme.forms import ProgrammeCreateForm
+from course.models import CourseModel
+from student.models import Student
+from eAssessmentSystem.tool_utils import admin_required_message, get_http_forbidden_response
+
+
+class DepartmentCreateView(LoginRequiredMixin, CreateView):
+    template_name = "department/createview.html"
+    model = Department
+    form_class = DepartmentCreateForm
+    
+    def get(self, *args, **kwargs):
+        if self.request.user.is_admin and self.request.user.is_authenticated:
+            return super(DepartmentCreateView, self).get(*args, **kwargs)
+        else:
+            self.request.session["admin_required"] = admin_required_message(self.request.user)
+            return redirect("accounts:admin-login-page")
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_admin:
+            return super(DepartmentCreateView, self).post(request, *args, **kwargs)
+        else:
+            self.request.session["admin_required"] = admin_required_message(self.request.user)
+            return redirect("accounts:admin-login-page")
+
+    def form_valid(self, form):
+        form_ = form
+        return super(DepartmentCreateView, self).form_valid(form_)
+
+
+class DepartmentDetailView(DetailView):
+    model = Department
+    template_name = "department/detailview.html"
+    programme_form = ProgrammeCreateForm
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DepartmentDetailView, self).get_context_data(**kwargs)
+        if self.object.programme_set.exists():
+            ctx["programmes"] = self.object.programme_set.all()
+        ctx["modal_form"] = self.programme_form(self.request.POST)
+        # ctx["modal_form_action"] = reverse(viewname="department:programme:add", kwargs={"departmentName":self.object.name, "departmentPK":self.object.pk})
+        return ctx
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+        if user.is_active and (user.is_admin or user.is_lecture):
+            return super(DepartmentDetailView, self).get(*args, **kwargs)
+        else:
+            self.request.session["staff_required"] = admin_required_message(user)
+            return redirect("accounts:staff-login-page")
+
+
+class DepartmentGridView(LoginRequiredMixin, ListView):
+    model = Department
+    template_name = "department/listview.html"
+
+    def get(self, *args, **kwargs):
+        if self.request.user.is_admin and self.request.user.is_active:
+            return super(DepartmentGridView, self).get(*args, **kwargs)
+        else:
+            self.request.session[
+                "admin_required"] = admin_required_message(self.request.user)
+            return redirect("accounts:admin-login-page")
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super(DepartmentGridView, self).get_context_data(object_list=object_list, **kwargs)
+        ctx["queryPlaceholder"] = "Search for any department"
+        query = self.request.GET.get("query")
+        if query:
+            ctx["query"] = query
+            len_list = self.object_list.count()
+            if len_list:
+                query_info = "%d Departments matches" % len_list
+            else:
+                query_info = "No Department <u>name</u> or <u>short name</u> matches"
+        else:
+            len_list = self.object_list.count()
+            if len_list == 1:
+                query_info = "We have %s department registered in this e-Assessment System." % len_list
+            elif len_list > 1:
+                query_info = "We have %s departments registered in this e-Assessment System." % len_list
+            else:
+                query_info = "no department registered in the assessment system."
+        ctx["queryInfo"] = query_info
+        return ctx
+
+    def get_queryset(self):
+        q = self.request.GET.get("query")
+        self.model.objects.filter()
+        if q:
+            return self.model.objects.search(q)
+        else:
+            return super(DepartmentGridView, self).get_queryset()
+
+
+class StudentDepartmentTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "department/student.html"
+
+    def get_student(self):
+        return self.request.user.student
+
+    def get(self, request, *args, **kwargs):
+        student = self.get_student()
+        if student and student.programme:
+            return super(StudentDepartmentTemplateView, self).get(request, *args, **kwargs)
+        else:
+            return get_http_forbidden_response()
+
+    def get_course(self):
+        student = self.get_student()
+        course = CourseModel.objects.filter(programme=student.programme, level=student.level)
+        return course
+
+    def get_class_mate(self):
+        student =self.get_student()
+        return Student.objects.filter(programme=student.programme, level=student.level)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(StudentDepartmentTemplateView, self).get_context_data(**kwargs)
+        student = self.get_student()
+        ctx["programme"] = student.programme
+        ctx["courses"] = self.get_course()
+        ctx["student"] = student
+        ctx["class_mates"] = self.get_class_mate()
+        return ctx
+

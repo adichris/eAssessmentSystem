@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+    <div class="row mt-3">
+        <div class="col-12">
+            <p class="lead">Showing all assessment details about the courses you are assigned to.</p>
+        </div>
+    </div>
+
+    {% for course in courses %}
+        <div class="row jumbotron">
+            <div class="col-12">
+                <p>{{ course }}</p>
+                <hr>
+            </div>
+            <div class="col-12">
+                <div class="row">
+                <div class="col-md-4 col-lg-3">
+                        <div class="card my-1">
+                            <div class="card-body">
+                                <a href="{% url 'assessment:create_group' courseName=course.name coursePK=course.pk %}" class="card-link">Prepare Quiz or Midsem</a>
+                            </div>
+                        </div>
+                    </div>
+                {% if course.questiongroup_set.exists %}
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card my-1">
+                            <div class="card-body">
+                                <a href="{{ course.get_absolute_url }}" class="card-link">View Prepared Questions</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+{#                    <div class="col-md-4 col-lg-3">#}
+{#                        <div class="card my-1">#}
+{#                            <div class="card-body">#}
+{#                                <a href="{% url 'assessment:conduct' question_group_title= %}" class="card-link">Conduct a Assessment</a>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+
+
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card my-1">
+                            <div class="card-body">
+                                <a href="{% url 'assessment:mark' %}" class="card-link" title="Mark theory quizzes and theories">Mark Quiz/Midsem</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card my-1">
+                            <div class="card-body">
+                                <a href="{%  url 'records:all' %}" class="card-link">View All Records</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+
+    </div>
+{% endblock %}

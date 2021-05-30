@@ -1,0 +1,37 @@
+{% load crispy_forms_tags %}
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>e-Assessment System - Login</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="row" style="margin-top: 10vh">
+            <div class="col-12">
+                <p class="text-center lead">Electronic Assessment System Login </p>
+            </div>
+
+            <div class="col-md-8 col-lg-6 mx-auto">
+                <div class="card card-body">
+                    {% if admin_required %}
+                        <div class="alert alert-info">
+                            {{ admin_required }}
+                        </div>
+                    {% endif %}
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button type="submit" class="btn btn-primary btn-block">Log in</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

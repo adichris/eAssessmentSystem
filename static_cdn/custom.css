@@ -1,0 +1,33 @@
+.transparentBlur {
+        backdrop-filter: saturate(180%) blur(20px) !important;
+    }
+
+.bg-white50 {
+        background-color: #ffffff7d !important;
+    }
+
+.bg-admin-nav{
+       background-color: #004085 !important;
+}
+
+.bg-admin-nav .dropdown-item {
+    color: white;
+}
+.bg-admin-nav .dropdown-item:hover {
+    color: #004085;
+}
+
+.no-pointer {
+    pointer-events: none !important;
+    user-select: none;
+    user-focus: none;
+}
+
+.active_underline {
+    text-decoration-line: underline;
+    font-weight: bold;
+}
+
+.mt-10vh {
+    margin: 10vh;
+}

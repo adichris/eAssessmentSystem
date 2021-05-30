@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="jumbotron mt-3">
+    <div class="container">
+        <div class="row mt-3">
+            <div class="col-md-6 mx-auto text-center">
+                <h5>DEPARTMENT OF {{ course.programme.department|upper }}</h5>
+                <h5>{{ academic_year|first }} / {{ academic_year|last }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="row">
+        <div class="col mx-auto">
+            <h5>{{ question_group.get_title_display }} Regulations</h5>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="table-responsive">
+            <table class="table table-bordered">
+
+                <tr>
+                    <td>TIME ALLOWED</td>
+                    <td>{{ q_preference.duration|time:"H \h\o\u\r\s  i \m\i\n\u\t\e\s"}}</td>
+                </tr>
+                <tr>
+                    <td>DUE ON</td>
+                    <td>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p>{{ q_preference.due_date|timeuntil }}</p>
+                            <p>it's on {{ q_preference.due_date }}</p>
+                        </div>
+                         </td>
+                </tr>
+                <tr>
+                    <td>HALL</td>
+                    <td>{{ q_preference.get_environment_display|upper }}</td>
+                </tr>
+                <tr>
+                    <td>STUDENT NAME</td>
+                    <td>{{ student.get_name|upper }}</td>
+                </tr>
+                <tr>
+                    <td>INDEX NUMBER</td>
+                    <td>{{ student.index_number }}</td>
+                </tr>
+                <tr>
+                    <td>LEVEL</td>
+                    <td>{{ student.level|upper }}</td>
+                </tr>
+                <tr>
+                    <td>COURSE TITLE</td>
+                    <td>{{ course.name|upper }}</td>
+                </tr>
+                <tr>
+                    <td>COURSE CODE</td>
+                    <td>{{ course.code|upper }}</td>
+                </tr>
+                <tr>
+                    <td>EXAMINER</td>
+                    <td>{{ course.lecture|upper}}</td>
+                </tr>
+                <tr>
+                    <td>PROGRAMME</td>
+                    <td>{{ course.programme|upper }}</td>
+                </tr>
+                <tr>
+                    <td>INSTRUCTION</td>
+                    <td>{{ q_preference.instruction|upper }}</td>
+                </tr>
+
+            </table>
+        </div>
+        </div>
+    </div>
+
+    <div class="row my-3">
+        <div class="col-md-6 mx-auto">
+            <a href="{% url 'assessment:MCQ_exam_start' QGT=question_group.title question_pk=question_group.question_set.first.pk course_code=question_group.course.code %}" class="btn btn-success btn-block">Start {{ question_group.get_title_display }}</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

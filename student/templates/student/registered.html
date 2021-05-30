@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="jumbotron" style="background-color: #dfffdd">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mx-auto" >
+                    <p>Successfully Registered {{ student.get_name }} to {{ student.get_programme }} (Programme)</p>
+                {% if student.get_programme.course.exists %}
+                    <p class="lead">Courses are:</p>
+                    <ul class="list-group">
+                        {% for course in student.get_programme.course.all %}
+                            <li class="list-group-item">{{ course }}</li>
+                        {% endfor %}
+                    </ul>
+              {% endif %}
+                    <a href="{% url 'student:register' %}" class="btn btn-link">Add another</a>
+                    <a href="" class="btn btn-link">All student</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="jumbotron">
+        <div class="container">
+            {% if question.group.status == "prepared" %}
+                <div class="row">
+                    <div class="col-12 mx-auto">
+                        <h3 style="color: darkred"><i class="fa fa-trash-o"></i>Delete {{ question.group.get_title_display }} Question</h3>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-auto mx-auto">
+                        <div class="card-group">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Question:</h6>
+                                    <p>{{ question.question }}</p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Max Mark:</h6>
+                                    <p>{{ question.max_mark }}</p>
+                                </div>
+                            </div>
+                             <div class="card">
+                                <div class="card-body">
+                                    <h6>Question number:</h6>
+                                    <p>{{ question.question_number|default:"Automatic numbering" }}</p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Last Update:</h6>
+                                    <p>{{ question.updated }}</p>
+                                    <h6>Question Status:</h6>
+                                    <p>{{ question.group.get_status_display }}</p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <form action="" method="post" class="mt-md-1">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-block">Confirm</button>
+                        </form>
+                    </div>
+                </div>
+
+            {% elif view == "qgd" %}
+                <div class="row">
+                    <div class="col-12 my-1 text-danger">
+                        <h5 class="text-center">Delete {{ questiongroup.course }} {{ questiongroup.get_title_display }}</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8 col-lg-6">
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="table-responsive">
+                        {% if questiongroup.questions_type == "theory" %}
+                            <table class="table table-bordered table-hover bg-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Questions</th>
+                                    <th>Mark</th>
+                                </tr>
+                                {% for quest in questiongroup.question_set.all %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ quest.question }}</td>
+                                        <td>{{ quest.max_mark }}</td>
+                                    </tr>
+                                {% endfor %}
+
+                            </table>
+                        {% elif questiongroup.questions_type == "multichoice" %}
+                            <table class="table table-bordered table-hover table-danger">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Questions</th>
+                                    <th>Options</th>
+                                    <th>Marks</th>
+                                </tr>
+                                {% for quest in questiongroup.question_set.all %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ quest.question }}</td>
+                                        <td>
+                                        <ul class="list-group">
+                                            {% for option in quest.multichoicequestion_set.all %}
+                                                <li class="list-group-item bg-transparent">{{ option.option }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                        </td>
+                                    <td>{{ quest.max_mark|default_if_none:"---" }}</td>
+                                    </tr>
+                                {% endfor %}
+
+                            </table>
+                        {% endif %}
+
+                        <form action="" method="post" class="form-group mt-3 d-print-none">
+                            {% csrf_token %}
+                            <input type="submit" value="Confirm" class="btn btn-danger btn-block">
+                        </form>
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="row">
+                    <div class="col-md-6 mt-10vh text-center mx-auto">
+                        <p class="lead">Sorry {{ request.user }}, you can not delete {{ question.group.get_title_display }}</p>
+                        <hr style="background-color: red">
+                        <p>{{ question.group.get_title_display }} Status is {{ question.group.get_status_display }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

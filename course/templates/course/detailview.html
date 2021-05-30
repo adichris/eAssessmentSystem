@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{%  load static %}
+{% block content %}
+    <div class="container">
+        {% if request.user.is_staff %}
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="text-center mt-4">{{ coursemodel }}</h4>
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <h5 class="lead mr-4">Assessment</h5>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-5 col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-header-title text-center">Course Details</h5>
+                        </div>
+                        <div class="card-body table-borderless">
+                            <table class="table table-striped">
+                                <tr>
+                                    <th>Title</th>
+                                    <td>{{ coursemodel.name }}</td>
+                                </tr>
+                               <tr>
+                                    <th>Code</th>
+                                    <td>{{ coursemodel.code }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Level</th>
+                                    <td>{{ coursemodel.level }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Master</th>
+                                    <td>{{ coursemodel.lecture }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Programme</th>
+                                    <td>{{ coursemodel.programme }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        {% if request.user.is_admin %}
+                            <div class="card-footer btn-group">
+                                <a href="{% url 'department:programme:course:delete' courseName=coursemodel.name pk=coursemodel.pk course_programme_pk=coursemodel.programme.pk %}" class="btn btn-outline-danger card-footer-item">Delete</a>
+                                <a href="{{ coursemodel.get_update_url }}" class="btn btn-outline-secondary card-footer-item">Edit</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-7 col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-header-title text-center">Assessment</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                            <tr>
+                                <th>Quizzes</th>
+                                <th>Overall Marks</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                                {% for quiz in coursemodel.questiongroup_set.all %}
+                                    <tr>
+                                        <td>{{ quiz.get_title_display }}</td>
+                                        <td>{{ quiz.total_marks }}</td>
+                                        <td>{{ quiz.preference.due_date }}</td>
+                                        <td>{{ quiz.get_status_display }}</td>
+                                    </tr>
+                                {% endfor %}
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% elif request.user.is_lecture %}
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="text-center mt-4">{{ coursemodel }} </h4>
+                    <hr>
+                </div>
+
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-4">
+                            <h5 class="lead mr-4">Assessment</h5>
+                        </div>
+                        <div class="col-md-8 ">
+                            <div class="btn-group btn-block">
+                                <a href="{% url 'assessment:create_group' courseName=coursemodel.name coursePK=coursemodel.pk %}" class="btn btn-outline-primary">Prepare Question</a>
+                                <a href="" class="btn btn-outline-primary">View Assigment</a>
+                                <a href="" class="btn btn-outline-primary">View Records</a>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+        <div class="row">
+            {% for question_group in coursemodel.questiongroup_set.all %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card my-3">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{ question_group.get_title_display }}</h5>
+                           <table class="table table-responsive">
+                               <tr>
+                                   <td><h6 class="text-nowrap">Total Marks</h6></td>
+                                   <td><p>{{ question_group.total_marks }}</p></td>
+                               </tr>
+                               <tr>
+                                   <td><h6 class="text-nowrap">Question Type</h6></td>
+                                   <td><p>{{ question_group.get_questions_type_display }}</p></td>
+                               </tr>
+                               <tr>
+                                   <td><h6 class="text-nowrap">Number of Question</h6></td>
+                                   <td><p>{{ question_group.question_set.count }}</p></td>
+                               </tr>
+                           </table>
+                            <div class="d-flex justify-content-between align-items-baseline">
+                               <a href="{{ question_group.get_absolute_url }}" class="btn btn-outline-secondary">View</a>
+                               <small class="text-muted" title="Last Updated">{{ question_group.updated }}</small>
+                           </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+        <div class="row">
+        {% include "snippet/ooops.html" %}
+        </div>
+    {% endif %}
+    </div>
+{% endblock %}
