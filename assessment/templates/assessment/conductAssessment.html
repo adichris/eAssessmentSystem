@@ -86,7 +86,7 @@
                             {% endif %}
                         </tr>
                     </table>
-                    <a href="{% url 'assessment:conducting' question_group_title=question_group.title question_group_pk=question_group.pk %}" class="btn btn-primary btn-block">Conduct {{ question_group.get_title_display }}</a>
+                    <a href="{% url 'assessment:conducting' course_pk=question_group.course_id course_name=question_group.course.name question_group_pk=question_group.pk %}" class="btn btn-primary btn-block" onclick="appendSpinOnClick(this)">Conduct {{ question_group.get_title_display }}</a>
                 </div>
             </div>
         </div>
@@ -97,7 +97,7 @@
                     <p>Sorry, {{ request.user.get_short_name }},
                         {{ question_group.course }} {{ question_group.get_title_display }} has been conducted already on {{ question_group.preference.due_date }}</p>
                     <hr>
-                    <p class="text-center"><a href="" class="btn btn-outline-secondary">View {{ question_group.get_title_display }} records</a></p>
+                    <p class="text-center"><a href="" class="btn btn-outline-secondary" onclick="spinOnClick(this)">View {{ question_group.get_title_display }} records</a></p>
                 </div>
             </div>
         </div>

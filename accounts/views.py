@@ -4,6 +4,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.shortcuts import resolve_url, redirect, reverse, render
+# from eAssessmentSystem.tool_utils import get_http_forbidden_response
 
 
 class StaffCreateView(CreateView):
@@ -35,8 +36,8 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         ctx = super(UserDetailView, self).get_context_data(**kwargs)
-        ctx["object"] = self.request.user
-        ctx["user"] = self.request.user
+
+        # if user_object in kwargs == request.user return completed detail template
         return ctx
 
     def get_login_url(self):
@@ -44,6 +45,11 @@ class UserDetailView(LoginRequiredMixin, DetailView):
 
 
 def student_login(request):
+    try:
+        if request.user.is_authenticated and request.user.student:
+            return redirect(request.user.get_absolute_url())
+    except Exception:
+        pass
     stu_login = StudentLoginForm(request.POST or None)
     if stu_login.is_valid():
         index_number = stu_login.cleaned_data.get("index_number")
@@ -51,10 +57,8 @@ def student_login(request):
         student_profile = authenticate(request, username=index_number, password=password)
         if student_profile and student_profile.student:
             login(request=request, user=student_profile)
-            print(student_profile)
             return redirect("landing-page")
         elif student_profile:
-            print(student_profile)
             stu_login.add_error(field=None, error="Having challenges logging in. try to recover your account")
         else:
             stu_login.add_error("index_number", "Enter correct login credential")
@@ -68,6 +72,12 @@ def student_login(request):
 
 class StaffLoginView(LoginView):
     template_name = 'accounts/login/login.html'
+    
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_lecture:
+            return redirect(request.user.get_absolute_url())
+        else:
+            return super(StaffLoginView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(StaffLoginView, self).get_context_data(**kwargs)
@@ -77,11 +87,22 @@ class StaffLoginView(LoginView):
         return ctx
 
     def get_success_url(self):
-        return resolve_url("accounts:user-profile", slug=self.request.user.slug, pk=self.request.user.id)
+        if self.request.user.is_lecture:
+            return resolve_url("accounts:user-profile", slug=self.request.user.slug, pk=self.request.user.id)
+        else:
+            logout(self.request)
+            self.request.session["admin_required"] = "Enter a valid staff credential to login"
+            return reverse("accounts:staff-login-page")
 
 
 class AdminLoginView(LoginView):
     template_name = 'accounts/login/login.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_admin:
+            return redirect(request.user.get_absolute_url())
+        else:
+            return super(AdminLoginView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(AdminLoginView, self).get_context_data(**kwargs)

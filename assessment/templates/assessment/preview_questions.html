@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-3 mt-lg-4">
+            <div class="col-auto mx-auto">
+                <table class="table">
+                    <tr>
+                        <td>Programme</td>
+                        <td><h5>{{ question_group.course.programme }}</h5></td>
+                    </tr>
+                    <tr>
+                        <td>Course</td>
+                        <td><h5>{{ question_group.course }}</h5></td>
+                    </tr>
+                    <tr>
+                        <td>Level</td>
+                        <td><h5>{{ question_group.course.level }}</h5></td>
+                    </tr>
+                    <tr>
+                        <td>Total Marks</td>
+                        <td><h5>{{ question_group.total_marks }}</h5></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="text-center"><h5>{{ question_group.get_title_display }}</h5></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    
+        {% if question_group.questions_type == "multichoice" %}
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th class="text-nowrap"># ({{ total_questions_num }})</th>
+                        <th>Question</th>
+                        <th><i class="fa fa-list-ol mr-2"></i>Options</th>
+                        <th>Marks</th>
+                    </tr>
+                    {% for question in all_questions %}
+                        <tr>
+                            <td>{{  forloop.counter }}</td>
+                            <td>{{  question.question }}</td>
+                            <td>
+                                <ul class="list-group">
+                                {% for option in question.multichoicequestion_set.all %}
+                                    <li class="list-group-item"><span class="text-muted mr-3">{{ forloop.counter }}). </span> {{ option.option }}</li>
+                                {% endfor %}
+                                </ul>
+
+                            </td>
+                            <td>{{  question.max_mark }}</td>
+                        </tr>
+                    {% endfor %}
+                    
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

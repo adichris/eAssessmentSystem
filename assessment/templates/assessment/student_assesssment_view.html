@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<div class="jumbotron">
+<div class="jumbotron" style="background-image: url({% static 'DefaultImg/course.png' %}); background-size: contain; background-repeat: space">
     <div class="row">
         <div class="container">
                 <div class="col-auto text-center">
-                    <h4>Do Various Courses Quizzes and Midsem in {{ request.user.student.programme }}</h4>
+                    <h4 class="mark">Do Various Courses Quizzes and Midsem in {{ request.user.student.programme }} Here</h4>
                 </div>
         </div>
     </div>
@@ -50,7 +51,7 @@
                                         <td>{{ question_group.preference.environment }}</td>
                                     </tr>
                                 </table>
-                                <a href="{% url 'assessment:student_assessing' QGPK=question_group.pk QGT=question_group.title %}" class="btn btn-primary btn-block">Enter Hall</a>
+                                <a href="{% url 'assessment:student_assessing' QGPK=question_group.pk QGT=question_group.title %}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Enter Hall</a>
                             </div>
                         </div>
                     </div>

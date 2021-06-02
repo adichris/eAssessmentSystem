@@ -5,6 +5,13 @@
     <div class="container">
         <div class="row" style="height: 60vh">
             <div class="col-md-6 col-lg-5 mx-auto mt-auto ">
+            {% if request.user.is_authenticated %}
+                <p class="alert alert-warning">
+                    {{ request.user }}, this action will automatically logout your account.
+                Then the {{ cardHeader|lower }} to the system.
+                    <a href="\" class="alert-link" title="cancel {{ cardHeader|lower }}"><i class="fa fa-times-circle"></i></a>
+                </p>
+            {% endif %}
                 <div class="card">
                     <div class="card-header bg-primary">
                         <h3 class="text-center" style="color: #ffffff">{{ cardHeader }}</h3>

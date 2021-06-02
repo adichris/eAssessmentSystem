@@ -3,7 +3,7 @@ from .models import User
 import datetime
 
 dateMax = datetime.date.today().year - 10
-DOY = tuple(x+1 for x in range(1979, dateMax, 1))
+DOY = tuple(x+1 for x in range(1900, dateMax, 1))
 
 
 class UserCreateForm(forms.ModelForm):

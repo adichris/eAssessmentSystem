@@ -8,87 +8,101 @@
             </div>
         </div>
 
-        <div class="row text-center ">
-            <div class="col-md-6 col-lg-3 my-2 h-100">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Duration:</h5>
-                        <p>{{ question_group.preference.duration|time }}</p>
-                        <hr>
-                        <h5>Due Date and Time</h5>
-                        <p>{{ question_group.preference.due_date }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3 my-2 h-100">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Environment</h5>
-                        <p>{{ question_group.preference.get_environment_display }}</p>
-                        <hr>
-                        <h5>Shuffle Questions</h5>
-                        <p>{%  if question_group.preference.is_question_shuffle %} On {% else  %} Off {% endif %}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3 my-2 h-100">
-                <div class="card">
-                    <div class="card-body">
-                        <a href="#" class="card-link" title="preview questions">
-                            <h5>Number of Questions</h5>
-                            <h6>{{ question_group.question_set.count }}</h6>
+        <div class="row text-center">
+        {% with preference=question_group.preference %}
+            {% if preference.duration %}
+                <div class="col-md-6 col-lg-3 my-2 h-100 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Duration:</p>
+                            <h5>{{ preference.duration|time:"h\h\r\s \: i\m\i\n\s" }}</h5>
                             <hr>
-                            <h5>Questions Type</h5>
-                            <p>{{ question_group.get_questions_type_display }}</p>
+                            <p>Due Date and Time</p>
+                            <h5>{{ preference.due_date }}</h5>
+
+                        </div>
+                    </div>
+                </div>
+                {% elif question_group.preference.due_date %}
+                    <div class="card card-body">
+                        <p>Due Date</p>
+                        <h5>{{ preference.due_date }}</h5>
+                    </div>
+                {% endif %}
+        {% endwith %}
+            <div class="col-md-6 col-lg-3 my-2 h-100 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <p>Environment</p>
+                        <h5>{{ question_group.preference.get_environment_display }}</h5>
+                        <hr>
+                        <p>Shuffle Questions</p>
+                        <h5>{%  if question_group.preference.is_question_shuffle %} On {% else  %} Off {% endif %}</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 my-2 h-100 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        {% url 'assessment:pre_questions_conducting' question_group_pk=question_group.pk question_group_title=question_group.title as preview_url %}
+                        <a href="{{ preview_url }}" class="card-link" title="preview questions">
+                            <p>Number of Questions</p>
+                            <h5>{{ question_group.question_set.count }}</h5>
+                            <hr>
+                            <p>Questions Type</p>
+                            <h5>{{ question_group.get_questions_type_display }}</h5>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3 my-2 h-100">
+            <div class="col-md-6 col-lg-3 my-2 h-100 mx-auto">
                 <div class="card">
                     <div class="card-body">
-                        <h5>Number of Student</h5>
-                        <h6>{{ student_total }}</h6>
+                        <p>Number of Student</p>
+                        <h5>{{ student_total }}</h5>
                         <hr>
-                        <h5>Active</h5>
-                        <p>{{ student_total_active }}</p>
+                        <p>Finished Assessment</p>
+                        <h5>{{ student_finished }}</h5>
                     </div>
                 </div>
+            </div>
+        </div>
+
+    {% if question_group.preference.duration %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card-group">
+                    {% include 'snippet/H_label_value_card.html' with label="Start time" value=question_group.preference.start_time fa_icon="fa fa-clock mr-2" new_line=1  tc=1 %}
+                    {% include 'snippet/H_label_value_card.html' with label="Time left" value="unkown" fa_icon="fa fa-clock mr-2" new_line=1  tc=1 %}
+
+                    <div class="card">
+                        <div class="card-body">
+                            <p><i class="fa fa-clock mr-2"></i> End Time</p>
+                            <h5 class="text-center">{{ end_time }}</h5>
+
+                        </div>
+                        <p class="text-muted small p-2"> time formatted in 24 hours</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+        <div class="row">
+            <div class="col-12 mx-auto">
+                <hr>
             </div>
         </div>
 
         <div class="row">
             <div class="col-12">
-                <div class="card-group">
-                    {% include 'snippet/H_label_value_card.html' with label="Start time" value=question_group.preference.due_date fa_icon="fa fa-clock mr-2" new_line=1 %}
-                    {% include 'snippet/H_label_value_card.html' with label="Time left" value="10:00 am" fa_icon="fa fa-clock mr-2" new_line=1 %}
-                    {% include 'snippet/H_label_value_card.html' with label="End Time" value=question_group.preference.duration|default_if_none:"---" fa_icon="fa fa-clock mr-2" new_line=1 %}
-
+                <div class="btn-group btn-block">
+                    <a href="{{ preview_url }}" class="btn btn-outline-secondary" onclick="spinOnClick(this)">View Questions</a>
+                    <a href="" class="btn btn-outline-danger"><i class="fa fa-stop-circle mr-2"></i>Stop Work</a>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 mx-auto">
-                <hr>
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col-6 col-md-4 col-lg-3 my-2">
-                <a href="" class="btn btn-outline-secondary btn-block">Add 10 more minutes</a>
             </div>
 
-            <div class="col-6 col-md-4 col-lg-3 my-2">
-                <a href="" class="btn btn-outline-secondary btn-block">Stop Work</a>
-            </div>
-
-            <div class="col-6 col-md-4 col-lg-3 my-2">
-                <a href="" class="btn btn-outline-secondary btn-block">Stop a student</a>
-            </div>
-
-            <div class="col-6 col-md-4 col-lg-3 my-2">
-                <a href="" class="btn btn-outline-secondary btn-block">Pause {{ question_group.get_title_display }}</a>
-            </div>
         </div>
 
         <div class="row">
@@ -97,44 +111,40 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-6 mx-auto mt-3 mt-lg-4 ">
-                <p>Students Online</p>
-                <p>Students Offline</p>
-                <p>Time left</p>
-                <p>Due Date</p>
-                <p>Results</p>
-            </div>
-        </div>
-
-    {% if online_students %}
         <div class="row">
         <div class="table-responsive">
-            <p>Active Students Taking the Exams</p>
+            <p>Students started or finish with the assessment</p>
             <table class="table table-bordered">
                 <tr>
                     <th>#</th>
                     <th>Index Number</th>
                     <th>Name</th>
-                    <th>Programme</th>
-                    <th>Level</th>
-                    <th>Time Spent</th>
-                    <th>Actions</th>
+                    <th>Status</th>
+                    <th>Start Time</th>
+                    <th>Script Action</th>
                 </tr>
-                {% for online_student in online_students %}
+                {% for script in student_script %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ online_student.index_number }}</td>
-                        <td>{{ online_student.profile.get_full_name }}</td>
-                        <td>{{ online_student.programme }}</td>
-                        <td>{{ online_student.level }}</td>
-                        <td>{{ online_student.assessment.time_spent }}</td>
-                        <td>{{ online_student.assessment.score }}</td>
+                        <td>{{ script.student.index_number }}</td>
+                        <td>{{ script.student.get_name }}</td>
                         <td>
-                            <a href="" class="btn btn-outline-secondary">Pause Work</a>
-                            <a href="" class="btn btn-outline-secondary">Stop Work</a>
-                            <a href="" class="btn btn-outline-secondary">Cancel Work</a>
-                            <a href="" class="btn btn-outline-secondary">Add 10 minutes</a>
+                            {% if script.is_completed %}
+                                Work Completed
+                            {% elif script.is_canceled %}
+                                Worked Cancelled
+{#                            {% elif script.has_paused %}#}
+{#                                Work Hold#}
+                            {% else %}
+                                Working
+                            {% endif %}
+                        </td>
+                        <td>{{ script.timestamp }}</td>
+                        <td>
+                            {% with student=script.student %}
+                                <a href="" class="btn btn-outline-warning" title="Stop {{ student.get_name }} ({{ student.index_number }}) script"><i class="fa fa-stop-circle mr-2"></i>Stop</a>
+                                <a href="" class="btn btn-outline-danger" title="Cancel {{ student.get_name  }} ({{ student.index_number }}) script"><i class="fa fa-times mr-2"></i>Cancel</a>
+                            {% endwith %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -142,7 +152,6 @@
             </table>
         </div>
     </div>
-    {% endif %}
 
     </div>
 

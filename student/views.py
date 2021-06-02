@@ -76,10 +76,10 @@ class SuccessfulStudentRegistration(LoginRequiredMixin, TemplateView):
         ctx = super(SuccessfulStudentRegistration, self).get_context_data(**kwargs)
         ctx["student"] = get_object_or_404(Student, pk=self.request.session.get("registered_student_pk"))
 
-        try:
-            del self.request.session["registered_student_pk"]
-        except KeyError:
-            pass
+        # try:
+        #     del self.request.session["registered_student_pk"]
+        # except KeyError:
+        #     pass
         return ctx
 
     def get(self, request, *args, **kwargs):

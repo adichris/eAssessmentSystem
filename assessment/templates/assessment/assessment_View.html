@@ -18,7 +18,7 @@
                 <div class="col-md-4 col-lg-3">
                         <div class="card my-1">
                             <div class="card-body">
-                                <a href="{% url 'assessment:create_group' courseName=course.name coursePK=course.pk %}" class="card-link">Prepare Quiz or Midsem</a>
+                                <a href="{% url 'assessment:create_group' courseName=course.name coursePK=course.pk %}" class="card-link" onclick="appendSpinOnClick(this)">Prepare Quiz or Midsem</a>
                             </div>
                         </div>
                     </div>
@@ -26,7 +26,7 @@
                     <div class="col-md-4 col-lg-3">
                         <div class="card my-1">
                             <div class="card-body">
-                                <a href="{{ course.get_absolute_url }}" class="card-link">View Prepared Questions</a>
+                                <a href="{{ course.get_absolute_url }}" class="card-link" onclick="appendSpinOnClick(this)">View Prepared Questions</a>
                             </div>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                     <div class="col-md-4 col-lg-3">
                         <div class="card my-1">
                             <div class="card-body">
-                                <a href="{% url 'assessment:mark' %}" class="card-link" title="Mark theory quizzes and theories">Mark Quiz/Midsem</a>
+                                <a href="{% url 'assessment:mark' %}" class="card-link" title="Mark theory quizzes and theories" onclick="appendSpinOnClick(this)">Mark Quiz/Midsem</a>
                             </div>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
                     <div class="col-md-4 col-lg-3">
                         <div class="card my-1">
                             <div class="card-body">
-                                <a href="{%  url 'records:all' %}" class="card-link">View All Records</a>
+                                <a href="{%  url 'records:all' %}" class="card-link" onclick="appendSpinOnClick(this)">View All Records</a>
                             </div>
                         </div>
                     </div>

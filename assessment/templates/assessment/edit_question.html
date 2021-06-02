@@ -27,7 +27,7 @@
                         </div>
                         {% elif question_group.questions_type == "theory" %}
                             {{ form|crispy }}
-                            <button type="submit" class="btn btn-primary btn-block">Save</button>
+                            <button type="submit" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Save</button>
                     {% endif %}
                     </form>
             </div>

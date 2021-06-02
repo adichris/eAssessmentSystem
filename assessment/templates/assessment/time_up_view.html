@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-4">
+            <div class="col-md-6 mx-auto">
+                <div class="card">
+                    <div class="card-img-top text-center">
+                        <img src="{% static 'icons/time.svg' %}" alt="clock" style="max-height: 305px">
+                    </div>
+                    <div class="card-body">
+
+                        <p class="card-text text-center alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
+                            {{ question_group_instance.course }} {{ question_group_instance.get_title_display }} <br>
+                            <i class="fa fa-clock fa-spin mr-1"></i><b>TIME IS UP</b>
+                        </p>
+                        <a href="{% url 'assessment:MCQ_exam_done' course_id=question_group_instance.course_id question_group_id=question_group_instance.id student_id=request.user.student.id %}" class="btn btn-info btn-block" title="click to see your result" onclick="spinOnClick(this)">I Agree.</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

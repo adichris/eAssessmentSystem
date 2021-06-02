@@ -10,7 +10,7 @@
                 <h6 class="text-capitalize">Start by providing question information</h6>
                     {% csrf_token %}
                    {{ form|crispy }}
-                    <input type="submit" class="btn btn-primary btn-block" value="Submit">
+                    <button type="submit" class="btn btn-primary btn-block" value="Submit" onclick="appendSpinOnClick(this)">Submit</button>
                 </form>
             </div>
         </div>

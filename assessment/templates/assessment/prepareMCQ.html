@@ -4,20 +4,13 @@
      <div class="container">
         <div class="row mt-4">
             <div class="col-12">
-                <h5 class="text-center">{% if course %}
-                {{ course }}
-                    {% else %}
-                    {{ question_group.course }}
-                {% endif %}  course</h5>
+                <h5 class="text-center"> {{ question_group.course }} course</h5>
                 <hr>
-                <div class="d-flex justify-content-between">
-                    {% if question_group %}
-                        <p>Add another question to {{ question_group.get_title_display }}</p>
-                        <p class="text-center">Prepare Multi choice Question</p>
-                        <p>{{ question_group.get_title_display }} currently have {% if tt_question_num %}{{ tt_question_num }} {% else %} {{ question_group.question_set.count }} {% endif %} questions</p>
-                    {% else %}
-                        <p><span class="bg-light">Type in the questions and their respective options</span> click on <a href="" class="btn btn-primary no-pointer btn-sm m-1">save and add another</a> to add more question; when ur done click on
-                            <a href="" class="btn btn-primary no-pointer btn-sm">save</a>.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ question_group.get_absolute_url }}"><i class="fa fa-chevron-left mr-1"></i>Back to {{ question_group.get_title_display }}</a>
+                    <p class="text-center">{% if is_new %} Prepare {% else %} Update {% endif %} Multi Choice Question</p>
+                    {% if question_number %}
+                        <p>Number of Questions <b>{{ question_number }} </b></p>
                     {% endif %}
                 </div>
                 <hr>
@@ -30,8 +23,10 @@
          <div class="row">
              <div class="col-12">
                   {% csrf_token %}
-                 {{ questionGroupSelectForm|crispy }}
-                <p class="text-center">Prepare Multiple Choice Question</p>
+                 <p><span class="bg-light">Type in the questions and their respective options</span> click on <a href="" class="btn btn-primary no-pointer btn-sm m-1">save and add another</a> to add more question; when ur done click on
+                        <a href="" class="btn btn-primary no-pointer btn-sm">save</a>.
+                 </p>
+
                  <hr>
                  {% if multiChoiceQFormset.non_form_errors %}
                      <div class="alert alert-danger">
@@ -53,7 +48,7 @@
                          <th>Options/ Objectives</th>
                      </tr>
                         <tr>
-                         <th>{% if question_number %} {{ question_number }} {% else %}1{% endif %}</th>
+                         <th> {{ question_number|add:"1" }}</th>
                          <td>{{ questionForm|crispy }}</td>
                          <td>
                              <table class="table" id="id_optionsTable">
@@ -72,8 +67,11 @@
                  </table>
              </div>
 
-                <div class="col-md-6 mx-auto mb-4">
-                    <button type="submit" class="btn btn-primary btn-block">Save</button>
+                <div class="col-md-12 mx-auto mb-4">
+                    <div class="btn-group btn-block">
+                        <button type="submit" class="btn btn-primary" onclick="addAnotherOption(this)">Save</button>
+                        <button type="submit" class="btn btn-primary" name="add_save_and_another" value="1" onclick="addAnotherOption(this)">Save and add Question {{ question_number|add:"2" }}</button>
+                    </div>
                 </div>
          </div>
      </form>

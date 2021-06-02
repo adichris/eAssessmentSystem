@@ -1,21 +1,32 @@
-from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.shortcuts import render, get_object_or_404, redirect, reverse, resolve_url
 from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView, \
     RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .form import (MultiChoiceQuestionCreateForm, QuestionCreateForm, QuestionGroupCreateForm,
                    BaseOptionsFormSet, BaseOptionsInlineFormSet, AssessmentPreferenceCreateForm,
-                    StudentMultiChoiceAnswerForm,
+                   StudentMultiChoiceAnswerForm,
                    )
 from course.models import CourseModel
 from .models import (MultiChoiceQuestion, Question, QuestionGroup, AssessmentPreference,
-                     QuestionGroupStatus, MultiChoiceScripts, StudentMultiChoiceAnswer
+                     QuestionGroupStatus, MultiChoiceScripts, StudentMultiChoiceAnswer,
+                    QuestionTypeChoice
                      )
 from django.forms import formset_factory, inlineformset_factory
-from eAssessmentSystem.tool_utils import admin_required_message, is_lecture, get_http_forbidden_response
+from eAssessmentSystem.tool_utils import admin_required_message, is_lecture, get_http_forbidden_response, \
+    get_time_obj_from
 from django.contrib.auth import get_user
 from student.models import Student
 from django.utils import timezone
 from django.core.paginator import Paginator
+from django.http.response import Http404
+from urllib.parse import urlencode
+import datetime
+
+import random
+
+def get_status_not_allowed_reason(question_group):
+    return "The %s status (%s) does not allowed the operation you want to perform on it." % \
+       (question_group.get_title_display(), question_group.status)
 
 
 class QuestionGroupCreateView(LoginRequiredMixin, CreateView):
@@ -84,7 +95,8 @@ class QuestionGroupUpdateView(LoginRequiredMixin, UpdateView):
 
     def get(self, *args, **kwargs):
         user = get_user(self.request)
-        if user.is_lecture and self.is_lecture_course_master() and self.get_question_group().status == QuestionGroupStatus.PREPARED:
+        if user.is_lecture and self.is_lecture_course_master() and self.get_question_group().status \
+                == QuestionGroupStatus.PREPARED:
             return super(QuestionGroupUpdateView, self).get(*args, **kwargs)
         elif self.is_lecture_course_master():
             return get_http_forbidden_response("We can not help you with that")
@@ -96,7 +108,8 @@ class QuestionGroupUpdateView(LoginRequiredMixin, UpdateView):
 
     def post(self, *args, **kwargs):
         user = get_user(self.request)
-        if user.is_lecture and self.is_lecture_course_master() and self.get_question_group().status == QuestionGroupStatus.PREPARED:
+        if user.is_lecture and self.is_lecture_course_master() and self.get_question_group().status \
+                == QuestionGroupStatus.PREPARED:
             return super(QuestionGroupUpdateView, self).post(*args, **kwargs)
         elif self.is_lecture_course_master():
             return get_http_forbidden_response(message="We can not help you with this.")
@@ -182,9 +195,9 @@ class CreateMultipleChoiceQuestion(LoginRequiredMixin, View):
     def get_context_data(self):
         return {
             "title": "Prepare %s Multi-Choice Question" % self.question_group.get_title_display(),
-            "course": self.question_group.course,
+            "question_group": self.question_group,
             "is_new": True,
-            "question_number": self.question_group.question_set.count() + 1,
+            "question_number": self.question_group.question_set.count(),
         }
 
     def post(self, request, *args, **kwargs):
@@ -202,7 +215,15 @@ class CreateMultipleChoiceQuestion(LoginRequiredMixin, View):
                     obj_ins.question = question_instance
                     obj_ins.question_number = 1
                     obj_ins.save()
-                return self.get_successful_url()
+                add_another = self.request.POST.get("add_save_and_another")
+                if add_another:
+                    return redirect(reverse("assessment:prepare_MCQ", kwargs = {
+                        "QGT": self.question_group.title,
+                        "QGPK": self.question_group.pk
+                    })
+                    )
+                else:
+                    return self.get_successful_url()
             else:
                 ctx = self.get_context_data()
                 ctx["multiChoiceQFormset"] = objectives
@@ -230,7 +251,7 @@ class AssessmentQuestionGroupDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super(AssessmentQuestionGroupDetailView, self).get_context_data(**kwargs)
         ctx["questions"] = self.object.question_set.all()
-        ctx["title"] = "Question Groups"
+        ctx["title"] = "%s - %s" % (self.object.get_title_display(), self.object.course)
         return ctx
 
 
@@ -295,6 +316,11 @@ class DeleteQuestion(LoginRequiredMixin, DeleteView):
         if is_lecture(
                 user) and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.PREPARED:
             return super(DeleteQuestion, self).get(request, *args, **kwargs)
+        elif self.is_lecture_course_master() and self.question_group.status != QuestionGroupStatus.PREPARED:
+            return render(request, "assessment/status_not_allowed.html", {
+                "reason": get_status_not_allowed_reason(self.question_group),
+                "return_link": self.question_group.get_absolute_url(),
+            })
         elif self.is_lecture_course_master():
             return get_http_forbidden_response(message="We can not help you with that.")
         else:
@@ -308,6 +334,12 @@ class DeleteQuestion(LoginRequiredMixin, DeleteView):
         if is_lecture(
                 user) and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.PREPARED:
             return super(DeleteQuestion, self).post(request, *args, **kwargs)
+
+        elif self.question_group.status != QuestionGroupStatus.PREPARED:
+            return render(request, "assessment/status_not_allowed.html", {
+                "reason": get_status_not_allowed_reason(self.question_group),
+                "return_link": self.question_group.get_absolute_url(),
+            })
         else:
             request.session["admin_required"] = admin_required_message(user)
             return redirect("accounts:staff-login-page")
@@ -341,6 +373,7 @@ class MultiChoiceQuestionEdit(LoginRequiredMixin, View):
         return {
             "title": "Edit %s %s " % (self.course, self.question_instance.group.get_title_display()),
             "question_group": self.question_instance.group,
+            "question_number": self.kwargs.get("question_number"),
         }
 
     def get(self, request, *args, **kwargs):
@@ -353,6 +386,11 @@ class MultiChoiceQuestionEdit(LoginRequiredMixin, View):
             ctx["questionForm"] = self.question_form_class(instance=self.question_instance)
 
             return render(request, template_name=self.template_name, context=ctx)
+        elif self.is_lecture_course_master() and not self.question_instance.group.status != QuestionGroupStatus.PREPARED:
+            return render(request, "assessment/status_not_allowed.html", {
+                "reason": get_status_not_allowed_reason(self.question_instance.group),
+                "return_link": self.question_instance.group.get_absolute_url(),
+                })
         elif self.is_lecture_course_master():
             return get_http_forbidden_response(message="We can not help you with that.")
 
@@ -425,10 +463,26 @@ class DeleteQuestionGroup(LoginRequiredMixin, DeleteView):
         self.course = get_object_or_404(CourseModel, pk=self.kwargs.get("coursePK"), name=self.kwargs.get("courseName"))
         return self.course.lecture.profile == self.request.user
 
+    def get_question_group(self):
+        return get_object_or_404(QuestionGroup,
+                                 pk=self.kwargs.get("pk"),
+                                 course_id=self.kwargs.get("coursePK"),
+                                 course__name=self.kwargs.get("courseName"),
+                                 )
+
     def get(self, request, *args, **kwargs):
         user = get_user(request)
-        if is_lecture(user) and self.is_lecture_course_master():
+        question_group_instance = self.get_question_group()
+        if is_lecture(
+                user) and self.is_lecture_course_master() and question_group_instance.status == QuestionGroupStatus.PREPARED:
             return super(DeleteQuestionGroup, self).get(request, *args, **kwargs)
+        elif is_lecture(user) and question_group_instance.status != QuestionGroupStatus.PREPARED:
+            return render(request, "assessment/status_not_allowed.html",
+                          {
+                              "reason": get_status_not_allowed_reason(question_group_instance),
+                              "return_link": question_group_instance.get_absolute_url(),
+                              }
+                          )
         elif is_lecture(user):
             return get_http_forbidden_response()
         else:
@@ -437,8 +491,17 @@ class DeleteQuestionGroup(LoginRequiredMixin, DeleteView):
 
     def post(self, request, *args, **kwargs):
         user = get_user(request)
-        if is_lecture(user) and self.is_lecture_course_master():
+        question_group_instance = self.get_question_group()
+        if is_lecture(
+                user) and self.is_lecture_course_master() and question_group_instance.status == QuestionGroupStatus.PREPARED:
             return super(DeleteQuestionGroup, self).post(request, *args, **kwargs)
+        elif is_lecture(user) and question_group_instance.status != QuestionGroupStatus.PREPARED:
+            return render(request, "assessment/status_not_allowed.html",
+                          {
+                              "reason": get_status_not_allowed_reason(question_group_instance),
+                              "return_link": question_group_instance.get_absolute_url(),
+                              }
+                          )
         elif is_lecture(user):
             return get_http_forbidden_response()
         else:
@@ -470,6 +533,8 @@ class ConductAssessment(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         user = get_user(request)
         if user.is_lecture and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.PREPARED:
+            if self.question_group.is_share_total_marks or self.question_group.questions_type == QuestionTypeChoice.MULTICHOICE:
+                self.question_group.generate_marks()
             return super(ConductAssessment, self).get(request, *args, **kwargs)
         elif self.is_lecture_course_master():
             return get_http_forbidden_response(message="We can not help you with that. this time")
@@ -520,13 +585,19 @@ class AssessmentPreferenceCreateView(LoginRequiredMixin, CreateView):
 
     def is_lecture_course_master(self):
         self.question_group = get_object_or_404(QuestionGroup, title=self.kwargs.get("question_group_title"),
-                                                pk=self.kwargs.get("question_group_pk"))
-        return self.question_group.course.lecture.profile == self.request.user
+                                                pk=self.kwargs.get("question_group_pk"),
+                                                course__lecture__profile=self.request.user
+                                                )
+        return True if self.question_group else False
 
     def get(self, request, *args, **kwargs):
         user = get_user(request)
-        if user.is_lecture and self.is_lecture_course_master():
+        if user.is_lecture and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.PREPARED:
             return super(AssessmentPreferenceCreateView, self).get(request, *args, **kwargs)
+        elif self.question_group.status != QuestionGroupStatus.PREPARED:
+            return render(request, template_name="assessment/status_not_allowed.html",context={
+                "reason": get_status_not_allowed_reason(self.question_group),
+            })
         elif user.is_lecture:
             return get_http_forbidden_response()
         else:
@@ -535,11 +606,16 @@ class AssessmentPreferenceCreateView(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         user = get_user(request)
-        if user.is_lecture and self.is_lecture_course_master():
+        if user.is_lecture and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.PREPARED:
             returns = super(AssessmentPreferenceCreateView, self).post(request, *args, **kwargs)
             self.question_group.preference = self.object
             self.question_group.save()
             return returns
+
+        elif self.question_group.status != QuestionGroupStatus.PREPARED:
+            return render(request, template_name="assessment/status_not_allowed.html",context={
+                "reason": get_status_not_allowed_reason(self.question_group),
+            })
 
         elif user.is_lecture:
             return get_http_forbidden_response()
@@ -550,7 +626,7 @@ class AssessmentPreferenceCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super(AssessmentPreferenceCreateView, self).get_context_data(**kwargs)
         ctx["cardHeader"] = "%s %s Assessment Preference" % (
-        self.question_group.course, self.question_group.get_title_display())
+            self.question_group.course, self.question_group.get_title_display())
         return ctx
 
     def get_success_url(self):
@@ -561,22 +637,39 @@ class ConductingAssessment(LoginRequiredMixin, TemplateView):
     template_name = "assessment/conducting_assessment.html"
 
     def is_lecture_course_master(self):
-        self.question_group = get_object_or_404(QuestionGroup, title=self.kwargs.get("question_group_title"),
-                                                pk=self.kwargs.get("question_group_pk"))
-        return self.question_group.course.lecture.profile == self.request.user
+        try:
+            self.students_answer_scripts = MultiChoiceScripts.objects.filter(
+                question_group_id=self.kwargs.get("question_group_pk"),
+                course__name=self.kwargs.get("course_name"),
+                course_id=self.kwargs.get("course_pk"),
+                course__lecture=self.request.user.lecturemodel,
+            )
+        except MultiChoiceScripts.DoesNotExist:
+            raise Http404()
+        else:
+            self.question_group = get_object_or_404(
+                QuestionGroup,
+                pk=self.kwargs.get("question_group_pk"),
+                course_id=self.kwargs.get("course_pk"),
+            )
+            return True
 
     def get(self, request, *args, **kwargs):
         user = get_user(request)
-        if user.is_lecture and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.PREPARED:
+        if user.is_lecture and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.CONDUCT :
             self.question_group.status = "conduct"
             if not self.question_group.preference:
                 preference = AssessmentPreference.objects.create(
-                    due_date=timezone.now(),
+                    # due_date=timezone.now(),
                     environment="any",
                 )
                 self.question_group.preference = preference
             self.question_group.save()
             return super(ConductingAssessment, self).get(request, *args, **kwargs)
+        elif self.question_group.status != QuestionGroupStatus.CONDUCT :
+            return render(request, template_name="assessment/status_not_allowed.html",context={
+                "reason": get_status_not_allowed_reason(self.question_group),
+            })
         elif self.is_lecture_course_master():
             return get_http_forbidden_response(message="We can not help you with that. this time")
         else:
@@ -586,12 +679,27 @@ class ConductingAssessment(LoginRequiredMixin, TemplateView):
         ctx = super(ConductingAssessment, self).get_context_data(**kwargs)
         ctx["question_group"] = self.question_group
         ctx["student_total"] = self.get_student_total()
-        ctx["student_total_active"] = self.get_student_total()
+        ctx["student_script"] = self.students_answer_scripts
+        ctx["end_time"] = self.get_end_time()
+        ctx["student_finished"] = self.get_count_student_finished_the_work()
         return ctx
+
+    def get_count_student_finished_the_work(self):
+        return self.students_answer_scripts.filter(is_completed=True).count()
+
+    def get_end_time(self):
+        try:
+            start_time = self.question_group.preference.start_time
+            end_time = self.question_group.preference.duration
+            return timezone.timedelta(hours=start_time.hour, minutes=start_time.minute, seconds=start_time.second) \
+                   + timezone.timedelta(hours=end_time.hour, minutes=end_time.minute, seconds=end_time.second)
+        except AttributeError:
+            return None
 
     def get_student_total(self):
         course = self.question_group.course
-        return Student.objects.filter(level=course.level, programme=course.programme).count()
+        self.students = Student.objects.filter(level=course.level, programme=course.programme, profile__is_active=True)
+        return self.students.count()
 
 
 class StudentAssessmentView(LoginRequiredMixin, TemplateView):
@@ -677,8 +785,14 @@ class AssessmentPreferenceUpdateView(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         user = get_user(request)
-        if user.is_lecture and self.is_lecture_course_master():
+        if user.is_lecture and self.is_lecture_course_master() and (self.question_group.status == QuestionGroupStatus.PREPARED or self.question_group.status == QuestionGroupStatus.CONDUCT):
             return super(AssessmentPreferenceUpdateView, self).get(request, *args, **kwargs)
+
+        elif self.question_group.status != QuestionGroupStatus.PREPARED or self.question_group.status != QuestionGroupStatus.CONDUCT:
+            return render(request, template_name="assessment/status_not_allowed.html",context={
+                "reason": get_status_not_allowed_reason(self.question_group),
+            })
+
         elif user.is_lecture:
             return get_http_forbidden_response()
         else:
@@ -687,12 +801,15 @@ class AssessmentPreferenceUpdateView(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         user = get_user(request)
-        if user.is_lecture and self.is_lecture_course_master():
+        if user.is_lecture and self.is_lecture_course_master() and (self.question_group.status == QuestionGroupStatus.PREPARED or self.question_group.status == QuestionGroupStatus.CONDUCT):
             returns = super(AssessmentPreferenceUpdateView, self).post(request, *args, **kwargs)
             self.question_group.preference = self.object
             self.question_group.save()
             return returns
-
+        elif self.question_group.status != QuestionGroupStatus.PREPARED or self.question_group.status != QuestionGroupStatus.CONDUCT:
+            return render(request, template_name="assessment/status_not_allowed.html",context={
+                "reason": get_status_not_allowed_reason(self.question_group),
+            })
         elif user.is_lecture:
             return get_http_forbidden_response()
         else:
@@ -702,7 +819,7 @@ class AssessmentPreferenceUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         ctx = super(AssessmentPreferenceUpdateView, self).get_context_data(**kwargs)
         ctx["cardHeader"] = "%s %s Assessment Preference" % (
-        self.question_group.course, self.question_group.get_title_display())
+            self.question_group.course, self.question_group.get_title_display())
         return ctx
 
     def get_success_url(self):
@@ -740,78 +857,311 @@ class StudentAssessingTemplateView(LoginRequiredMixin, TemplateView):
         return self.request.user.student
 
 
+class ListLikeQueryset(list):
+    def first(self):
+        try:
+            return self[0]
+        except IndexError:
+            return
+
+    def last(self):
+        try:
+            return self[-1]
+        except IndexError:
+            return
+
+    def all(self):
+        return self
+
+    def count(self):
+        return len(self)
+
+    def exists(self):
+        return self.first()
+
+
 class MultiChoiceQuestionsExaminationView(LoginRequiredMixin, View):
     template_name = "assessment/multichoice_exam.html"
     student_multi_choice_answer_form_class = StudentMultiChoiceAnswerForm
 
     def is_student_qualified(self):
         self.student = self.request.user.student
-        course = self.question_instance.group.course
+        course = self.question_group_instance.course
         return self.student and self.student.level == course.level and self.student.programme == course.programme
 
     def get_paginator(self):
-        return Paginator()
+        if self.question_group_instance.preference.is_question_shuffle is True:
+            random.seed(self.request.user.student.id)
+            questions = ListLikeQueryset(self.question_group_instance.question_set.all())
+            random.shuffle(questions)
+            print(questions.first())
+            paginator = Paginator(object_list=questions, per_page=1)
+        else:
+            paginator = Paginator(object_list=self.question_group_instance.question_set.all(), per_page=1)
+        page = self.request.GET.get("question")
+        self.question_page = paginator.get_page(page)
+        return paginator
+
+    def get_question_instance(self):
+        self.paginator = self.get_paginator()
+        try:
+            self.question_instance = self.question_page.object_list.first()
+        except AttributeError:
+            self.question_instance = self.question_page.object_list[0]
 
     def get_script(self):
-        question_group = self.question_instance.group
         instance, created = MultiChoiceScripts.objects.get_or_create(
             student_id=self.student.id,
-            course_id=question_group.course_id,
-            question_group_id=question_group.id
+            course_id=self.question_group_instance.course_id,
+            question_group_id=self.question_group_instance.id
         )
-        print("MultiChoiceScripts SCRIPTS IS_CREATED = ", created)
+        self.script_instance = instance
+        self.duration = instance.question_group.preference.duration
+        if created:
+            if self.duration:
+                instance.time_remain = self.duration
+            else:
+                instance.time_remain = None
+            instance.save()
+        elif self.duration and instance.time_remain is None:
+            instance.time_remain = self.duration
+            instance.save()
         return instance
+
+    def init_required_instance(self):
+        self.get_question_group()
+        self.get_question_instance()
+        if self.is_student_qualified():
+            self.get_script()
+            self.get_question_instance()
+            if self.duration:
+                self.calculate_used_time()
+            else:
+                self.used_time = None
+
+    def calculate_used_time(self):
+        used_time = timezone.now() - self.script_instance.timestamp
+        duration_timestamp = timezone.datetime.combine(self.script_instance.timestamp.date(), self.duration)
+        remaining_time = duration_timestamp - used_time
+        # print("Remaining time:\t", remaining_time)
+        self.used_time = get_time_obj_from(used_time)
+
+    def is_time_up(self):
+        if self.used_time and self.duration:
+            used_timedelta = datetime.timedelta(
+                hours=self.used_time.hour,
+                minutes=self.used_time.minute,
+                seconds=self.used_time.second,
+            )
+            duration_timedelta = datetime.timedelta(
+                hours=self.duration.hour,
+                minutes=self.duration.minute,
+                seconds=self.duration.second,
+            )
+            return used_timedelta >= duration_timedelta
+        else:
+            return False
 
     def get_instance(self):
         instance, created = StudentMultiChoiceAnswer.objects.get_or_create(
             question_id=self.question_instance.id,
             script=self.get_script()
         )
-        print("StudentMultiChoiceAnswer IS_CREATED = ", created)
         return instance
 
     def get(self, request, *args, **kwargs):
-        question_instance = self.get_question_instance()
-        if isinstance(question_instance, Question):
-            if self.is_student_qualified():
-                ctx = self.get_context_data()
-                ctx["answer_form"] = self.student_multi_choice_answer_form_class()
-                return render(request, template_name=self.template_name, context=ctx)
-            else:
-                return get_http_forbidden_response()
-        else:
-            return question_instance
+        self.init_required_instance()
+        if self.is_student_qualified() and self.script_instance.is_completed is False and self.script_instance.is_canceled is False:
+            if self.is_time_up():
+                self.__compute_score_and_complete_script__()
+                return render(request, "assessment/time_up_view.html", {
+                    "question_group_instance": self.question_group_instance
+                })
+
+            ctx = self.get_context_data()
+            ctx["answer_form"] = self.student_multi_choice_answer_form_class(
+                question_instance=self.question_instance, instance=self.get_instance(),
+            )
+            return render(request, template_name=self.template_name, context=ctx)
+
+        elif self.script_instance:
+            returns = self.get_script_response()
+            if returns:
+                return returns
+        return get_http_forbidden_response()
+
+    def get_script_response(self):
+        ctx = {
+            "reason": "Please, %s try again!\n" % self.student.get_name(),
+            "tip": "If the problem persist and your not done with %s inform the lecture or supervisor or"
+                   " any one who can help" % self.question_group_instance.get_title_display()
+        }
+        if self.script_instance.is_completed is True:
+            ctx["is_completed"] = True
+            ctx["question_group_instance"] = self.question_group_instance
+            ctx["reason"] = f"You have already completed this Quiz. <br/> {str(self.question_group_instance.course)}" \
+                            f" {self.question_group_instance.get_title_display()}"
+        elif self.script_instance.is_canceled is True:
+            ctx["reason"] = "Sorry %s, your scripts is cancelled by the lecture %s" % (
+                self.request.user.get_short_name(),
+                self.question_group_instance.get_title_display()
+            )
+        return render(self.request, template_name="assessment/status_not_allowed.html", context=ctx)
+
+    def __compute_score_and_complete_script__(self):
+        self.script_instance.is_completed = True
+        self.script_instance.score_student()
+        self.script_instance.save()
 
     def post(self, request, *args, **kwargs):
-        question_instance = self.get_question_instance()
-        if isinstance(question_instance, Question):
-            if self.is_student_qualified():
-                student_multi_choice_answer_form_class = self.student_multi_choice_answer_form_class(question_instance=question_instance, instance=self.get_instance(), data=request.POST)
+        self.init_required_instance()
+
+        if isinstance(self.question_instance, Question) and self.is_student_qualified() :
+            if self.script_instance.is_completed is False \
+                    and self.script_instance.is_canceled is False and self.script_instance.has_paused is False:
+                if self.is_time_up():
+                    self.__compute_score_and_complete_script__()
+                    return render(request, "assessment/time_up_view.html", {
+                        "question_group_instance": self.question_group_instance
+                    })
+
+                submit_value = self.request.POST.get("submit")
+                student_multi_choice_answer_form_class = self.student_multi_choice_answer_form_class(
+                    question_instance=self.question_instance, instance=self.get_instance(), data=request.POST)
                 if student_multi_choice_answer_form_class.is_valid():
                     student_multi_choice_answer_form_class.save(True)
-                    return redirect("assessment:MCQ_exam_start", course_code=self.question_instance.group.course.code, QGT=self.question_instance.group.title, question_pk=None)
-            else:
-                return get_http_forbidden_response()
-        else:
-            return question_instance
+                    if self.question_page.has_next() and not submit_value == "done":
+                        url = resolve_url("assessment:MCQ_exam_start",
+                                          course_code=self.question_group_instance.course.code,
+                                          QGT=self.question_group_instance.title, QGPK=self.question_group_instance.pk
+                                          ) + "?%s" % urlencode({"question": self.question_page.next_page_number()})
+                        return redirect(url)
 
-    def get_context_data(self):
-        return {
-            "title": "%s start" % self.question_instance.group.get_title_display(),
-            "question": self.question_instance,
-            "today": timezone.now()
-        }
+                    elif self.paginator.num_pages == self.question_page.number or submit_value == "done":
+                        self.__compute_score_and_complete_script__()
+                        return self.get_successful_url()
+                    else:
+                        url = resolve_url("assessment:MCQ_exam_start",
+                                          course_code=self.question_group_instance.course.code,
+                                          QGT=self.question_group_instance.title, QGPK=self.question_group_instance.pk
+                                          ) + "?%s" % urlencode({"question": self.question_page.number()})
+                        return redirect(url)
+
+                else:
+                    ctx = self.get_context_data()
+                    ctx["answer_form"] = student_multi_choice_answer_form_class
+                    return render(request, template_name=self.template_name, context=ctx)
+            else:
+                return self.get_script_response()
+        else:
+            return get_http_forbidden_response()
 
     def get_successful_url(self):
-        # TODO return redirect to results
-        pass
+        return redirect("assessment:MCQ_exam_done",
+                        student_id=self.script_instance.student_id,
+                        course_id=self.script_instance.course_id,
+                        question_group_id=self.script_instance.question_group_id)
 
-    def get_initial(self):
+    def get_context_data(self):
+        start_timestamp = self.script_instance.timestamp
+        question_group_instance = self.question_group_instance
+        if start_timestamp and self.duration:
+            end_time = timezone.timedelta(hours=self.duration.hour, minutes=self.duration.minute,
+                                          seconds=self.duration.second) \
+                       + timezone.timedelta(hours=start_timestamp.hour, minutes=start_timestamp.minute,
+                                            seconds=start_timestamp.second)
+        else:
+            end_time = None
+
         return {
-            "student": self.student
+
+            "title": "%s start" % question_group_instance.get_title_display(),
+            "question": self.question_instance,
+            "today": timezone.now(),
+            "duration": self.duration,
+            "used_time": self.used_time,
+            "question_page": self.question_page,
+            "start_timestamp": start_timestamp,
+            "end_time": end_time,
+            "due_date": question_group_instance.preference.due_date,
+            "student": self.student,
+            "is_script_hold": self.script_instance.has_paused,
         }
 
     def get_question_group(self):
-        self.question_group_instance = get_object_or_404(QuestionGroup, title=self.kwargs.get("QGT"), pk=self.kwargs.get("QGPK"), course__code=self.kwargs.get("course_code"))
-        return self.question_group_instance
+        self.question_group_instance = get_object_or_404(QuestionGroup, title=self.kwargs.get("QGT"),
+                                                         pk=self.kwargs.get("QGPK"),
+                                                         course__code=self.kwargs.get("course_code"))
+        # return self.question_group_instance
 
+
+class MultiChoiceQuestionResultTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "assessment/MC_exam_done.html"
+
+    def is_student_script(self):
+        student = self.request.user.student
+        return student == self.get_student_script().student
+
+    def get(self, request, *args, **kwargs):
+        if self.is_student_script():
+            self.student_script_instance.score_student()
+            return super(MultiChoiceQuestionResultTemplateView, self).get(request, *args, **kwargs)
+        else:
+            return get_http_forbidden_response()
+
+    def get_student_script(self):
+        self.student_script_instance = get_object_or_404(MultiChoiceScripts,
+                                                         student_id=self.kwargs.get("student_id"),
+                                                         course_id=self.kwargs.get("course_id"),
+                                                         question_group_id=self.kwargs.get("question_group_id")
+                                                         )
+        return self.student_script_instance
+
+    def get_context_data(self, **kwargs):
+        ctx = super(MultiChoiceQuestionResultTemplateView, self).get_context_data(**kwargs)
+        ctx["student_script"] = self.student_script_instance
+        ctx["student"] = self.request.user.student
+        ctx["question_group"] = self.student_script_instance.question_group
+        total_question_num = self.student_script_instance.question_group.question_set.count()
+        answered = self.student_script_instance.get_answered_question_queryset().count()
+        ctx["answered_option"] = answered
+        ctx["un_answered_option"] = total_question_num - answered
+        ctx["total_questions_num"] = total_question_num
+        ctx["score"] = self.student_script_instance.get_selected_option__is_answer_option_sum()
+        wrong_answers_num = self.student_script_instance.get_wrong_answers_count()
+        ctx["correct_answers_num"] = total_question_num - wrong_answers_num
+        ctx["wrong_answers_num"] = wrong_answers_num
+        return ctx
+
+
+class QuestionsPreviewTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "assessment/preview_questions.html"
+
+    def is_lecture_course_master(self):
+        self.question_group = get_object_or_404(QuestionGroup, title=self.kwargs.get("question_group_title"),
+                                                pk=self.kwargs.get("question_group_pk"))
+        return self.question_group.course.lecture.profile == self.request.user
+
+    def get(self, request, *args, **kwargs):
+        user = get_user(request)
+        if user.is_lecture and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.CONDUCT:
+            self.question_group.status = "conduct"
+            if not self.question_group.preference:
+                preference = AssessmentPreference.objects.create(
+                    due_date=timezone.now(),
+                    environment="any",
+                )
+                self.question_group.preference = preference
+            self.question_group.save()
+            return super(QuestionsPreviewTemplateView, self).get(request, *args, **kwargs)
+        elif self.is_lecture_course_master():
+            return get_http_forbidden_response(message="We can not help you with that. this time")
+        else:
+            return get_http_forbidden_response()
+
+    def get_context_data(self, **kwargs):
+        ctx = super(QuestionsPreviewTemplateView, self).get_context_data(**kwargs)
+        ctx["question_group"] = self.question_group
+        ctx["total_questions_num"] = self.question_group.question_set.count()
+        ctx["all_questions"] = self.question_group.question_set.all()
+        return ctx

@@ -29,6 +29,7 @@
                     <td>TIME ALLOWED</td>
                     <td>{{ q_preference.duration|time:"H \h\o\u\r\s  i \m\i\n\u\t\e\s"}}</td>
                 </tr>
+                {% if q_preference.due_date %}
                 <tr>
                     <td>DUE ON</td>
                     <td>
@@ -38,6 +39,7 @@
                         </div>
                          </td>
                 </tr>
+                {% endif %}
                 <tr>
                     <td>HALL</td>
                     <td>{{ q_preference.get_environment_display|upper }}</td>
@@ -82,7 +84,7 @@
 
     <div class="row my-3">
         <div class="col-md-6 mx-auto">
-            <a href="{% url 'assessment:MCQ_exam_start' QGT=question_group.title question_pk=question_group.question_set.first.pk course_code=question_group.course.code %}" class="btn btn-success btn-block">Start {{ question_group.get_title_display }}</a>
+            <a href="{% url 'assessment:MCQ_exam_start' QGT=question_group.title QGPK=question_group.pk course_code=question_group.course.code %}?question=1" class="btn btn-success btn-block" onclick="spinOnClick(this)">Start {{ question_group.get_title_display }}</a>
         </div>
     </div>
 </div>

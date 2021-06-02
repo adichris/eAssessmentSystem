@@ -1,20 +1,36 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="jumbotron" style="background-color: #dfffdd">
-        <div class="container">
+    <div class="jumbotron alert alert-success">
+        <div class="container my-3 my-lg-4">
             <div class="row">
-                <div class="col-md-6 mx-auto" >
-                    <p>Successfully Registered {{ student.get_name }} to {{ student.get_programme }} (Programme)</p>
-                {% if student.get_programme.course.exists %}
-                    <p class="lead">Courses are:</p>
-                    <ul class="list-group">
-                        {% for course in student.get_programme.course.all %}
-                            <li class="list-group-item">{{ course }}</li>
+                <div class="col-md-10 col-lg-8 mx-auto" >
+                    <h5>Successfully Registered  <a href="{{ student.profile.get_absolute_url }}" class="alert-link">{{ student.get_name }}</a> to <a href="{{ student.programme.get_absolute_url }}" class="alert-link">{{ student.programme }} Programme</a></h5>
+                    <p class="lead">Courses for level {{ student.level }}</p>
+                    <hr>
+                    <table class="table table-bordered table-success">
+                        <tr>
+                            <th>#</th>
+                            <th>Course Name</th>
+                            <th>Course Code</th>
+                            <th>Course Master</th>
+                            <th>Level</th>
+                        </tr>
+                        {% for course in student.programme.coursemodel_set.all %}
+                            {% if course.level == student.level %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><a class="alert-link" href="{{ course.get_absolute_url }}">{{ course.name }}</a></td>
+                                    <td>{{ course.code }}</td>
+                                    <td>{{ course.lecture }}</td>
+                                    <td>{{ course.level }}</td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
-                    </ul>
-              {% endif %}
-                    <a href="{% url 'student:register' %}" class="btn btn-link">Add another</a>
-                    <a href="" class="btn btn-link">All student</a>
+                    </table>
+                <div class="btn-group btn-block bg-light">
+                    <a  href="{% url 'student:register' %}" class="btn btn-link">Add another</a>
+                    <a href="{% url 'student:listLectureStudent' %}" class="btn btn-link">All student</a>
+                </div>
                 </div>
             </div>
         </div>

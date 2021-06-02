@@ -18,14 +18,17 @@ class AssessmentPreferenceCreateForm(forms.ModelForm):
 
     def clean_due_date(self):
         due_date = self.cleaned_data.get("due_date")
-        if due_date < timezone.now():
-            raise forms.ValidationError("Due Date can not be in the Past")
+        if due_date:
+            if due_date < timezone.now():
+                raise forms.ValidationError("Due Date can not be in the Past")
         return due_date
 
     def clean_duration(self):
         duration = self.cleaned_data.get("duration")
-        if timezone.timedelta(hours=duration.hour, minutes=duration.minute, seconds=duration.second) < timezone.timedelta(minutes=5):
-            raise forms.ValidationError("Minimum duration should be 5 minutes")
+        if duration:
+            if timezone.timedelta(hours=duration.hour, minutes=duration.minute, seconds=duration.second) < timezone.timedelta(minutes=5):
+                raise forms.ValidationError("Minimum duration should be 5 minutes")
+
         return duration
 
 
@@ -68,11 +71,14 @@ def clean(self):
         return
     correct_options = []
     for form in self.forms:
-        if self.can_delete and self._should_delete_form(form):
+        try:
+            if self.can_delete and self._should_delete_form(form):
+                continue
+        except AttributeError:
             continue
         option = form.cleaned_data.get('is_answer_option')
-        if option in correct_options and len(correct_options) > 1:
-            raise forms.ValidationError(f"This question has {correct_options.__len__()} options marked as correct "
+        if option in correct_options:
+            raise forms.ValidationError(f"This question has more than {correct_options.__len__()} options marked as correct "
                                         f"answer. Please correct that, it must be only 1 correct answer for each "
                                         f"question.")
         if option:
@@ -84,7 +90,7 @@ def clean(self):
 class BaseOptionsFormSet(forms.BaseFormSet):
     def clean(self):
         """ Checks that no two or more optional is checked as correct answer in the same question."""
-        clean(self)
+        clean(self=self)
 
 
 class BaseOptionsInlineFormSet(forms.BaseInlineFormSet):
@@ -98,6 +104,9 @@ class StudentMultiChoiceAnswerForm(forms.ModelForm):
     class Meta:
         model = StudentMultiChoiceAnswer
         fields = ("selected_option", )
+        labels = {
+            "selected_option": "Select Any Option."
+        }
 
         widgets = {
             "selected_option": forms.RadioSelect,

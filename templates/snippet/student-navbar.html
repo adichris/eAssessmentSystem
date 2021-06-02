@@ -1,5 +1,5 @@
 {% load static %}
-<div class="navbar navbar-expand-lg navbar-default sticky-top transparentBlur">
+<div class="navbar navbar-expand-lg navbar-default sticky-top transparentBlur bg-white50">
     <div class="container">
         <a class="navbar-brand" href="{%  url 'landing-page' %}"><img src="{% static 'DefaultImg/class_logo.png' %}" alt="Assessment logo" class="img-fluid" style="height: 1.5em;"></a>
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#studentNavbar" aria-controls="studentNavbar" aria-expanded="false" aria-label="toggle Navigation bar">
@@ -28,12 +28,14 @@
             <ul class="navbar-nav ml-md-auto">
                 <li class="nav-item dropdown">
                     <a href="" class="nav-link dropdown-toggle" id="student_profile" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-graduation-cap fa-fw mr-2"></i>{{ request.user }}</a>
-                    <div class="dropdown-menu" aria-labelledby="student_profile">
+                    <div class="dropdown-menu transparentBlur bg-white50" aria-labelledby="student_profile">
+                        <a class="dropdown-item-text text-muted text-monospace" title="Your Index Number">{{ request.user.username }}</a>
+                        <div class="dropdown-divider"></div>
                         <a href="{{ request.user.get_absolute_url }}" class="dropdown-item"><i class="fa fa-id-card mr-2"></i>Profile</a>
                         <a href="" class="dropdown-item"><i class="fa fa-envelope mr-2"></i>Message</a>
                         <a href="" class="dropdown-item"><i class="fa fa-cog fa-1x fa-fw mr-2"></i>Setting</a>
                         <div class="dropdown-divider"></div>
-                        <a href="{% url 'accounts:logout' %}" class="dropdown-item">Logout</a>
+                        <a href="{% url 'accounts:logout' %}" class="dropdown-item"><span class="fa fa-power-off mr-2"></span>Logout</a>
                     </div>
                 </li>
             </ul>

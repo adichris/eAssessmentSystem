@@ -1,8 +1,8 @@
-    <div class="card {% if color_bg and value %} bg-primary {% elif color_bg %} bg-light {% endif %}">
+    <div class="card " style="background-color: {% if color_bg and value %} #b8daff {% elif color_bg %} #eee {% endif %}">
         <div class="card-body">
             {% if new_line %}
-                <h5>{%  if fa_icon %} <i class="{{ fa_icon }}"></i> {% endif %} {{ label }}</h5>
-                <p id="{{ value_id }}">{{ value }}</p>
+                <p>{%  if fa_icon %} <i class="{{ fa_icon }}"></i> {% endif %} {{ label }}</p>
+                <h5 id="{{ value_id }}" class="{% if tc %} text-center {% endif %}">{{ value }}</h5>
                 <small>{{ caption }}</small>
             {% else %}
                 <h5 id="{{ value_id }}">{%  if fa_icon %} <i class="{{ fa_icon }}"></i> {% endif %}<b> {{ label }}</b> {{ value }}</h5>

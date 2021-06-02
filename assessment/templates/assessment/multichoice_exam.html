@@ -1,44 +1,184 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
     <div class="container">
-        <div class="row">
+        <div class="row my-3">
             <div class="col-md-6 mx-auto">
-                <h5 class="text-center">{{ question.group.get_title_display }}</h5>
+                <h4 class="text-center">{{ question.group.course }} {{ question.group.get_title_display }}</h4>
+                <hr>
             </div>
         </div>
 
         <div class="row">
             <div class="col-12">
                 <div class="card-group">
-                    {% include 'snippet/H_label_value_card.html' with new_line=1 label="Duration"  value=question.group.preference.duration|time:"h \h\o\u\r\s \: i \m\i\n\u\t\e\s" %}
-                    {% include 'snippet/H_label_value_card.html' with new_line=1 label="Remaining Time" value_id="id_time_remaining" value=question.group.preference.duration|time:"h \h\o\u\r\s \: i \m\i\n\u\t\e\s" %}
-                    {% include 'snippet/H_label_value_card.html' with new_line=1 label="Start Time" value=today.time  %}
-                    {% include 'snippet/H_label_value_card.html' with new_line=1 label=today %}
+                    {% if duration %}
+                        <div class="card">
+                            <div class="card-body">
+                                <p>Duration</p>
+                                <h5 class="text-center" >{{ duration|time:"h \h\o\u\r\s \: i \m\i\n\u\t\e\s" }}</h5>
+                                <hr>
+                                <p>Due Date (Deadline)</p>
+                                <h5 class="text-center" >{{ due_date }}</h5>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <p>Start Time</p>
+                                <h5 class="text-center" >{{ start_timestamp.time }}</h5>
+                                <p class="text-center" >{{ start_timestamp.date }}</p>
+                                <hr>
+                                <p class="" >End Time</p>
+                                <h5 class="text-center" >{{ end_time }}</h5>
+                            </div>
+                        </div>
+                        {% if used_time %}
+                            <div class="card" id="id_time_used">
+                                <div class="card-body">
+                                    <p>Time Used</p>
+                                    <h5 class="text-center" id="id_time_remaining">{{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}</h5>
+                                    <p id="time_up" class="text-center"></p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% elif due_date %}
+                        <div class="card">
+                            <div class="card-body">
+                                <p>Due Date (Deadline)</p>
+                                <h5 class="text-center" >{{ due_date }}</h5>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="lead text-center mt-3">NO TIME RESTRICTION</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Now</p>
+                            <h5 class="text-center" id="id_today_time">{{ today.time }}</h5>
+                            <p class="text-center" id="id_today_date">{{ today.date }}</p>
+                        </div>
+                    </div>
                 </div>
+                <hr>
             </div>
         </div>
 
         <div class="row my-3">
-            <div class="col-md-8 mx-auto">
-                <form action="" method="post">
-                {% csrf_token %}
-                    <p>Question 1</p>
-                    <hr>
-                    <h5>{{ question.question }}</h5>
-                    {{ answer_form | crispy }}
-                    <div class="btn-group btn-block">
-                        <a href="" class="btn btn-secondary">Previous Question</a>
-                        <button type="submit" class="btn btn-primary">Next Question</button>
+            <div class="col-md-12 col-lg-10 mx-auto">
+                <form action="" method="post" >
+                    <div id="id_form_question">
+                    {% csrf_token %}
+                        <h1>Question {{ question_page.number }}</h1>
+                        <hr>
+                        <h5>{{ question.question }}</h5>
+                        {{ answer_form | crispy }}
+                        <input type="hidden" name="question" value="{% if question_page.has_next %} {{ question_page.next_page_number }} {% else %} {{ question_page.number }}  {% endif %}">
+                        <div class="btn-group btn-block">
+                            <button type="submit" class="btn btn-primary" onclick="appendSpinOnClick(this)">{% if question_page.paginator.num_pages == question_page.number %} Done {% else %}Save{% endif %}</button>
+                        </div>
                     </div>
+                <div class="col-auto mx-auto my-3" id="id_show_on_time_up" hidden>
+                    <div  class="card">
+                        <div class="card-body">
+                            <p class="text-center">{{ student.get_name }}, your time is up.</p>
+                            <p class="text-center">Submit Your Scripts</p>
+                            <button type="submit" class="btn btn-block btn-outline-light text-center" name="submit" value="done" onclick="appendSpinOnClick(this)">
+                                <img src="{% static 'icons/script.svg' %}" alt="" class="img-fluid" style="max-height: 305px">
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 </form>
             </div>
         </div>
+
+        <div class="row" id="id_pagniation">
+            <div class="col-md-12 col-lg-10 mx-auto">
+            <nav aria-label="Question navigation">
+                <div class="pagination justify-content-center">
+                    {% if question_page.has_previous %}
+                        <p class="page-item"><a class="page-link" href="?question=1" onclick="spinOnClick(this)">&laquo; first</a></p>
+                        <p class="page-item"><a class="page-link" href="?question={{ question_page.previous_page_number }}" onclick="spinOnClick(this)">previous</a></p>
+                    {% endif %}
+
+                    <span class="current page-item disabled">
+                        <span class="page-link">Question {{ question_page.number }} of {{ question_page.paginator.num_pages }}.</span>
+                    </span>
+
+                    {% if question_page.has_next %}
+                        <p class="page-item"><a class="page-link" href="?question={{ question_page.next_page_number }}" onclick="spinOnClick(this)">next</a></p>
+                        <p class="page-item"><a class="page-link" href="?question={{ question_page.paginator.num_pages }}" onclick="spinOnClick(this)">last &raquo;</a></p>
+                    {% endif %}
+                </div>
+            </nav>
+            </div>
+        </div>
+
     </div>
+
 {% endblock content %}
 
 {% block afterScripts %}
+    <script src="{% static 'utils/moment.min.js' %}"></script>
     <script>
 
+        var todayTime = document.getElementById("id_today_time")
+        var todayDate = document.getElementById("id_today_date")
+        {% if duration %}
+
+        var duration_hour = {{ duration.hour|default:0 }} ;
+        var duration_minute = {{ duration.minute|default:0 }} ;
+        var MomemtUsed = moment(`{{ today.date }} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
+        {% endif %}
+
+        $(".form-check").addClass("d-flex justify-content-between align-items-center")
+        var formCheckInput = $(".form-check .form-check-input")
+        var formCheckInputLabel = $(".form-check-label")
+        formCheckInput.addClass("my-auto")
+        formCheckInputLabel.addClass("btn btn-light my-1 btn-block")
+
+        {% if used_time %}
+            var timeRemaining = document.getElementById("id_time_remaining")
+
+            setInterval(function (){
+                MomemtUsed = MomemtUsed.add(1, "second")
+                timeRemaining.innerHTML = `${MomemtUsed.hours()}:${MomemtUsed.minutes()}:${MomemtUsed.second()} `
+                if(duration_hour > 0 && MomemtUsed.hour >= duration_hour && duration_minute >= MomemtUsed.minute){
+                    {#$("#id_time_used").css("backgroundColor", "#fc98a4");#}
+                    document.getElementById("id_show_on_time_up").removeAttribute("hidden")
+                    $("#id_time_used").addClass("alert alert-danger")
+                    document.getElementById("time_up").innerHTML = "<hr><b>TIME UP</b>";
+                    document.getElementById("id_form_question").setAttribute("hidden", true)
+                    document.getElementById("id_pagniation").setAttribute("hidden", true)
+
+                 }
+
+            }, 1000)
+        {% endif %}
+        setInterval(function (){
+            todayTime.innerHTML = moment().format('LTS')
+            todayDate.innerHTML = moment().format('dddd, MMMM Do YYYY')
+
+        }, 1000)
+
+
+        for ( idx = 0; idx < formCheckInput.length; idx ++){
+            elem = formCheckInput[idx]
+            elem.addEventListener("click",checked)
+            if (elem.checked){
+                elem.labels[0].classList.add("active")
+            }
+        }
+
+        function checked() {
+            if (this.checked)
+                formCheckInputLabel.removeClass("active")
+                this.labels[0].classList.add("active")
+        }
     </script>
 {% endblock %}

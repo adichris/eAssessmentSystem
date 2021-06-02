@@ -1,5 +1,6 @@
 .transparentBlur {
         backdrop-filter: saturate(180%) blur(20px) !important;
+        /*background-color: #ccc;*/
     }
 
 .bg-white50 {

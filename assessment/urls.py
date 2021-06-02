@@ -5,7 +5,9 @@ from .views import (AssessmentQuestionGroupDetailView, CreateMultipleChoiceQuest
                     ConductAssessment, MarkAssessment, AssessmentPreferenceCreateView,
                     ConductingAssessment, StudentAssessmentView, StudentResultTemplateView,
                     QuestionGroupUpdateView, GenerateQMarksRedirectQGroupRV, AssessmentPreferenceUpdateView,
-                    StudentAssessingTemplateView, MultiChoiceQuestionsExaminationView)
+                    StudentAssessingTemplateView, MultiChoiceQuestionsExaminationView, MultiChoiceQuestionResultTemplateView,
+                    QuestionsPreviewTemplateView,
+                    )
 
 
 app_name = "assessment"
@@ -24,12 +26,14 @@ urlpatterns = [
     path("mark/", MarkAssessment.as_view(), name="mark"),
     path("preference/<str:question_group_title>/<str:question_group_pk>/", AssessmentPreferenceCreateView.as_view(), name="preference"),
     path("preference/<str:question_group_title>/<str:question_group_pk>/<str:environment>/<int:pk>/", AssessmentPreferenceUpdateView.as_view(), name="preference_update"),
-    path("conducting_test/<str:question_group_title>/<str:question_group_pk>/", ConductingAssessment.as_view(), name="conducting"),
+    path("conducting_test/<str:course_name>/<int:question_group_pk>/<int:course_pk>/", ConductingAssessment.as_view(), name="conducting"),
+    path("conducting_test/preview_question/<str:question_group_title>/<str:question_group_pk>/", QuestionsPreviewTemplateView.as_view(), name="pre_questions_conducting"),
     path("student/view/", StudentAssessmentView.as_view(), name="student"),
     path("student/result/", StudentResultTemplateView.as_view(), name="student_result"),
     path("generateMarks/<str:QGT>/<int:QGPK>/", GenerateQMarksRedirectQGroupRV.as_view(), name="generate_marks"),
     path("student/HALL/<str:QGT>/<int:QGPK>/", StudentAssessingTemplateView.as_view(), name="student_assessing"),
 
     path("examination/start/<str:course_code>/<str:QGT>/<int:QGPK>/", MultiChoiceQuestionsExaminationView.as_view(), name="MCQ_exam_start"),
+    path("examination_done/multi_choice/<int:student_id>/<int:course_id>/<int:question_group_id>/", MultiChoiceQuestionResultTemplateView.as_view(), name="MCQ_exam_done"),
 
 ]

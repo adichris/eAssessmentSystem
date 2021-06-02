@@ -21,12 +21,22 @@ class StudentRecordTemplateView(LoginRequiredMixin, TemplateView):
     template_name = "record/student.html"
 
     def get_student(self):
-        return get_user(self.request).student
+        user = get_user(self.request)
+        try:
+            return user.student
+        except AttributeError:
+            return None
 
     def get(self, request, *args, **kwargs):
         student = self.get_student()
 
         if student and student.programme:
             return super(StudentRecordTemplateView, self).get(request, *args, **kwargs)
-        else:
+        elif student:
             return get_http_forbidden_response()
+
+        elif self.request.user.is_authenticated:
+            return get_http_forbidden_response("You are not registered as a student")
+        else:
+            return redirect("accounts:student_login")
+

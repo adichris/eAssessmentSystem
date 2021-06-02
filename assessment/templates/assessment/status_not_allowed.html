@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-4">
+            <div class="col-md-6 mx-auto">
+                <div class="card">
+                    <div class="card-img-top text-center">
+                        <img {% if is_completed %} src="{% static 'icons/completed_task.svg' %}" {% else %} src="{% static 'DefaultImg/500.webp' %}" {% endif %} class="img-fluid" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-center alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
+                            {{ reason|safe }}
+                            {% if return_link %}
+                                <a href="{{ return_link }}" class="alert-link"><i title="return to assessment" class="fa fa-times-circle"></i></a>
+                            {% endif %}
+                        </p>
+                        {% if tip %}
+                            <p class="alert alert-info small"><i class="fa fa-info-circle mr-2"></i>{{ tip }}</p>
+                        {% endif %}
+                        {% if is_completed and question_group_instance %}
+                            <a href="{% url 'assessment:MCQ_exam_done' course_id=question_group_instance.course_id question_group_id=question_group_instance.id student_id=request.user.student.id %}" class="btn btn-info btn-block" onclick="spinOnClick(this)">Check your result</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

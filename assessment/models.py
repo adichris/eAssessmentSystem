@@ -43,10 +43,11 @@ class AssessmentPreference(models.Model):
     is_question_shuffle = models.BooleanField(default=False, verbose_name="Shuffle Questions",
                                               help_text="Rearrange questions for each student")
     instruction = models.CharField(max_length=150, default="answer all questions",
-                                   help_text="Quiz or midsem instruction. eg:ANSWER ALL QUESTIONS,")
+                                   help_text="Assessment instruction. eg:ANSWER ALL QUESTIONS,")
+    start_time = models.TimeField(null=True, blank=True, help_text="Assessment start time")
 
     def __str__(self):
-        return str(self.due_date)
+        return f"{self.environment} ({self.pk})"
 
 
 class QuestionGroup(models.Model):
@@ -76,11 +77,11 @@ class QuestionGroup(models.Model):
                        )
 
     def generate_marks(self):
-        if self.is_share_total_marks or self.questions_type == QuestionTypeChoice.MULTICHOICE:
-            each_mark = self.total_marks / self.question_set.count()
-            for question in self.question_set.all():
-                question.max_mark = each_mark
-                question.save()
+        # if self.is_share_total_marks or self.questions_type == QuestionTypeChoice.MULTICHOICE:
+        each_mark = self.total_marks / self.question_set.count()
+        for question in self.question_set.all():
+            question.max_mark = each_mark
+            question.save()
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -135,14 +136,56 @@ class MultiChoiceScripts(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     course = models.ForeignKey(CourseModel, on_delete=models.CASCADE)
     question_group = models.ForeignKey(QuestionGroup, on_delete=models.CASCADE)
+    updated_at = models.DateTimeField(auto_now=True)
+    score = models.FloatField(blank=True, null=True)
+    # correct_answers = models.IntegerField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    time_remain = models.TimeField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    has_paused = models.BooleanField(default=False)
+    is_canceled = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Multi Choice Script"
+        verbose_name_plural = verbose_name + "s"
 
     def __str__(self):
-        return "%s %s %s" % (self.student, self.course, self.question_group.get_title_display())
+        return "%s - %s %s" % (self.student, self.course, self.question_group.get_title_display())
+
+    def score_student(self):
+        # score = 0
+        # c_answer = 0
+        # for SMCA in self.studentmultichoiceanswer_set.all():
+        #     for m_option in SMCA.question.multichoicequestion_set.all():
+        #         if m_option.is_answer_option and m_option == SMCA.selected_option:
+        #             score += SMCA.question.max_mark
+        #             c_answer += 1
+        #
+        # self.score = score
+        # self.correct_answers = c_answer
+        # self.save()
+
+        # The new way
+
+        self.score = self.get_selected_option__is_answer_option_sum()
+        # self.correct_answers = self.get_answered_question_queryset().count()
+        self.save()
+
+    def get_answered_question_queryset(self):
+        self.answered_question_queryset_instance__ = self.studentmultichoiceanswer_set.filter(selected_option__isnull=False)
+        return self.answered_question_queryset_instance__
+
+    def get_selected_option__is_answer_option_sum(self):
+        self.correct_answers_set = self.studentmultichoiceanswer_set.filter(selected_option__is_answer_option=True)
+        return sum([a.question.max_mark for a in self.correct_answers_set])
+
+    def get_wrong_answers_count(self):
+        return self.question_group.question_set.count() - self.correct_answers_set.count()
 
 
 class StudentMultiChoiceAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, )
-    selected_option = models.ForeignKey(MultiChoiceQuestion, on_delete=models.CASCADE, blank=True, null=True)
+    selected_option = models.ForeignKey(MultiChoiceQuestion, on_delete=models.CASCADE, null=True, blank=True)
     script = models.ForeignKey(MultiChoiceScripts, on_delete=models.CASCADE)
 
 
