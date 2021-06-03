@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-3 mt-lg-4">
+            <div class="col-md-6 mx-auto">
+                <p class="btn-block text-center lead font-weight-bold">General Setting</p>
+                <hr>
+                <div class="card shadow" style="margin-top: 4em">
+                    <div class="card-body">
+                        <div class="text-center " style="margin-top: -3.7em">
+                            <i class="fa fa-cog fa-5x mx-auto text-dark"></i>
+                        </div>
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <button type="submit" class="btn btn-primary btn-block mt-3 mt-lg-4" onclick="spinOnClick(this)">Save</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3 mt-lg-4">
+                        <span><span class="fa fa-info-circle mr-2"></span> Change your assessment <i class="fa fa-spin fa-cog"></i> to reflect your academic calendar</span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

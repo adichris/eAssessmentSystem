@@ -1,5 +1,5 @@
 from django.db import models
-from course.models import CourseModel
+from course.models import CourseModel, LectureModel
 from accounts.models import User
 from django.shortcuts import reverse
 from student.models import Student
@@ -77,11 +77,14 @@ class QuestionGroup(models.Model):
                        )
 
     def generate_marks(self):
-        # if self.is_share_total_marks or self.questions_type == QuestionTypeChoice.MULTICHOICE:
-        each_mark = self.total_marks / self.question_set.count()
-        for question in self.question_set.all():
-            question.max_mark = each_mark
-            question.save()
+        if self.is_share_total_marks or self.questions_type == QuestionTypeChoice.MULTICHOICE:
+            try:
+                each_mark = self.total_marks / self.question_set.count()
+                for question in self.question_set.all():
+                    question.max_mark = each_mark
+                    question.save()
+            except ZeroDivisionError:
+                pass
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -189,16 +192,28 @@ class StudentMultiChoiceAnswer(models.Model):
     script = models.ForeignKey(MultiChoiceScripts, on_delete=models.CASCADE)
 
 
-class StudentTheoryAnswer(models.Model):
+class StudentTheoryScript(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    answer = models.TextField(blank=True, null=True, unique=False)
+    question_group = models.ForeignKey(QuestionGroup, on_delete=models.CASCADE)
 
 
-class LectureScheme(models.Model):
+class StudentTheoryAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    answer = models.TextField()
+    answer = models.TextField(blank=True, null=True, unique=False)
+    script = models.ForeignKey(StudentTheoryScript, on_delete=models.CASCADE)
 
 
 class TheoryMarkingScheme(models.Model):
-    question_group = models.OneToOneField(QuestionGroup, on_delete=models.CASCADE, unique=True)
-    answers = models.OneToOneField(LectureScheme, unique=True, on_delete=models.CASCADE)
+    question_group = models.OneToOneField(QuestionGroup, on_delete=models.CASCADE)
+    lecture = models.ForeignKey(LectureModel, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{str(self.question_group.course)} {str(self.question_group.get_title_display())} Marking Scheme"
+
+
+class Solution(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.TextField()
+    notes = models.TextField(blank=True, null=True)
+    scheme = models.ForeignKey(TheoryMarkingScheme, on_delete=models.CASCADE)
+

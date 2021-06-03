@@ -3,9 +3,11 @@
 {% block content %}
     <div class="container">
         <div class="row mt-4">
-            <div class="col-12 mx-auto">
-                <h5 class="text-center ">{{ questiongroup.course }} {{ object.get_title_display }}</h5>
-                <hr>
+            <div class="col-md-4 mx-auto">
+                    <a href="{% url 'department:programme:course:detail' courseName=questiongroup.course.name pk=questiongroup.course_id %}" onclick="appendSpinOnClick(this)" class="btn btn-link"><i class="fa fa-chevron-left mr-2"></i>back</a>
+            </div>
+            <div class="col-md-8">
+                <h5 class="text-center"><u>{{ questiongroup.course }} {{ object.get_title_display }}</u></h5>
             </div>
         </div>
 
@@ -33,8 +35,8 @@
                     <div class="{% if not questiongroup.preference %} card-body {% endif %}">
                         {% if questiongroup.preference %}
                             <div class="card-group">
-                                {%  include "snippet/H_label_value_card.html" with label="Duration" value=questiongroup.preference.duration|time new_line=1 %}
-                                {%  include "snippet/H_label_value_card.html" with label="Due Date" value=questiongroup.preference.due_date|timeuntil caption=questiongroup.preference.due_date new_line=1 %}
+                                {%  include "snippet/H_label_value_card.html" with label="Duration" value=questiongroup.preference.duration|time|default:"No Duration" new_line=1 %}
+                                {%  include "snippet/H_label_value_card.html" with label="Due Date" value=questiongroup.preference.due_date|timeuntil|default:"No Due Date" caption=questiongroup.preference.due_date|default:"" new_line=1 %}
                                 {%  include "snippet/H_label_value_card.html" with label="Environment" value=questiongroup.preference.get_environment_display new_line=1 %}
                                 {%  include "snippet/H_label_value_card.html" with label="Shuffle " value=questiongroup.preference.is_question_shuffle|yesno:"ON,OFF" color_bg=1 new_line=1 %}
                             </div>
@@ -73,10 +75,10 @@
             <div class="btn-group btn-block mb-3">
                 {% if questiongroup.questions_type == "multichoice" %}
                     <a href="{% url 'assessment:prepare_MCQ' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)">Add Another Question in {{ questiongroup.get_title_display }} </a>
-                    {% elif questiongroup.questions_type == "theory" %}
+                {% elif questiongroup.questions_type == "theory" %}
                     <a href="{% url 'assessment:prepare_theory' QGPK=questiongroup.pk QGT=questiongroup.title %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)">Edit {{ questiongroup.get_title_display }}</a>
                 {% endif %}
-                    <a href="{% url 'assessment:generate_marks' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-secondary" title="generate base on the total marks" onclick="appendSpinOnClick(this)">Generate Marks </a>
+                    <a href="{% url 'assessment:generate_marks' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-warning" title="generate base on the total marks" onclick="appendSpinOnClick(this)">Generate Marks </a>
                     <a href="{% url 'assessment:delete_question_group' coursePK=questiongroup.course.pk courseName=questiongroup.course.name pk=questiongroup.pk %}" class="btn btn-outline-danger" onclick="appendSpinOnClick(this)">Remove {{ questiongroup.get_title_display }} Questions</a>
             </div>
         {% endif %}
@@ -126,7 +128,12 @@
 
             </table>
         {% if questiongroup.status == "prepared" %}
-            <a href="{% url 'assessment:prepare_MCQ' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-secondary btn-block" onclick="appendSpinOnClick(this)">Add Question {{ questiongroup.question_set.count|add:"1" }} </a>
+            {% if questiongroup.questions_type == "multichoice" %}
+                <a href="{% url 'assessment:prepare_MCQ' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-secondary btn-block" onclick="appendSpinOnClick(this)">Add Question {{ questiongroup.question_set.count|add:"1" }} </a>
+
+            {% elif questiongroup.questions_type == "thoery" %}
+                <a href="{% url 'assessment:prepare_theory' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-secondary btn-block" onclick="appendSpinOnClick(this)">Add Question {{ questiongroup.question_set.count|add:"1" }} </a>
+            {% endif %}
         {% endif %}
         </div>
     </div>
@@ -148,13 +155,13 @@
                 {% for question in questions %}
                         <tr>
                             <th>{{ forloop.counter }}</th>
-                            <td>{{ question }}</td>
+                            <td>{{ question|linebreaksbr }}</td>
                             <td class="text-center">{{ question.max_mark|floatformat:2|default_if_none:"---" }}</td>
                             <td>{{ question.updated }}</td>
                             {% if not questiongroup.status == "conduct" %}
                             <td>
-                                <a href="{% url 'assessment:update_theory' group_title=question.group.title pk=question.pk %}" class="btn btn-outline-secondary btn-block" onclick="addAnotherQuestion(this)">Edit</a>
-                                <a href="{{ question.get_absolute_delete_url }}" class="btn btn-outline-danger btn-block" onclick="addAnotherQuestion(this)">Remove</a>
+                                <a href="{% url 'assessment:update_theory' group_title=question.group.title pk=question.pk %}" class="btn btn-outline-secondary btn-block" onclick="appendSpinOnClick(this)">Edit</a>
+                                <a href="{{ question.get_absolute_delete_url }}" class="btn btn-outline-danger btn-block" onclick="appendSpinOnClick(this)">Remove</a>
                             </td>
                             {% endif %}
                         </tr>

@@ -5,7 +5,8 @@
         {% if request.user.is_staff %}
             <div class="row">
                 <div class="col-12">
-                    <h4 class="text-center mt-4">{{ coursemodel }}</h4>
+                    <p class="text-center mt-4 lead">Programme <b>{{ coursemodel.programme }}</b> </p>
+                    <p class="text-center mt-4 lead">Course  <b>{{ coursemodel }} </b></p>
                     <div class="d-flex justify-content-between align-items-center mt-4">
                         <h5 class="lead mr-4">Assessment</h5>
                     </div>
@@ -22,31 +23,31 @@
                         <div class="card-body table-borderless">
                             <table class="table table-striped">
                                 <tr>
-                                    <th>Title</th>
-                                    <td>{{ coursemodel.name }}</td>
+                                    <td>Title</td>
+                                    <th>{{ coursemodel.name }}</th>
                                 </tr>
                                <tr>
-                                    <th>Code</th>
-                                    <td>{{ coursemodel.code }}</td>
+                                    <td>Code</td>
+                                    <th>{{ coursemodel.code }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Level</th>
-                                    <td>{{ coursemodel.level }}</td>
+                                    <td>Level</td>
+                                    <th>{{ coursemodel.level }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Master</th>
-                                    <td>{{ coursemodel.lecture }}</td>
+                                    <td>Master</td>
+                                    <th>{{ coursemodel.lecture }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Programme</th>
-                                    <td>{{ coursemodel.programme }}</td>
+                                    <td>Programme</td>
+                                    <th>{{ coursemodel.programme }}</th>
                                 </tr>
                             </table>
                         </div>
                         {% if request.user.is_admin %}
                             <div class="card-footer btn-group">
-                                <a href="{% url 'department:programme:course:delete' courseName=coursemodel.name pk=coursemodel.pk course_programme_pk=coursemodel.programme.pk %}" class="btn btn-outline-danger card-footer-item">Delete</a>
-                                <a href="{{ coursemodel.get_update_url }}" class="btn btn-outline-secondary card-footer-item">Edit</a>
+                                <a href="{% url 'department:programme:course:delete' courseName=coursemodel.name pk=coursemodel.pk course_programme_pk=coursemodel.programme.pk %}" class="btn btn-outline-danger card-footer-item" onclick="spinOnClick(this)">Delete</a>
+                                <a href="{{ coursemodel.get_update_url }}" class="btn btn-outline-secondary card-footer-item" onclick="spinOnClick(this)">Edit</a>
                             </div>
                         {% endif %}
                     </div>
@@ -68,7 +69,7 @@
                                     <tr>
                                         <td>{{ quiz.get_title_display }}</td>
                                         <td>{{ quiz.total_marks }}</td>
-                                        <td>{{ quiz.preference.due_date }}</td>
+                                        <td>{{ quiz.preference.due_date|default:"---" }}</td>
                                         <td>{{ quiz.get_status_display }}</td>
                                     </tr>
                                 {% endfor %}
@@ -92,9 +93,9 @@
                         </div>
                         <div class="col-md-8 ">
                             <div class="btn-group btn-block">
-                                <a href="{% url 'assessment:create_group' courseName=coursemodel.name coursePK=coursemodel.pk %}" class="btn btn-outline-primary">Prepare Question</a>
-                                <a href="" class="btn btn-outline-primary">View Assigment</a>
-                                <a href="" class="btn btn-outline-primary">View Records</a>
+                                <a href="{% url 'assessment:create_group' courseName=coursemodel.name coursePK=coursemodel.pk %}" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">Prepare Question</a>
+                                <a href="" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">View Assigment</a>
+                                <a href="" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">View Records</a>
                             </div>
                         </div>
                     </div>
@@ -122,7 +123,7 @@
                                </tr>
                            </table>
                             <div class="d-flex justify-content-between align-items-baseline">
-                               <a href="{{ question_group.get_absolute_url }}" class="btn btn-outline-secondary">View</a>
+                               <a href="{{ question_group.get_absolute_url }}" class="btn btn-outline-secondary" onclick="spinOnClick(this)">View</a>
                                <small class="text-muted" title="Last Updated">{{ question_group.updated }}</small>
                            </div>
 

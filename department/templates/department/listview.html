@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row my-3">
             <div class="col-12">
-                <p class="display-4 text-center">All Department in Assessment System</p>
+                <h1 class=" text-center">All Department in Assessment System</h1>
             </div>
         </div>
     
@@ -12,7 +12,7 @@
             <form action="" method="get" class="input-group">
                 <input type="search" value="{{ query }}" name="query" placeholder="{{ queryPlaceholder|title }}" id="id_searchDepartment" class="form-control">
                 <div class="input-group-append">
-                    <button type="submit" class="btn btn-outline-primary">Search</button>
+                    <button type="submit" class="btn btn-outline-primary" onclick="spinOnClick(this)">Search</button>
                 </div>
             </form>
         </div>
@@ -24,7 +24,7 @@
             {% endif %}
             </div>
             <div class="col-md-4 col-lg-3 ml-auto">
-                <a href="{% url 'department:create' %}" class="btn btn-outline-secondary"><i class="fa fa-plus mr-2"></i>Add Department</a>
+                <a href="{% url 'department:create' %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)"><i class="fa fa-plus mr-2"></i>Add Department</a>
             </div>
         </div>
             <hr>
@@ -33,15 +33,24 @@
     
     <div class="row">
         {% for department in department_list %}
-            <div class="col-auto">
+            <div class="col-md-6 col-lg-4">
                 <div class="card card-body">
                     <p class="text-center">{{ department }}</p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">{{ department.students_count }} student registered </li>
-                        <li class="list-group-item">{{ department.programme.count }} programmes registered </li>
-                        <li class="list-group-item">{{ department.lectures_count }} lectures joined    </li>
-                    </ul>
-                    <a href="{{ department.get_absolute_url }}" class="btn btn-outline-secondary btn-block mt-2">Detail</a>
+                    <table class="table table-borderless">
+                        <tr>
+                            <td>Student</td>
+                            <th>{{ department.students_count }}</th>
+                        </tr>
+                        <tr>
+                            <td>Programmes</td>
+                            <th>{{ department.programme_set.count }}</th>
+                        </tr>
+                        <tr>
+                            <td>Lectures</td>
+                            <th>{{ department.lecturemodel_set.count }}</th>
+                        </tr>
+                    </table>
+                    <a href="{{ department.get_absolute_url }}" class="btn btn-outline-secondary btn-block mt-2" onclick="appendSpinOnClick(this)">Detail</a>
                 </div>
             </div>
         {% endfor %}

@@ -3,16 +3,19 @@
     <div class="container">
         <div class="row mt-3">
             <div class="col-12">
-                <p class="display-4 text-center">{{ department }} Department</p>
+                <h1 class=" text-center">{{ department }} Department</h1>
             </div>
         </div>
 {% if request.user.is_staff %}
         <div class="row">
-            <div class="col-md-6 col-lg-9"></div>
-            <div class="col-md-6 col-lg-3 ml-auto">
-                <a href="{% url 'department:programme:add' departmentName=department.name departmentPK=department.pk %}" class="btn btn-primary">Add Programme</a>
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'department:list'  %}" class="btn btn-link" onclick="appendSpinOnClick(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
+
+                    <a href="{% url 'department:programme:add' departmentName=department.name departmentPK=department.pk %}" class="btn btn-primary" onclick="appendSpinOnClick(this)">Add Programme</a>
+                </div>
             </div>
-        </div>
+    </div>
     {% else %}
     <div class="mt-3"></div>
 {% endif %}
@@ -31,12 +34,21 @@
                     <div class="card card-body">
                         <h6 class="card-title">{{ programme }}</h6>
                         <hr style="padding: 0; margin: 0 0 2px 0;">
-                        <p class="card-text">{{ programme.students.count|default:0 }} student registered</p>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td>Student Registered</td>
+                                <td>{{ programme.student_set.count|default:0 }} </td>
+                            </tr>
+                            <tr>
+                                <td>Courses</td>
+                                <td>{{ programme.coursemodel_set.count }}</td>
+                            </tr>
+                        </table>
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group btn-block">
-                                <a href="{{ programme.get_absolute_url }}" class="btn btn-outline-primary">View</a>
+                                <a href="{{ programme.get_absolute_url }}" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">View</a>
                                 {% if request.user.is_staff %}
-                                    <a href="{{ programme.get_update_url }}" class="btn btn-outline-secondary">Edit</a>
+                                    <a href="{{ programme.get_update_url }}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)">Edit</a>
                                 {% endif %}
                             </div>
                         </div>

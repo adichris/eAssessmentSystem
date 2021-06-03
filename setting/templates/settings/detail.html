@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mx-auto mt-3 mt-lg-4">
+                  <h3 class="text-center my-3">Your Settings</h3>
+                <hr>
+                <div class="card shadow">
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td>Semester</td>
+                                <td>{{ generalsetting.get_semester_display }}</td>
+                            </tr>
+                            <tr>
+                                <td>Name Order</td>
+                                <td>{{ generalsetting.get_name_order_display }}</td>
+                            </tr>
+                            <tr>
+                                <td>Academic Year</td>
+                                <td>
+                                    <ul class="list-group list-group-horizontal">
+                                        <li class="list-group-item list-group-item-light" title="Academic Year lower">{{ generalsetting.academic_year }}</li>
+                                        <li class="list-group-item list-group-item-primary" title="Academic Year upper">{{ generalsetting.academic_year1 }}</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <a href="{{ generalsetting.get_update_url }}" class="btn btn-outline-secondary btn-block mt-3 mt-lg-4"
+                   onclick="spinOnClick(this)" title="Edit Settings"><i class="fa fa-cog mr-2"></i></a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

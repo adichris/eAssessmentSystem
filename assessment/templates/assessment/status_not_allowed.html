@@ -19,7 +19,7 @@
                             <p class="alert alert-info small"><i class="fa fa-info-circle mr-2"></i>{{ tip }}</p>
                         {% endif %}
                         {% if is_completed and question_group_instance %}
-                            <a href="{% url 'assessment:MCQ_exam_done' course_id=question_group_instance.course_id question_group_id=question_group_instance.id student_id=request.user.student.id %}" class="btn btn-info btn-block" onclick="spinOnClick(this)">Check your result</a>
+                            <a href="{% url 'assessment:result' course_id=question_group_instance.course_id question_group_id=question_group_instance.id student_id=request.user.student.id %}" class="btn btn-info btn-block" onclick="spinOnClick(this)">Check your result</a>
                         {% endif %}
                     </div>
                 </div>

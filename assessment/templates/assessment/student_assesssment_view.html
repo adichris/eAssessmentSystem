@@ -18,19 +18,17 @@
         {% for cour in courses_list %}
             <div class="row">
                 <div class="col-12">
-                    <p>Course: {{ cour.grouper }}</p>
+                    <h5>Course: {{ cour.grouper }}</h5>
                     <hr>
                 </div>
             </div>
             <div class="row">
                 {% for question_group in cour.list %}
                     <div class="col-md-6 col-lg-4">
-                        <div class="card">
+                        <div class="card h-100">
                             <div class="card-body">
+                                <h5 class="text-center">{{ question_group.get_title_display }}</h5>
                                 <table class="table">
-                                    <tr>
-                                        <td colspan="2" class="text-center h5">{{ question_group.get_title_display }}</td>
-                                    </tr>
                                     <tr>
                                         <td>Question Type</td>
                                         <td>{{ question_group.get_questions_type_display }}</td>
@@ -41,16 +39,19 @@
                                     </tr>
                                     <tr>
                                         <td>Duration</td>
-                                        <td>{{ question_group.preference.duration }}</td>
+                                        <td>{{ question_group.preference.duration|default_if_none:"No Duration set" }}</td>
                                     </tr>
                                     <tr>
                                         <td>Due Date</td>
-                                        <td>{{ question_group.preference.due_date }}</td>
+                                        <td>{{ question_group.preference.due_date|default_if_none:"No Due Date Set" }}</td>
                                     <tr>
                                         <td>Environment</td>
-                                        <td>{{ question_group.preference.environment }}</td>
+                                        <td>{{ question_group.preference.get_environment_display }}</td>
                                     </tr>
                                 </table>
+
+                            </div>
+                            <div class="card-footer bg-transparent">
                                 <a href="{% url 'assessment:student_assessing' QGPK=question_group.pk QGT=question_group.title %}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Enter Hall</a>
                             </div>
                         </div>

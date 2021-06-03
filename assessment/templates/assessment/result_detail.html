@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="container">
-        <div class="row">
-            <div class="col-auto">
-                <a href="{% url 'assessment:student' %}" class="btn btn-link" onclick="appendSpinOnClick(this)" title="back to assessment"><i class="fa fa-chevron-left mr-1"></i>Back </a>
+    <div class="row">
+        <div class="col-auto">
+            <div class="breadcrumb small">
+                <a href="{% url 'assessment:student' %}" class="breadcrumb-item" onclick="appendSpinOnClick(this)" title="back to assessment"><i class="fa fa-chevron-left mr-1"></i>Assessment </a>
+                <a href="{% url 'assessment:result' course_id=student_script.course_id student_id=student_script.student_id question_group_id=student_script.question_group_id %}" class="breadcrumb-item" onclick="appendSpinOnClick(this)" title="back to assessment">Result </a>
             </div>
+            <hr>
+        </div>
+    </div>
+        <div class="row">
+
             <div class="col-auto mx-auto">
                 <h4 class="text-monospace">{{ student_script.course }} {{ student_script.question_group.get_title_display }} Scripts</h4>
                 <hr>

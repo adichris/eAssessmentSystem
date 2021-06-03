@@ -125,7 +125,7 @@ class QuestionGroupUpdateView(LoginRequiredMixin, UpdateView):
 class CreateTheoryQuestion(LoginRequiredMixin, View):
     template_name = "assessment/prepareTheoryQuestions.html"
     question_formset = inlineformset_factory(parent_model=QuestionGroup, model=Question, form=QuestionCreateForm,
-                                             can_delete=True, min_num=1, validate_min=True)
+                                             can_delete=True, )
 
     def get_question_group_instance(self):
         question_group_pk = self.kwargs.get("QGPK")
@@ -656,7 +656,9 @@ class ConductingAssessment(LoginRequiredMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         user = get_user(request)
-        if user.is_lecture and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.CONDUCT :
+        if user.is_lecture and self.is_lecture_course_master() and (
+                self.question_group.status == QuestionGroupStatus.PREPARED
+                or self.question_group.status == QuestionGroupStatus.CONDUCT):
             self.question_group.status = "conduct"
             if not self.question_group.preference:
                 preference = AssessmentPreference.objects.create(
@@ -666,7 +668,7 @@ class ConductingAssessment(LoginRequiredMixin, TemplateView):
                 self.question_group.preference = preference
             self.question_group.save()
             return super(ConductingAssessment, self).get(request, *args, **kwargs)
-        elif self.question_group.status != QuestionGroupStatus.CONDUCT :
+        elif self.question_group.status != QuestionGroupStatus.PREPARED :
             return render(request, template_name="assessment/status_not_allowed.html",context={
                 "reason": get_status_not_allowed_reason(self.question_group),
             })
@@ -1057,7 +1059,7 @@ class MultiChoiceQuestionsExaminationView(LoginRequiredMixin, View):
             return get_http_forbidden_response()
 
     def get_successful_url(self):
-        return redirect("assessment:MCQ_exam_done",
+        return redirect("assessment:result",
                         student_id=self.script_instance.student_id,
                         course_id=self.script_instance.course_id,
                         question_group_id=self.script_instance.question_group_id)
@@ -1095,8 +1097,47 @@ class MultiChoiceQuestionsExaminationView(LoginRequiredMixin, View):
         # return self.question_group_instance
 
 
+class MultiChoiceQuestionResultDetailTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "assessment/result_detail.html"
+
+    def is_student_script(self):
+        student = self.request.user.student
+        return student == self.get_student_script().student
+
+    def get(self, request, *args, **kwargs):
+        if self.is_student_script():
+            self.student_script_instance.score_student()
+            return super(MultiChoiceQuestionResultDetailTemplateView, self).get(request, *args, **kwargs)
+        else:
+            return get_http_forbidden_response()
+
+    def get_student_script(self):
+        self.student_script_instance = get_object_or_404(MultiChoiceScripts,
+                                                         student_id=self.kwargs.get("student_id"),
+                                                         course_id=self.kwargs.get("course_id"),
+                                                         question_group_id=self.kwargs.get("question_group_id")
+                                                         )
+        return self.student_script_instance
+
+    def get_context_data(self, **kwargs):
+        ctx = super(MultiChoiceQuestionResultDetailTemplateView, self).get_context_data(**kwargs)
+        ctx["student_script"] = self.student_script_instance
+        ctx["student"] = self.request.user.student
+        ctx["question_group"] = self.student_script_instance.question_group
+        total_question_num = self.student_script_instance.question_group.question_set.count()
+        answered = self.student_script_instance.get_answered_question_queryset().count()
+        ctx["answered_option"] = answered
+        ctx["un_answered_option"] = total_question_num - answered
+        ctx["total_questions_num"] = total_question_num
+        ctx["score"] = self.student_script_instance.get_selected_option__is_answer_option_sum()
+        wrong_answers_num = self.student_script_instance.get_wrong_answers_count()
+        ctx["correct_answers_num"] = total_question_num - wrong_answers_num
+        ctx["wrong_answers_num"] = wrong_answers_num
+        return ctx
+
+
 class MultiChoiceQuestionResultTemplateView(LoginRequiredMixin, TemplateView):
-    template_name = "assessment/MC_exam_done.html"
+    template_name = "assessment/resultview.html"
 
     def is_student_script(self):
         student = self.request.user.student
@@ -1120,17 +1161,13 @@ class MultiChoiceQuestionResultTemplateView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super(MultiChoiceQuestionResultTemplateView, self).get_context_data(**kwargs)
         ctx["student_script"] = self.student_script_instance
-        ctx["student"] = self.request.user.student
-        ctx["question_group"] = self.student_script_instance.question_group
         total_question_num = self.student_script_instance.question_group.question_set.count()
         answered = self.student_script_instance.get_answered_question_queryset().count()
-        ctx["answered_option"] = answered
-        ctx["un_answered_option"] = total_question_num - answered
         ctx["total_questions_num"] = total_question_num
-        ctx["score"] = self.student_script_instance.get_selected_option__is_answer_option_sum()
-        wrong_answers_num = self.student_script_instance.get_wrong_answers_count()
-        ctx["correct_answers_num"] = total_question_num - wrong_answers_num
-        ctx["wrong_answers_num"] = wrong_answers_num
+        ctx["score"] = self.student_script_instance.score
+        ctx["total_marks"] = self.student_script_instance.question_group.total_marks
+        ctx["total_correct_ans_num"] = total_question_num - self.student_script_instance.get_wrong_answers_count()
+        ctx["avg_mark"] = self.student_script_instance.question_group.total_marks / 2
         return ctx
 
 
@@ -1165,3 +1202,9 @@ class QuestionsPreviewTemplateView(LoginRequiredMixin, TemplateView):
         ctx["total_questions_num"] = self.question_group.question_set.count()
         ctx["all_questions"] = self.question_group.question_set.all()
         return ctx
+
+
+class TheoryQuestionsExaminationView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        pass

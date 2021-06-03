@@ -13,17 +13,20 @@
 
         <div class="row">
             <div class="col-12 mx-auto mt-3">
-                <p class="display-4 text-center">{{ programme }} Programme</p>
+                <h1 class="text-center">{{ programme }} Programme</h1>
             </div>
         </div>
 
 
     {% if request.user.is_staff %}
         <div class="row">
-            <div class="col-md-6 col-lg-4 ml-2 ml-lg-auto">
-                <div class="btn-group btn-block">
-                    <a href="{% url 'department:programme:course:add'  %}" class="btn btn-outline-primary">Add Course</a>
-                    <a href="{% url 'student:register'  %}" class="btn btn-outline-primary"> Add Student</a>
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ programme.department.get_absolute_url }}" class="btn btn-link" onclick="appendSpinOnClick(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
+                    <div class="btn-group ">
+                        <a href="{% url 'department:programme:course:add'  %}" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">Add Course</a>
+                        <a href="{% url 'student:register'  %}" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)"> Add Student</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -38,35 +41,62 @@
         </div>
 
 
-        <div class="row">
-            {% for course in courses %}
-                <div class="col-md-5 col-lg-4">
-                    <div class="card card-body my-2">
-                        <a href="{{ course.get_absolute_url }}" class="card-link">
-                            <p class="card-title text-center">{{ course }}</p></a>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">0 Assigment</li>
-                                <li class="list-group-item">0 Quizzes</li>
-                                <li class="list-group-item">0 Midsem</li>
-                            </ul>
-                        <div class="mt-2 d-flex justify-content-between align-items-center">
-                            <div class="btn-group">
-                              <a href="{{ course.get_absolute_url }}" class="btn btn-sm btn-outline-secondary">View</a>
-                                {% if request.user.is_admin %}
-                                    <a href="{{ course.get_update_url }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                                {% endif %}
+        {% regroup courses by level as courses_lists %}
+        {% for courses_lst in courses_lists %}
+            <div class="row my-4">
+                <div class="col-12">
+{#                <h5>{%  if courses_lst.grouper == "s1" %} First Semester {% elif courses_lst.grouper == "s2" %} Second Semester {% else %} {{ courses_lst.grouper }} {% endif %} </h5>#}
+                 {% if forloop.first %}
+                 {% else %}
+                    <hr>
+                {% endif %}
+                <h5> {{ courses_lst.grouper }} </h5>
+            </div>
+                {% for course in courses_lst.list %}
+                    <div class="col-md-5 col-lg-4">
+                        <div class="card  my-2 h-100">
+                            <div class="card-body">
+                                <a href="{{ course.get_absolute_url }}" class="card-link">
+                                    <p class="card-title text-center">{{ course }}</p></a>
+                                    <table class="table borderless">
+                                        <tr>
+                                            <td>Course Master</td>
+                                            <td>{{ course.lecture }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Number of Quizzes</td>
+                                            <td><span class="mr-2"><b>---</b></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Midsem</td>
+                                            <td><span class="mr-2"><b>---</b></span></td>
+                                        </tr>
+                                    </table>
                             </div>
-                            <small class="text-muted">{{ course.level }}</small>
+                            <div class="card-footer">
+                                <div class="mt-2 d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <a href="{{ course.get_absolute_url }}" class="btn btn-sm btn-outline-secondary" onclick="spinOnClick(this)">View</a>
+                                        {% if request.user.is_admin %}
+                                            <a href="{{ course.get_update_url }}" class="btn btn-sm btn-outline-secondary" onclick="spinOnClick(this)">Edit</a>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">{{ course.get_semester_display }}</small>
+                                    <small class="text-muted">{{ course.level }}</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+
     {% else %}
         <div class="row">
             <div class="col-auto mx-auto" style="margin-top: 20vh">
                 {%  if request.user.is_lecture %}
-                    <p class="lead text-center">{{ request.user.first_name }}, you courses are not assigned yet if they are registered in the system</p>
+                    <p class="lead text-center">{{ request.user.first_name }}, your courses are not registered yet</p>
                 {% elif request.user.is_staff %}
                     <p class="lead text-center">{{ programme }} has no course registered</p>
                 {% endif %}

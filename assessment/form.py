@@ -1,7 +1,7 @@
 from django import forms
 from .models import (
     MultiChoiceQuestion, Question, QuestionGroup,
-    AssessmentPreference, MultiChoiceScripts, StudentMultiChoiceAnswer
+    AssessmentPreference, StudentMultiChoiceAnswer
 )
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.utils import timezone

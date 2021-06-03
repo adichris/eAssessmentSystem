@@ -6,7 +6,7 @@ from .views import (AssessmentQuestionGroupDetailView, CreateMultipleChoiceQuest
                     ConductingAssessment, StudentAssessmentView, StudentResultTemplateView,
                     QuestionGroupUpdateView, GenerateQMarksRedirectQGroupRV, AssessmentPreferenceUpdateView,
                     StudentAssessingTemplateView, MultiChoiceQuestionsExaminationView, MultiChoiceQuestionResultTemplateView,
-                    QuestionsPreviewTemplateView,
+                    QuestionsPreviewTemplateView, MultiChoiceQuestionResultDetailTemplateView,
                     )
 
 
@@ -34,6 +34,7 @@ urlpatterns = [
     path("student/HALL/<str:QGT>/<int:QGPK>/", StudentAssessingTemplateView.as_view(), name="student_assessing"),
 
     path("examination/start/<str:course_code>/<str:QGT>/<int:QGPK>/", MultiChoiceQuestionsExaminationView.as_view(), name="MCQ_exam_start"),
-    path("examination_done/multi_choice/<int:student_id>/<int:course_id>/<int:question_group_id>/", MultiChoiceQuestionResultTemplateView.as_view(), name="MCQ_exam_done"),
+    path("examination/result_detail.html/multi_choice/<int:student_id>/<int:course_id>/<int:question_group_id>/", MultiChoiceQuestionResultTemplateView.as_view(), name="result"),
+    path("examination_done/multi_choice/<int:student_id>/<int:course_id>/<int:question_group_id>/", MultiChoiceQuestionResultDetailTemplateView.as_view(), name="result_detail"),
 
 ]
