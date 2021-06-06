@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div class="container">
+        <div class="row my-3">
+            <div class="col mx-auto">
+                <h5 class="text-center">COURSES QUIZZES</h5>
+                <hr>
+            </div>
+        </div>
+
+        {% regroup courses_set by programme as courses_set_list %}
+        {% for courses_group in courses_set_list %}
+            <div class="row">
+                <div class="col">
+                    <h5>{{ courses_group.grouper }} Programme</h5>
+                    <hr>
+                </div>
+            </div>
+            <div class="row mb-4">
+                {% for course in  courses_group.list %}
+                    <div class="col-md-6 my-3">
+                        <div class="list-group shadow-sm">
+                            <h6 class="list-group-item text-center">{{ course }}</h6>
+                            <a href="{% url 'assessment:create_group' courseName=course.name coursePK=course.pk %}" class="list-group-item btn btn-light rounded-0" onclick="appendSpinOnClick(this)">New Quiz</a>
+                            {% if course.questiongroup_set.exists %}
+                                <a href="{{ course.get_absolute_url }}" class="list-group-item btn btn-light rounded-0" onclick="appendSpinOnClick(this)">View Quiz</a>
+                            {% else %}
+                                <p class="list-group-item text-center list-group-item-text text-muted">No Quiz or Midsem</p>
+                            {% endif %}
+                            <a href="{% url 'assessment:mark' %}" class="list-group-item btn btn-light rounded-0" title="Mark theory quizzes and theories" onclick="appendSpinOnClick(this)">Mark Quiz/Midsem</a>
+                            <a href="{% url 'records:all' %}" class="list-group-item btn btn-light rounded-0" onclick="appendSpinOnClick(this)">View All Records</a>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-around align-items-center">
+                                    <span class="text-muted small">{{ course.level }}</span>
+                                    <span class="text-muted small">{{ course.questiongroup_set.count }} Quizzes</span>
+                                    <span class="text-muted small">{{ course.get_semester_display }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+        {% endfor %}
+
+    </div>
+
+{% endblock %}

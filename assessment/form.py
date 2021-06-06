@@ -1,7 +1,8 @@
 from django import forms
 from .models import (
     MultiChoiceQuestion, Question, QuestionGroup,
-    AssessmentPreference, StudentMultiChoiceAnswer
+    AssessmentPreference, StudentMultiChoiceAnswer, StudentTheoryAnswer
+
 )
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.utils import timezone
@@ -116,3 +117,8 @@ class StudentMultiChoiceAnswerForm(forms.ModelForm):
         super(StudentMultiChoiceAnswerForm, self).__init__(*args, **kwargs)
         self.fields["selected_option"].queryset = question_instance.multichoicequestion_set.all()
 
+
+class StudentTheoryAnswerUpdateForm(forms.ModelForm):
+    class Meta:
+        model = StudentTheoryAnswer
+        fields = ("answer", )

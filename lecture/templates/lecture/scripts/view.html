@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load  static %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mx-auto my-3">
+                <h5 class="text-center">STUDENT SCRIPTS</h5>
+            </div>
+            <div class="col-md-12">
+                <hr>
+                <a href="{% url 'assessment:all' %}" class="btn btn-link" onclick="onBackSpin(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <a href="?action=listAllQS" class="btn btn-outline-primary">List All Scripts</a>
+            </div>
+        </div>
+   {% if question_group.exists %}
+        {% regroup question_group by course as question_group_list %}
+        {% for question_group_lt in question_group_list %}
+            <div class="row mt-3">
+                <div class="col-12"><h5>{{ question_group_lt.grouper }}</h5></div>
+                {% for group in question_group_lt.list %}
+                    <div class="col-md-6 col-lg-4 my-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="text-center lead"><b>{{ group.get_title_display }}</b></p>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td>Quiz Type</td>
+                                        <td>{{ group.get_questions_type_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Quiz Status</td>
+                                        <td>{{ group.get_status_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total Scripts</td>
+                                        {% if group.questions_type == "multichoice" %}
+                                            <td>{{ group.multichoicescripts_set.count }}</td>
+                                        {% else %}
+                                            <td>{{ group.studenttheoryscript_set.count }}</td>
+                                        {% endif %}
+                                    </tr>
+                                </table>
+                                <div class="btn-group btn-block">
+                                    <a href="" class="btn btn-outline-secondary">View</a>
+                                    {% if group.status == "marked" %}
+                                        <a href="" class="btn btn-outline-secondary">Publish</a>
+                                        {% elif group.status == "publish" %}
+                                        <a href="" class="btn btn-outline-secondary">Records</a>
+                                    {% endif %}
+                                    {% if group.question_type == "theory" %}
+                                         {% if group.status == "conducted" %}
+                                              <a href="" class="btn btn-outline-secondary">Mark</a>
+                                         {% endif %}
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted mt-1">{{ group.course.programme }}</span>
+                                    <span class="text-muted mt-1">{{ group.course.level }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if not forloop.last %}
+                <div class="row">
+                    <div class="col">
+                        <hr>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    
+    {% else %}
+        <div class="row mt-3">
+            <div class="col-md-6 mx-auto text-center">
+                <img src="{% static 'icons/empty_box.svg' %}" alt="empty box" class="img-fluid small no-pointer" style="width: fit-content; height: fit-content;">
+                <hr>
+                <p>There no  script available</p>
+                <a href="{% url 'assessment:all'  %}" class="btn btn-link">View assessment</a>
+            </div>
+        </div>
+    {% endif %}
+    </div>
+{% endblock %}

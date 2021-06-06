@@ -64,3 +64,36 @@ def get_time_obj_from(timedelta):
         return timedelta
 
 
+def get_datetime_obj_from(timedelta):
+    try:
+        if not timedelta:
+            return 0
+        elif timedelta.days < 0:
+            return -1
+        elif timedelta:
+            time = get_time_obj_from(timedelta)
+            return datetime.datetime(0, 0, timedelta / datetime.timedelta(days=1), hour=time.hour, minute=time.minute, second=time.second)
+    except AttributeError:
+        return timedelta
+
+
+def get_status_tips(question_group_instance, question_status):
+    quiz_disallowed_edit = "The Quiz / Midsem is disallowed further editing."
+    quiz_scheme_disallowed_edit = "The Quiz / Midsem and Marking Scheme is disallowed further editing."
+    if question_group_instance.status == question_status.PREPARED:
+        return "In preparing state only you can view, edit and delete the question"
+    elif question_group_instance.status == question_status.CONDUCT:
+        return "In conducting state student are accessing and doing the assessment. " + quiz_disallowed_edit
+
+    elif question_group_instance.status == question_status.CONDUCTED:
+        return "In conducted state the assessment has been taken and is ready for publish or marking. " +\
+               quiz_disallowed_edit
+    elif question_group_instance.status == question_status.PUBLISHED:
+        return "In published state the assessment is conducted and student result and script is published." \
+               "Student can review their script and see marking scheme if allowed to." \
+               "Student can see correct multi-choice question answers. " + quiz_scheme_disallowed_edit
+
+    elif question_group_instance.status == question_status.MARKED:
+        return "In marked state student can see their score but can not review the scripts. " +\
+               quiz_scheme_disallowed_edit
+

@@ -100,10 +100,22 @@ class User(AbstractBaseUser):
         return self.get_full_name()
 
     def get_full_name(self):
-        return "%s %s" % (self.last_name.title(), self.first_name.title())
+        try:
+            if self.generalsetting.name_order == "l":
+                return "%s %s" % (self.last_name.title(), self.first_name.title())
+            else:
+                return "%s %s" % (self.first_name.title(), self.last_name.title())
+        except AttributeError:
+            return "%s %s" % (self.last_name.title(), self.first_name.title())
 
     def get_short_name(self):
-        return self.last_name.title()
+        try:
+            if self.generalsetting.name_order == "f":
+                return self.first_name
+            else:
+                return self.last_name.title()
+        except AttributeError:
+            return self.first_name
 
     def get_absolute_url(self):
         """Return absolute url for User."""

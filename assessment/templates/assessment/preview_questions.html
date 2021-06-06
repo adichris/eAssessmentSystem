@@ -56,6 +56,39 @@
                 </table>
             </div>
         </div>
+
+        {% elif question_group.questions_type == "theory" %}
+            {% for question in all_questions %}
+                <div class="row my-3">
+                    <div class="col-md-12">
+                        <div class="d-flex flex-row">
+                            <div class="card mx-1">
+                                <div class="card-body d-flex align-items-center">
+                                    <p> {{ forloop.counter }}</p>
+                                </div>
+                            </div>
+                            <div class="card flex-grow-1 mx-1">
+                                <div class="card-body">
+                                    <p class="card-title">{{ question|linebreaksbr }}</p>
+                                </div>
+                            </div>
+                             <div class="card flex mx-1">
+                                <div class="card-body d-flex align-items-center">
+                                    <p class="card-title">{{ question.max_mark }} marks</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                {% if not forloop.last %}
+                    <div class="row">
+                    <div class="col">
+                        <hr>
+                    </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
         {% endif %}
     </div>
 {% endblock %}

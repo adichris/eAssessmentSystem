@@ -105,23 +105,29 @@
         <div class="row">
             {% for question_group in coursemodel.questiongroup_set.all %}
                 <div class="col-md-6 col-lg-4">
-                    <div class="card my-3">
+                    <div class="card my-3" title={% if question_group.status == "conduct" %}"Students are allowed and access"{% else %}"Only you can access"{% endif %}>
                         <div class="card-body">
                             <h5 class="card-title text-center">{{ question_group.get_title_display }}</h5>
-                           <table class="table table-responsive">
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
                                <tr>
-                                   <td><h6 class="text-nowrap">Total Marks</h6></td>
-                                   <td><p>{{ question_group.total_marks }}</p></td>
+                                   <td class="text-nowrap">Total Marks</td>
+                                   <th>{{ question_group.total_marks }}</th>
                                </tr>
                                <tr>
-                                   <td><h6 class="text-nowrap">Question Type</h6></td>
-                                   <td><p>{{ question_group.get_questions_type_display }}</p></td>
+                                   <td class="text-nowrap">Question Type</td>
+                                   <th>{{ question_group.get_questions_type_display }}</th>
                                </tr>
                                <tr>
-                                   <td><h6 class="text-nowrap">Number of Question</h6></td>
-                                   <td><p>{{ question_group.question_set.count }}</p></td>
+                                   <td class="text-nowrap">Number of Question</td>
+                                   <th>{{ question_group.question_set.count }}</th>
+                               </tr>
+                               <tr>
+                                   <td>Status</td>
+                                   <th>{{ question_group.get_status_display }}</th>
                                </tr>
                            </table>
+                            </div>
                             <div class="d-flex justify-content-between align-items-baseline">
                                <a href="{{ question_group.get_absolute_url }}" class="btn btn-outline-secondary" onclick="spinOnClick(this)">View</a>
                                <small class="text-muted" title="Last Updated">{{ question_group.updated }}</small>

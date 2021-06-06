@@ -1,4 +1,6 @@
-from .views import StudentCreateView, SuccessfulStudentRegistration, StudentListView, StudentDetailView, LectureStudentsListView
+from .views import (StudentCreateView, SuccessfulStudentRegistration, StudentListView, StudentDetailView,
+                    LectureStudentsListView,
+                    )
 from django.urls import path
 
 app_name = "student"

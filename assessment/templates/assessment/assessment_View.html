@@ -1,67 +1,50 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
     <div class="container">
-    <div class="row mt-3">
-        <div class="col-12">
-            <p class="lead">Showing all assessment details about the courses you are assigned to.</p>
-        </div>
-    </div>
 
-    {% for course in courses %}
-        <div class="row jumbotron">
-            <div class="col-12">
-                <p>{{ course }}</p>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <h5 class="text-center">General Assessment</h5>
                 <hr>
             </div>
-            <div class="col-12">
-                <div class="row">
-                <div class="col-md-4 col-lg-3">
-                        <div class="card my-1">
-                            <div class="card-body">
-                                <a href="{% url 'assessment:create_group' courseName=course.name coursePK=course.pk %}" class="card-link" onclick="appendSpinOnClick(this)">Prepare Quiz or Midsem</a>
-                            </div>
-                        </div>
-                    </div>
-                {% if course.questiongroup_set.exists %}
-                    <div class="col-md-4 col-lg-3">
-                        <div class="card my-1">
-                            <div class="card-body">
-                                <a href="{{ course.get_absolute_url }}" class="card-link" onclick="appendSpinOnClick(this)">View Prepared Questions</a>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
+        </div>
 
-{#                    <div class="col-md-4 col-lg-3">#}
-{#                        <div class="card my-1">#}
-{#                            <div class="card-body">#}
-{#                                <a href="{% url 'assessment:conduct' question_group_title= %}" class="card-link">Conduct a Assessment</a>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-
-
-                    <div class="col-md-4 col-lg-3">
-                        <div class="card my-1">
-                            <div class="card-body">
-                                <a href="{% url 'assessment:mark' %}" class="card-link" title="Mark theory quizzes and theories" onclick="appendSpinOnClick(this)">Mark Quiz/Midsem</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-lg-3">
-                        <div class="card my-1">
-                            <div class="card-body">
-                                <a href="{%  url 'records:all' %}" class="card-link" onclick="appendSpinOnClick(this)">View All Records</a>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+        <div class="row my-3">
+            <div class="col-md-6 col-lg-4 my-3">
+                {% static 'icons/on_going_quiz.png' as on_going_quiz_img %}
+                {% url 'lecture:on_going_quiz' as on_going_quiz_url %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="ON GOING QUIZ" alt="Quiz img" src=on_going_quiz_img link=on_going_quiz_url %}
+            </div>
+            <div class="col-md-6 col-lg-4 my-3">
+                {% static 'icons/quiz.png' as quiz_img %}
+                {% url 'lecture:quiz_all' as quiz_url %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="QUIZ" alt="Quiz img" src=quiz_img link=quiz_url %}
+            </div>
+             <div class="col-md-6 col-lg-4 my-3">
+                {% static 'icons/midsem.png' as midsem_img %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="MIDSEM" alt="Midsem img" src=midsem_img %}
+            </div>
+             <div class="col-md-6 col-lg-4 my-3">
+                {% static 'icons/marking_schemes.png' as marking_scheme_img %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="MARKING SCHEMES" alt="Makring Scheme img" src=marking_scheme_img %}
+            </div>
+             <div class="col-md-6 col-lg-4 my-3">
+                {% static 'icons/records.png' as records_img %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="RECORDS" alt="Records img" src=records_img %}
+            </div>
+             <div class="col-md-6 col-lg-4 my-3">
+                {% static 'icons/student_script.png' as student_script %}
+                 {% url 'lecture:scripts_all' as student_script_url %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="STUDENT SCRIPTS" alt="Student Script img" src=student_script link=student_script_url %}
             </div>
         </div>
-    {% endfor %}
 
+        <div class="row">
+            <div class="col">
+                <hr>
+            </div>
+        </div>
 
     </div>
 {% endblock %}

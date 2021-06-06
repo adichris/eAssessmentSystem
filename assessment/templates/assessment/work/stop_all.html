@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <div class="row mt-3">
+            <div class="col">
+                <a href="{% url 'assessment:conducting' question_group_pk=question_group_instance.pk course_pk=question_group_instance.course_id course_name=question_group_instance.course.name %}" class="btn btn-link" onclick="onBackSpin(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="col-md-6 mx-auto text-center">
+                <h5 class="alert alert-danger">STOP ALL STUDENT WORK</h5>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="col-md-8 col-lg-6 mx-auto">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="text-center">
+                            <img src="{% static 'icons/student_script.png' %}" alt="stop work img" class="img-fluid no-pointer" style="height: fit-content; width: fit-content">
+                            <p>Collect all scripts</p>
+                        </div>
+                        <p>This action will force all student script to completed <br>
+                            And set {{ question_group_instance.get_title_display }} status to conducted (completed conducting).</p>
+                        <div class="d-flex justify-content-end">
+                            <a href="?confirm=yes" class="btn btn-primary">Confirm</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="col-md-6 mx-auto text-center">
+                <hr>
+                <p class="alert alert-info">{{ question_group_instance.course }} {{ question_group_instance.get_title_display }}</p>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

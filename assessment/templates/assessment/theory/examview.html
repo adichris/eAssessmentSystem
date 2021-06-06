@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% if answer_saved %}
+    <div class="jumbotron alert alert-success" id="id_alert_saved">
+        <div class="container">
+            <div class="row">
+                <div class="col-md- mx-auto">
+                    <p>The Question answer is saved Successfully. You can preview to see all your answers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-auto mx-auto">
+                <table class="table table-bordered">
+                {% with programme=request.user.student.programme %}
+                <tr>
+                    <td>Course</td>
+                    <td>{{ question_group_instance.course }}</td>
+                </tr>
+                <tr>
+                    <td>Assessment</td>
+                    <td>
+                        {{ question_group_instance.get_title_display }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Instruction</td>
+                    <td>{{ question_group_instance.preference.instruction|title }}</td>
+                </tr>
+                    <tr>
+                        <td>Total Mark</td>
+                        <td>{{ question_group_instance.total_marks }}</td>
+                    </tr>
+                {% endwith %}
+            </table>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <hr>
+                {% with preference=question_group_instance.preference %}
+                <div class="card-group">
+                    {% include 'snippet/H_label_value_card.html' with label="Questions" value=4 new_line=1 tc=1 %}
+                    {% include 'snippet/H_label_value_card.html' with label="Due Date" value=preference.due_date|default:"Any time" new_line=1 tc=1 %}
+                    {% include 'snippet/H_label_value_card.html' with label="Duration" value=preference.duration|default:"Any time" new_line=1 tc=1 %}
+                    {% include 'snippet/H_label_value_card.html' with label="Used Time" value=used_time_str new_line=1 value_id="id_used_time" tc=1 %}
+                </div>
+                {% endwith %}
+                <hr>
+            </div>
+        </div>
+
+        <form action="" method="post">
+            {% csrf_token %}
+
+        <div class="row my-3 my-lg-4">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+
+                    {% for question_instance in question_group_instance.question_set.all %}
+                        <tr>
+                            <th>{{ forloop.counter }}</th>
+                            <td>{{ question_instance.question|linebreaksbr }}</td>
+                            <td>{{ question_instance.max_mark|floatformat }} Marks</td>
+                            <td><a href="{% url 'assessment:theory_exam_answer' question_group_id=question_group_instance.id question_group_title=question_group_instance.title script_pk=script_pk question_pk=question_instance.pk  %}" class="btn btn-outline-primary btn-block btn-lg" onclick="spinOnClick(this)" title="Write your solution / view your solution">Solve </a></td>
+                        </tr>
+
+                    {% endfor %}
+
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+        <div class="col-md-12">
+            <div class="btn-group btn-block">
+                <button class="btn btn-outline-info" title="preview" type="submit" name="button" value="preview" onclick="spinOnClick(this)">Preview your script</button>
+                <button class="btn btn-outline-secondary" title="Submit" value="submit" name="button" type="submit" onclick="spinOnClick(this)">Submit your script</button>
+            </div>
+        </div>
+    </div>
+
+        </form>
+
+    </div>
+{% endblock %}
+
+{% block afterScripts %}
+    <script src="{% static 'utils/moment.min.js' %}"></script>
+    <script>
+        var usedTime_tag = document.getElementById("id_used_time");
+        var usedTime_moment = moment(`${moment().year()}-${moment().month()}-${moment().day()} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
+
+        setInterval(function () {
+            MomemtUsed = usedTime_moment.add(1, "second")
+            usedTime_tag.innerHTML = `${usedTime_moment.hours()}:${usedTime_moment.minutes()}:${usedTime_moment.second()} `
+        }, 1000)
+
+        var alrt_saved = $("#id_alert_saved");
+        setTimeout(function () {
+            alrt_saved.hide("fade")
+        }, 10000)
+    </script>
+{% endblock %}

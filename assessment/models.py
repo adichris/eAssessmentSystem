@@ -25,13 +25,23 @@ class QuestionGroupStatus(models.TextChoices):
     MARKED = "marked", "Marked"
     CONDUCTED = "conducted", "Conducted"
     CONDUCT = "conduct", "Conduct"
-    Assessing = "assessing", "Assessing"
+    PUBLISHED = "published", "Published"
+    #TODO TAKE assessing OFF QG STATUS
+    ASSESSING = "assessing", "Assessing"
 
 
 class AssessmentEnvironment(models.TextChoices):
     CLASS_ROOM = "class", "Class Room"
     ANY_PLACE = "any", "Any Place"
     HOME_WORK = "home", "Home Work"
+
+
+class ScriptStatus(models.TextChoices):
+    MARKED = "mark", "Marked"
+    MARKING = "marking", "Marking"
+    PENDING = "pending", "Pending"
+    SUBMITTED = "submitted", "Submitted"
+    ASSESSING = "assessing", "Assessing"
 
 
 class AssessmentPreference(models.Model):
@@ -60,7 +70,6 @@ class QuestionGroup(models.Model):
     status = models.CharField(max_length=25, choices=QuestionGroupStatus.choices, default=QuestionGroupStatus.PREPARED)
     preference = models.ForeignKey(to=AssessmentPreference, on_delete=models.CASCADE, null=True, blank=True)
     is_share_total_marks = models.BooleanField(default=False, help_text="This will force share total mark on each question mark.")
-
     class Meta:
         unique_together = ("title", "course")
         ordering = ("pk", "title", "questions_type")
@@ -144,6 +153,7 @@ class MultiChoiceScripts(models.Model):
     # correct_answers = models.IntegerField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     time_remain = models.TimeField(null=True, blank=True)
+    status = models.CharField(max_length=60, choices=ScriptStatus.choices, default=ScriptStatus.ASSESSING)
     is_completed = models.BooleanField(default=False)
     has_paused = models.BooleanField(default=False)
     is_canceled = models.BooleanField(default=False)
@@ -195,12 +205,19 @@ class StudentMultiChoiceAnswer(models.Model):
 class StudentTheoryScript(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     question_group = models.ForeignKey(QuestionGroup, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now=True)
+    is_completed = models.BooleanField(default=False)
+    status = models.CharField(max_length=60, choices=ScriptStatus.choices, default=ScriptStatus.ASSESSING)
+    submitted_at = models.DateTimeField(blank=True, null=True)
+    has_paused = models.BooleanField(default=False)
 
 
 class StudentTheoryAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    answer = models.TextField(blank=True, null=True, unique=False)
+    answer = models.TextField(blank=True, null=True, unique=False, help_text="Your answer to the question.")
     script = models.ForeignKey(StudentTheoryScript, on_delete=models.CASCADE)
+    score = models.FloatField(null=True, blank=True)
+    lecture_comment = models.TextField(null=True, blank=False, help_text="Lectures comment on answer")
 
 
 class TheoryMarkingScheme(models.Model):

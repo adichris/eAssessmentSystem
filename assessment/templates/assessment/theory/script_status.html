@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <div class="row mt-3">
+        <div class="col-md-auto mx-auto">
+            <h3>{{ course }} {{ script.question_group.get_title_display }}</h3>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row mt-3 mt-lg-4">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-img-top py-2">
+
+                    <div class="text-center">
+
+                    {% if script.status == "pending" %}
+                        <span class="fa fa-clock fa-5x fa-spin"></span>
+                    {% else %}
+                       <img src="{% static 'DefaultImg/checked_1.svg' %}" alt="success img" class="img-fluid" style="max-height: 8em">
+                    {% endif %}
+
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if script.status == "pending" %}
+                        <h5 class="text-center">{{ request.user.get_short_name }}, your script is on pending for marking</h5>
+                    {% else %}
+                        <h5 class="text-center">{{ request.user.get_short_name }}, your script was Submitted successfully</h5>
+                    {% endif %}
+                    <p></p>
+                    <table class="table">
+                        <tr>
+                            <td>Index Number</td>
+                            <td>{{ script.student.index_number }}</td>
+                        </tr>
+                        <tr>
+                            <td>Script Status</td>
+                            <td>{{ script.get_status_display }}</td>
+                        </tr>
+                        <tr>
+                            <td>Course Master</td>
+                            <td>{{ course.lecture|title }}</td>
+                        </tr>
+                        <tr>
+                            <td>Submitted At</td>
+                            <td>{{ script.submitted_at }}</td>
+                        </tr>
+                    </table>
+                    <div class="d-flex justify-content-end">
+                        <a href="?preview=preview_student_stu_script" class="btn btn-light" id="id_preview">Preview Script</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

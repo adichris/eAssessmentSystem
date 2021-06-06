@@ -32,7 +32,7 @@ class CourseLevel(models.Model):
 
 class CourseSemester(models.TextChoices):
     """
-    Two semesters in  each institution (at least 2).
+    Two semesters in every institution (at least 2).
     """
     SEMESTER1 = "s1", "First Semester"
     SEMESTER2 = "s2", "Second Semester"

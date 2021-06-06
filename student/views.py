@@ -143,5 +143,3 @@ class LectureStudentsListView(LoginRequiredMixin, ListView):
 
     def get_ordering(self):
         return "programme", "level"
-
-

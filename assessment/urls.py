@@ -6,7 +6,8 @@ from .views import (AssessmentQuestionGroupDetailView, CreateMultipleChoiceQuest
                     ConductingAssessment, StudentAssessmentView, StudentResultTemplateView,
                     QuestionGroupUpdateView, GenerateQMarksRedirectQGroupRV, AssessmentPreferenceUpdateView,
                     StudentAssessingTemplateView, MultiChoiceQuestionsExaminationView, MultiChoiceQuestionResultTemplateView,
-                    QuestionsPreviewTemplateView, MultiChoiceQuestionResultDetailTemplateView,
+                    QuestionsPreviewTemplateView, MultiChoiceQuestionResultDetailTemplateView, TheoryQuestionsExaminationView,
+                    TheoryQuestionAnswerView, TheoryScriptStatusTemplateView, StopAllWorkTemplateView
                     )
 
 
@@ -33,8 +34,17 @@ urlpatterns = [
     path("generateMarks/<str:QGT>/<int:QGPK>/", GenerateQMarksRedirectQGroupRV.as_view(), name="generate_marks"),
     path("student/HALL/<str:QGT>/<int:QGPK>/", StudentAssessingTemplateView.as_view(), name="student_assessing"),
 
-    path("examination/start/<str:course_code>/<str:QGT>/<int:QGPK>/", MultiChoiceQuestionsExaminationView.as_view(), name="MCQ_exam_start"),
-    path("examination/result_detail.html/multi_choice/<int:student_id>/<int:course_id>/<int:question_group_id>/", MultiChoiceQuestionResultTemplateView.as_view(), name="result"),
+    path("examination/multichoice/start/<str:course_code>/<str:QGT>/<int:QGPK>/", MultiChoiceQuestionsExaminationView.as_view(), name="MCQ_exam_start"),
+    path("examination/multichoice/result_detail.html/multi_choice/<int:student_id>/<int:course_id>/<int:question_group_id>/", MultiChoiceQuestionResultTemplateView.as_view(), name="result"),
     path("examination_done/multi_choice/<int:student_id>/<int:course_id>/<int:question_group_id>/", MultiChoiceQuestionResultDetailTemplateView.as_view(), name="result_detail"),
+
+    path("examiniation/theory/start/<str:question_group_title>/<int:question_group_id>/<str:semester>/", TheoryQuestionsExaminationView.as_view(), name="theory_exam_start"),
+    path("examiniation/theory/answer/<str:question_group_title>/<int:question_group_id>/<int:script_pk>/<int:question_pk>/", TheoryQuestionAnswerView.as_view(), name="theory_exam_answer"),
+    path("examiniation/theory/scripts/<int:script_pk>/", TheoryScriptStatusTemplateView.as_view(), name="theory_exam_status"),
+
+    # STOP ALL WORK
+    path("examiniation/<int:question_group_pk>/<int:course_id>/<str:question_group_title>/", StopAllWorkTemplateView.as_view(), name="exam_stop_all"),
+
+
 
 ]

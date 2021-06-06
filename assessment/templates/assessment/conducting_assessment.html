@@ -98,7 +98,7 @@
             <div class="col-12">
                 <div class="btn-group btn-block">
                     <a href="{{ preview_url }}" class="btn btn-outline-secondary" onclick="spinOnClick(this)">View Questions</a>
-                    <a href="" class="btn btn-outline-danger"><i class="fa fa-stop-circle mr-2"></i>Stop Work</a>
+                    <a href="{% url 'assessment:exam_stop_all' question_group_pk=question_group.pk course_id=question_group.course_id question_group_title=question_group.title %}" class="btn btn-outline-danger"><i class="fa fa-stop mr-2" onclick="spinOnClick(this)"></i>Stop all Work</a>
                 </div>
 
             </div>
@@ -131,10 +131,8 @@
                         <td>
                             {% if script.is_completed %}
                                 Work Completed
-                            {% elif script.is_canceled %}
-                                Worked Cancelled
-{#                            {% elif script.has_paused %}#}
-{#                                Work Hold#}
+                            {% elif script.has_paused %}
+                                Work Hold
                             {% else %}
                                 Working
                             {% endif %}
@@ -142,8 +140,8 @@
                         <td>{{ script.timestamp }}</td>
                         <td>
                             {% with student=script.student %}
-                                <a href="" class="btn btn-outline-warning" title="Stop {{ student.get_name }} ({{ student.index_number }}) script"><i class="fa fa-stop-circle mr-2"></i>Stop</a>
-                                <a href="" class="btn btn-outline-danger" title="Cancel {{ student.get_name  }} ({{ student.index_number }}) script"><i class="fa fa-times mr-2"></i>Cancel</a>
+                                <a href="" class="btn btn-outline-warning" title="Hold {{ student.get_name  }} ({{ student.index_number }}) script"><i class="fa fa-pause mr-2"></i>Hold</a>
+                                <a href="" class="btn btn-outline-danger" title="Stop {{ student.get_name }} ({{ student.index_number }}) script"><i class="fa fa-stop mr-2"></i>Stop</a>
                             {% endwith %}
                         </td>
                     </tr>

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-md-6 mx-auto text-center">
+                <h5>ON GOING QUIZ</h5>
+                <span class="badge badge-light rounded">Status : Conduct</span>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <p>Quiz are grouped in Courses</p>
+            </div>
+        </div>
+        {%  regroup quizzes by course as quizzes_list %}
+        {% for quizzes_group in quizzes_list %}
+            <div class="row">
+                <div class="col">
+                    <a class="lead btn btn-light collapse-toggle" title="click to show {{ quizzes_group.grouper.code }} QUIZ" href="#id_{{ quizzes_group.grouper.code }}" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="#id{{ quizzes_group.grouper.code }}"><b>{{ quizzes_group.grouper }} - {{ quizzes_group.grouper.programme }} Programme</b> <i class="fa fa-caret-down ml-2"></i></a>
+                    <hr>
+                </div>
+            </div>
+            <div class="row mb-4 collapse collapsing bg-light" id="id_{{ quizzes_group.grouper.code }}">
+                {% for quiz in quizzes_group.list %}
+                    <div class="col-md-6 col-lg-4 my-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <th colspan="2" class="text-center">{{ quiz.get_title_display }}</th>
+                                        </tr>
+                                        <tr>
+                                            <td>Question Type</td>
+                                            <td>{{ quiz.get_questions_type_display }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Question</td>
+                                            <td>{{ quiz.question_set.count }} Questions</td>
+                                        </tr>
+                                        {% with preference=quiz.preference %}
+                                            <tr>
+                                                <td>Due Date</td>
+                                                <td>{{ preference.due_date|default:"No Due Date" }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Duration</td>
+                                                <td>{{ preference.duration|time:"h\h\r\s : i\m\s"|default:"No Duration" }}</td>
+                                            </tr>
+                                        {% endwith %}
+                                        {% if quiz.questions_type == "theory" %}
+                                            {% with script=quiz.studenttheoryscript_set %}
+                                            <tr>
+                                                <td>Script</td>
+                                                <td>{{ script.count }}</td>
+                                            </tr>
+                                            {% endwith %}
+                                        {% else %}
+                                            {% with script=quiz.multichoicescripts_set %}
+                                                <tr>
+                                                    <td>Script</td>
+                                                    <td>{{ script.count|default:"No Student" }} Scripts</td>
+                                                </tr>
+                                            {% endwith %}
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="{% url 'assessment:conducting' course_name=quiz.course.name course_pk=quiz.course.pk question_group_pk=quiz.pk %}" class="btn btn-outline-secondary btn-block" onclick="appendSpinOnClick(this)">View</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+        {% endfor %}
+
+    </div>
+{% endblock %}

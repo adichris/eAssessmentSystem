@@ -4,16 +4,19 @@ from django.views.generic import View, DetailView, CreateView, UpdateView, Delet
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .form import (MultiChoiceQuestionCreateForm, QuestionCreateForm, QuestionGroupCreateForm,
                    BaseOptionsFormSet, BaseOptionsInlineFormSet, AssessmentPreferenceCreateForm,
-                   StudentMultiChoiceAnswerForm,
+                   StudentMultiChoiceAnswerForm, StudentTheoryAnswerUpdateForm
                    )
 from course.models import CourseModel
 from .models import (MultiChoiceQuestion, Question, QuestionGroup, AssessmentPreference,
                      QuestionGroupStatus, MultiChoiceScripts, StudentMultiChoiceAnswer,
-                    QuestionTypeChoice
+                     QuestionTypeChoice, StudentTheoryAnswer, StudentTheoryScript,
+                     ScriptStatus,
                      )
 from django.forms import formset_factory, inlineformset_factory
-from eAssessmentSystem.tool_utils import admin_required_message, is_lecture, get_http_forbidden_response, \
-    get_time_obj_from
+from eAssessmentSystem.tool_utils import (admin_required_message, is_lecture, get_http_forbidden_response,
+                                           get_time_obj_from, get_status_tips
+                                           )
+
 from django.contrib.auth import get_user
 from student.models import Student
 from django.utils import timezone
@@ -21,8 +24,9 @@ from django.core.paginator import Paginator
 from django.http.response import Http404
 from urllib.parse import urlencode
 import datetime
-
+from setting.models import GeneralSetting
 import random
+
 
 def get_status_not_allowed_reason(question_group):
     return "The %s status (%s) does not allowed the operation you want to perform on it." % \
@@ -422,7 +426,7 @@ class MultiChoiceQuestionEdit(LoginRequiredMixin, View):
             return get_http_forbidden_response(message="We can not help you with that.")
 
 
-class AssessmentView(LoginRequiredMixin, View):
+class AssessmentView(LoginRequiredMixin, TemplateView):
     template_name = "assessment/assessment_View.html"
 
     def get(self, request, *args, **kwargs):
@@ -659,10 +663,9 @@ class ConductingAssessment(LoginRequiredMixin, TemplateView):
         if user.is_lecture and self.is_lecture_course_master() and (
                 self.question_group.status == QuestionGroupStatus.PREPARED
                 or self.question_group.status == QuestionGroupStatus.CONDUCT):
-            self.question_group.status = "conduct"
+            self.question_group.status = QuestionGroupStatus.CONDUCT
             if not self.question_group.preference:
                 preference = AssessmentPreference.objects.create(
-                    # due_date=timezone.now(),
                     environment="any",
                 )
                 self.question_group.preference = preference
@@ -831,28 +834,48 @@ class AssessmentPreferenceUpdateView(LoginRequiredMixin, UpdateView):
 class StudentAssessingTemplateView(LoginRequiredMixin, TemplateView):
     template_name = "assessment/student_assessing.html"
 
-    def get_question_group(self):
-        return get_object_or_404(QuestionGroup, title=self.kwargs.get("QGT"), pk=self.kwargs.get("QGPK"))
+    def init_question_group(self):
+        self.question_group_instance = get_object_or_404(QuestionGroup, title=self.kwargs.get("QGT"), pk=self.kwargs.get("QGPK"))
 
     def student_can_enter_hall(self):
         student = self.get_student()
-        question_group = self.get_question_group()
-        return student and student.programme == question_group.course.programme and student.level == question_group.course.level
+        return student and student.programme == self.question_group_instance.course.programme \
+               and student.level == self.question_group_instance.course.level
 
     def get(self, request, *args, **kwargs):
+        self.init_question_group()
         if self.student_can_enter_hall():
             return super(StudentAssessingTemplateView, self).get(request, *args, **kwargs)
         else:
             return get_http_forbidden_response()
 
+    def has_done_before(self):
+        # Returns script urls if student has accessment or solve the quiz
+        if self.question_group_instance.questions_type == QuestionTypeChoice.THEORY:
+            try:
+                script = StudentTheoryScript.objects.get(
+                    student_id=self.get_student().id,
+                    question_group_id=self.question_group_instance.id
+                )
+            except StudentTheoryScript.DoesNotExist:
+                return
+            else:
+                return reverse("assessment:theory_exam_status", kwargs={
+                    "script_pk": script.pk
+                })
+
+        else:
+            return None
+
     def get_context_data(self, **kwargs):
         ctx = super(StudentAssessingTemplateView, self).get_context_data(**kwargs)
-        ctx["question_group"] = self.get_question_group()
-        ctx["q_preference"] = self.get_question_group().preference
-        ctx["course"] = self.get_question_group().course
+        ctx["question_group"] = self.question_group_instance
+        ctx["q_preference"] = self.question_group_instance.preference
+        ctx["course"] = self.question_group_instance.course
         ctx["student"] = self.get_student()
         current_year = timezone.now().date().year
         ctx["academic_year"] = current_year - 1, current_year
+        ctx["script_url"] = self.has_done_before()
         return ctx
 
     def get_student(self):
@@ -896,7 +919,6 @@ class MultiChoiceQuestionsExaminationView(LoginRequiredMixin, View):
             random.seed(self.request.user.student.id)
             questions = ListLikeQueryset(self.question_group_instance.question_set.all())
             random.shuffle(questions)
-            print(questions.first())
             paginator = Paginator(object_list=questions, per_page=1)
         else:
             paginator = Paginator(object_list=self.question_group_instance.question_set.all(), per_page=1)
@@ -1012,6 +1034,7 @@ class MultiChoiceQuestionsExaminationView(LoginRequiredMixin, View):
 
     def __compute_score_and_complete_script__(self):
         self.script_instance.is_completed = True
+        self.script_instance.status = ScriptStatus.SUBMITTED
         self.script_instance.score_student()
         self.script_instance.save()
 
@@ -1172,25 +1195,43 @@ class MultiChoiceQuestionResultTemplateView(LoginRequiredMixin, TemplateView):
 
 
 class QuestionsPreviewTemplateView(LoginRequiredMixin, TemplateView):
+    """
+        Lecture preview Questions while Assessing is on going.
+    """
     template_name = "assessment/preview_questions.html"
 
     def is_lecture_course_master(self):
+        """
+        Check if the lecture can open this page by checking if the question course lecture is this lecture
+        :return: True or False
+        """
+
         self.question_group = get_object_or_404(QuestionGroup, title=self.kwargs.get("question_group_title"),
                                                 pk=self.kwargs.get("question_group_pk"))
         return self.question_group.course.lecture.profile == self.request.user
 
     def get(self, request, *args, **kwargs):
+        """
+        check authorization.
+        if the question has no preference create on for it.
+        :param request:
+        :param args:
+        :param kwargs:
+        :return: rendered page
+        """
         user = get_user(request)
         if user.is_lecture and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.CONDUCT:
-            self.question_group.status = "conduct"
-            if not self.question_group.preference:
-                preference = AssessmentPreference.objects.create(
-                    due_date=timezone.now(),
-                    environment="any",
-                )
-                self.question_group.preference = preference
-            self.question_group.save()
+            # self.question_group.status = "conduct"
+            # if not self.question_group.preference:
+            #     preference = AssessmentPreference.objects.create(
+            #         due_date=timezone.now(),
+            #         environment="any",
+            #     )
+            #     self.question_group.preference = preference
+            # self.question_group.save()
             return super(QuestionsPreviewTemplateView, self).get(request, *args, **kwargs)
+
+        # TODO return QuestionGroup Status Not Allow page if the Question Status failure to validate
         elif self.is_lecture_course_master():
             return get_http_forbidden_response(message="We can not help you with that. this time")
         else:
@@ -1205,6 +1246,391 @@ class QuestionsPreviewTemplateView(LoginRequiredMixin, TemplateView):
 
 
 class TheoryQuestionsExaminationView(LoginRequiredMixin, View):
+    # TODO check semester from student settings and level from student profile
+    # TODO create Questions View
+    # TODO After Question View Created Create Answering View
+    # TODO Feature: Can save answer, preview scripts, submit scripts,
+    # TODO WARN student on  submitting scripts
+    # student_answer_model = StudentTheoryAnswer
+    template = "assessment/theory/examview.html"
+
+    def get_script(self):
+        instance, created = StudentTheoryScript.objects.get_or_create(
+            student=self.student,
+            question_group=self.question_group_instance,
+        )
+        self.script_instance = instance
+        return instance
+
+    def has_question_group(self):
+        self.student = self.request.user.student
+        self.question_group_instance = get_object_or_404(QuestionGroup,
+                                                         title=self.kwargs.get("question_group_title"),
+                                                         pk=self.kwargs.get("question_group_id"),
+                                                         course__level=self.student.level,
+                                                         course__programme=self.student.programme
+                                                         )
+        return True
+
+    def is_semester_eq_course_semester(self):
+        """
+
+        Check the semester the settings in the user profile and in course object to if they are equal
+        :return:  True or False
+        """
+        course = self.question_group_instance.course
+        try:
+            # Try if user has general_setting object
+            return self.request.user.generalsetting.semester == course.semester
+        except Exception:
+            # If Not create new settings for the user and return. Since the semester validate after creation
+            general_settings, created = GeneralSetting.objects.get_or_create(user=self.request.user)
+            if created:
+                general_settings.semester = course.semester
+                general_settings.save()
+                return True
+            else:
+                # Compare Semesters
+                return general_settings.semester == course.semester
+
+    def process(self):
+        # Initialise class instances
+        self.get_script()
+        self.init_time_used()
+
+    def get_not_semester_template(self):
+        """
+
+        :return: I f semester failed to validate render and return a decent view
+        """
+        course = self.question_group_instance.course
+        gen_set = self.request.user.generalsetting
+        return render(self.request, template_name="assessment/status_not_allowed.html", context={
+            "reason": f"""Sorry {self.student.get_name()}, this {str(course)} assessment.
+            Is registered only for {course.get_semester_display()} Only.""",
+            "tip": f"""Try changing your Semester in the settings to {course.get_semester_display()}
+                  Else consult the Course master: {str(course.lecture).upper()}.""",
+            "more": f"""
+            Your Semester is set to: {gen_set.get_semester_display()}.
+            Course Semester is set to: {course.get_semester_display()}
+            """
+        })
 
     def get(self, request, *args, **kwargs):
-        pass
+        # get question group or raise Http404
+        if self.has_question_group():
+            # Initialise class attributes
+            self.process()
+            # check if semester are equal and the script has not already been submitted
+            # Check if question is set to conduct
+            if self.is_semester_eq_course_semester() and \
+                    self.question_group_instance.status == QuestionGroupStatus.CONDUCT and \
+                    self.script_instance.is_completed is False and \
+                    self.script_instance.status == ScriptStatus.ASSESSING:
+                ctx = self.get_content_data()
+                return render(request, self.template, ctx)
+
+            # If Question is not set to Conduct return a decent view
+            elif not self.question_group_instance.status == QuestionGroupStatus.CONDUCT:
+                return self.get_question_status_not_allowed()
+
+            # Return a decent view if Script status is different from ASSESSING fail to validate
+            elif self.script_instance.is_completed or self.script_instance.status != ScriptStatus.ASSESSING:
+                return self.get_script_status_not_allowed()
+
+            # Return a decent view if semester fail to validate
+            elif not self.is_semester_eq_course_semester():
+                return self.get_not_semester_template()
+
+        return get_http_forbidden_response()
+
+    def get_question_status_not_allowed(self):
+        return render(self.request, "assessment/status_not_allowed.html",
+                      context={"question_group_instance": self.question_group_instance}
+                      )
+
+    def get_script_status_not_allowed(self):
+        return render(self.request, "assessment/status_not_allowed.html", context={
+            "script_instance": self.script_instance,
+            "return_link": reverse("assessment:student")
+
+        })
+
+    def can_delete_alert(self):
+        try:
+            saved = self.request.session["answer_saved"]
+            saved_mins = self.request.session["answer_saved_mins"]
+            if saved_mins >= 2:
+                del self.request.session["answer_saved_mins"]
+                del self.request.session["answer_saved"]
+            else:
+                self.request.session["answer_saved_mins"] +=1
+        except KeyError:
+            pass
+
+    def get_content_data(self):
+        self.can_delete_alert()
+        return {
+            "question_group_instance": self.question_group_instance,
+            "used_time": self.time_used,
+            "used_time_str": self.time_used.isoformat(),
+            "script_pk": self.script_instance.pk,
+            "answer_saved": self.request.session.get("answer_saved"),
+            "answer_saved_datetime": self.request.session.get("answer_saved_datetime"),
+        }
+
+    def post(self, request, *args, **kwargs):
+        self.process()
+        if self.has_question_group() and \
+            self.question_group_instance.status == QuestionGroupStatus.CONDUCT \
+                and self.script_instance.is_completed is False and self.script_instance.status == ScriptStatus.ASSESSING:
+
+            if self.is_semester_eq_course_semester():
+                ctx = self.get_content_data()
+                btn_clicked = self.request.POST.get("button")
+                if not btn_clicked == "home":
+                    try:
+                        return self.get_submission_urls()[btn_clicked]
+                    except KeyError as err:
+                        pass
+                return render(request, self.template, ctx)
+            else:
+                return self.get_not_semester_template()
+
+        elif self.question_group_instance.status != QuestionGroupStatus.CONDUCT:
+            return self.get_question_status_not_allowed()
+        elif self.question_group_instance.status != QuestionGroupStatus.CONDUCT:
+            return self.get_question_status_not_allowed()
+        elif self.script_instance.is_completed or self.script_instance.status != ScriptStatus.ASSESSING:
+            return self.get_script_status_not_allowed()
+
+        return get_http_forbidden_response()
+
+    def init_time_used(self):
+        self.time_used = get_time_obj_from(timezone.now() - self.script_instance.timestamp)
+
+    def get_submission_urls(self):
+        ctx = {
+            "script": self.script_instance,
+            "title": f"{self.student.get_name()} - {self.script_instance.question_group.get_title_display()}"
+               }
+        return {
+            "preview": render(self.request, "assessment/theory/preview_ans.html", ctx),
+            "submit": render(self.request, "assessment/theory/submit_script.html", ctx),
+            "done": redirect("assessment:theory_exam_status", script_pk=self.script_instance.pk)
+        }
+
+
+class TheoryQuestionAnswerView(LoginRequiredMixin, View):
+    student_script_model = StudentTheoryScript
+    template_name = "assessment/theory/examAnswerView.html"
+    model = StudentTheoryAnswer
+    form_class = StudentTheoryAnswerUpdateForm
+
+    def init_script_instances(self):
+        self.script  = get_object_or_404(StudentTheoryScript,
+                                         question_group__title=self.kwargs.get("question_group_title"),
+                                         question_group_id=self.kwargs.get("question_group_id"),
+                                         pk=self.kwargs.get("script_pk"),
+                                         student=self.request.user.student
+                                         )
+        self.question_instance = self.script.question_group.question_set.get(pk=self.kwargs.get("question_pk"))
+
+    def init_answer_instance(self):
+        instance, created = self.model.objects.get_or_create(
+            script=self.script,
+            question=self.question_instance,
+        )
+        self.theory_answer_instance = instance
+
+    def process(self):
+        self.init_script_instances()
+        self.init_answer_instance()
+
+    def get_script_status_not_allowed(self):
+        return render(self.request, "assessment/status_not_allowed.html", context={
+            "script_instance": self.script,
+            "return_link": reverse("assessment:student"),
+            "face_icon": True
+        })
+
+    def get_context_data(self):
+        duration = self.script.question_group.preference.duration
+        if duration:
+            duration = duration.strftime("HH:MM:SS")
+        else:
+            duration = "Any time"
+
+        used_time = get_time_obj_from(timezone.now() - self.script.timestamp)
+        return {
+            "question_instance": self.question_instance,
+            "answer_saved": self.request.session.get("answer_saved"),
+            "answer_saved_datetime": self.request.session.get("answer_saved_datetime"),
+            "duration": duration,
+            "used_time": used_time,
+            "used_time_str": used_time.strftime("%H:%M:%S"),
+            "title": f"{str(self.script.question_group.course)} {self.question_instance.group.get_title_display()} assessing"
+        }
+
+    def is_duration_and_due_date_normal(self):
+        return True
+
+    def get_question_status_not_allowed(self):
+        return render(self.request, "assessment/status_not_allowed.html",
+                      context={"question_group_instance": self.question_instance.group})
+
+    def get(self, request, *args, **kwargs):
+        try:
+            self.process()
+            if request.user.student and self.question_instance.group.status == QuestionGroupStatus.CONDUCT \
+                    and self.script.is_completed is False:
+
+                if self.is_duration_and_due_date_normal():
+                    ctx = self.get_context_data()
+                    ctx["answer_form"] = self.form_class(instance=self.theory_answer_instance)
+                    return render(request, self.template_name, ctx)
+                elif self.is_duration_and_due_date_normal() is False:
+                    return self.get_render_time_up()
+
+            elif self.script.is_completed is True:
+                return self.get_render_is_completed()
+
+            elif self.question_instance.group.status != QuestionGroupStatus.CONDUCT:
+                return self.get_question_status_not_allowed()
+
+            elif self.script.is_completed:
+                return self.get_script_status_not_allowed()
+
+            return get_http_forbidden_response()
+        except AttributeError as err:
+            print(err)
+            # TODO remove raise err and uncomment returns
+            raise err
+            # return get_http_forbidden_response()
+
+    def get_render_is_completed(self):
+        return render(self.request, "assessment/status_not_allowed.html",
+                      {
+                          "reason": "You script (answer sheet) has been submitted."
+                                    " You can not solve any question on this Quiz again.",
+                          "tip": "if you do not submitted by yourself, see authorities",
+                          "script_icon": True,
+                          "return_link": reverse("assessment:student")
+                      })
+
+    def get_render_time_up(self):
+        return render(self.request, "assessment/time_up_view.html",
+                      {
+                          "question_group_instance": self.question_instance.question
+                      })
+
+    def post(self, request, *args, **kwargs):
+        try:
+            self.process()
+            if request.user.student and self.question_instance.group.status == QuestionGroupStatus.CONDUCT \
+                    and self.script.is_completed is False and self.script.status == ScriptStatus.ASSESSING:
+
+                if self.is_duration_and_due_date_normal():
+                    ctx = self.get_context_data()
+                    answer_form = self.form_class(instance=self.theory_answer_instance, data=request.POST)
+                    if answer_form.is_valid():
+                        answer_form.save(True)
+                        request.session["answer_saved"] = True
+                        request.session["answer_saved_mins"] = 0
+                        return redirect("assessment:theory_exam_start",
+                                        question_group_title=self.script.question_group.title,
+                                        question_group_id=self.script.question_group.id,
+                                        semester=self.script.question_group.course.semester,
+                                        )
+                    else:
+                        ctx["answer_form"] = answer_form
+                        return render(request, self.template_name, ctx)
+                else:
+                    return self.get_render_time_up()
+            elif self.script.status != ScriptStatus.ASSESSING:
+                return self.get_script_status_not_allowed()
+            elif self.script.is_completed is True:
+                return self.get_render_is_completed()
+            elif not (self.question_instance.group.status == QuestionGroupStatus.CONDUCT):
+                return self.get_question_status_not_allowed()
+            else:
+                return get_http_forbidden_response()
+        except Exception as err:
+            print(err)
+            return get_http_forbidden_response()
+
+
+class TheoryScriptStatusTemplateView(LoginRequiredMixin, TemplateView):
+
+    def init_script_instance(self):
+        self.script_instance = get_object_or_404(
+            StudentTheoryScript,
+            pk=self.kwargs.get("script_pk"),
+            student_id=self.request.user.student.id
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.init_script_instance()
+        if self.script_instance.status == ScriptStatus.ASSESSING:
+            self.script_instance.status = ScriptStatus.SUBMITTED
+            self.script_instance.is_completed = True
+            self.script_instance.submitted_at = timezone.now()
+            self.script_instance.save()
+
+        return super(TheoryScriptStatusTemplateView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(TheoryScriptStatusTemplateView, self).get_context_data(**kwargs)
+        ctx["script"] = self.script_instance
+        ctx["course"] = self.script_instance.question_group.course
+        ctx["script_status"] = True if self.request.GET.get("preview") else False
+        return ctx
+
+    def get_template_names(self):
+        preview = self.request.GET.get("preview")
+        back = self.request.GET.get("back")
+        if preview == "preview_student_stu_script" and not back == 1:
+            return "assessment/theory/preview_ans.html"
+        else:
+            return "assessment/theory/script_status.html"
+
+
+class StopAllWorkTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "assessment/work/stop_all.html"
+
+    def init_question_group(self):
+        self.question_group_instance = get_object_or_404(
+            QuestionGroup,
+            pk=self.kwargs.get("question_group_pk"),
+            course__lecture=self.request.user.lecturemodel,
+            course_id=self.kwargs.get("course_id"),
+            title=self.kwargs.get("question_group_title"),
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.init_question_group()
+        if self.request.user.is_lecture and self.question_group_instance.status == QuestionGroupStatus.CONDUCT:
+            if self.request.GET.get("confirm") == "yes":
+                self.question_group_instance.status = QuestionGroupStatus.CONDUCTED
+                self.question_group_instance.save()
+                return self.get_confirm_redirect()
+            return super(StopAllWorkTemplateView, self).get(request, *args, **kwargs)
+        elif self.question_group_instance.status != QuestionGroupStatus.CONDUCT and self.request.user.is_lecture:
+            return render(request, "assessment/status_not_allowed.html",
+                          {"question_group_instance": self.question_group_instance,
+                           "reason": f"{self.question_group_instance.get_title_display()} status  "
+                                     f"({self.question_group_instance.get_status_display()}) does not allow this operation",
+                           "tip": get_status_tips(self.question_group_instance, QuestionGroupStatus)
+                           },
+                          )
+        else:
+            return get_http_forbidden_response()
+
+    def get_context_data(self, **kwargs):
+        ctx = super(StopAllWorkTemplateView, self).get_context_data(**kwargs)
+        ctx["question_group_instance"] = self.question_group_instance
+        return ctx
+
+    def get_confirm_redirect(self):
+        return redirect("lecture:question_group_detail", question_group_pk=self.question_group_instance.pk,
+                        course_id=self.question_group_instance.course_id)

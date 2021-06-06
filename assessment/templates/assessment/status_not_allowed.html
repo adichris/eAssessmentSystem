@@ -2,24 +2,71 @@
 {% load static %}
 {% block content %}
     <div class="container">
+
+        <div class="row mt-3">
+            <div class="col-auto mx-auto">
+                {% if question_group_instance %}
+                    <h5>{{ question_group_instance.course|upper }} {{ question_group_instance.get_title_display|upper }} ACTION DENIED</h5>
+                {% elif questiongroup %}
+                    <h5>{{ questiongroup.course|upper }} {{ questiongroup.get_title_display|upper }} ACTION DENIED</h5>
+                {% elif question %}
+                    <h5>{{ question_group_instance.course|upper }} {{ question_group_instance.get_title_display|upper }} ACTION DENIED</h5>
+                {% endif %}
+                <hr>
+            </div>
+        </div>
+
         <div class="row mt-4">
             <div class="col-md-6 mx-auto">
+                {% if return_link %}
+                    <a href="{{ return_link }}" class="btn btn-link" onclick="onBackSpin(this)"><i title="return to assessment" class="fa fa-chevron-left mr-2"></i>back</a>
+                    <hr>
+                {% endif %}
                 <div class="card">
-                    <div class="card-img-top text-center">
-                        <img {% if is_completed %} src="{% static 'icons/completed_task.svg' %}" {% else %} src="{% static 'DefaultImg/500.webp' %}" {% endif %} class="img-fluid" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
+                    <div class="card-img-top text-center p-2">
+                        {% if face_icon %}
+                            <img src="{% static 'DefaultImg/500.webp' %}" class="img-fluid" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
+                        {% elif script_icon %}
+                            <img src="{% static 'DefaultImg/receipt_declined_1.svg' %}" class="img-fluid" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
+                        {% else %}
+                            <img {% if is_completed %} src="{% static 'icons/completed_task.svg' %}" {% elif script_instance %} src="{% static 'DefaultImg/receipt_approved.svg' %}" {% else %} src="{% static 'DefaultImg/no_entry.svg' %}" {% endif %} class="img-fluid" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
+                        {% endif %}
                     </div>
-                    <div class="card-body">
-                        <p class="card-text text-center alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
-                            {{ reason|safe }}
-                            {% if return_link %}
-                                <a href="{{ return_link }}" class="alert-link"><i title="return to assessment" class="fa fa-times-circle"></i></a>
-                            {% endif %}
-                        </p>
+                    <div class="card-body shadow">
+                        {% if reason %}
+                            <p class="card-text alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
+                                {{ reason|safe }}
+    {#                            {% if return_link %}#}
+    {#                                <a href="{{ return_link }}" class="alert-link"><i title="return to assessment" class="fa fa-times-circle"></i></a>#}
+    {#                            {% endif %}#}
+                            </p>
+                        {% endif %}
+                        {% if script_instance %}
+                            <div class="alert alert-primary">
+                                {% if script_instance.is_completed %}
+                                    <p>You script (answer sheet) has been submitted. You can not solve any question on this
+                                        {{ script_instance.question_group.get_title_display }} yet!</p>
+                                {% endif %}
+                            </div>
+                            <p class="alert alert-info small">
+                                <i class="fa fa-info-circle mr-2"></i> If you do not submitted by yourself, see authorities/supervisor
+                            </p>
+                        {% elif question_group_instance and lecture_details %}
+                            <div class="alert alert-danger">
+                                <span><b>{{ question_group_instance.course }} {{ question_group_instance.get_title_display }} </b> <br>Is still in
+                                    {{ question_group_instance.status }} mode
+                                    <a href="{% url 'assessment:exam_stop_all' course_id=question_group_instance.course_id question_group_title=question_group_instance.title question_group_pk=question_group_instance.pk %}" class="card-link px-1">stop it's work</a> to view details, records.</span>
+
+                            </div>
+                        {% endif %}
                         {% if tip %}
                             <p class="alert alert-info small"><i class="fa fa-info-circle mr-2"></i>{{ tip }}</p>
                         {% endif %}
                         {% if is_completed and question_group_instance %}
                             <a href="{% url 'assessment:result' course_id=question_group_instance.course_id question_group_id=question_group_instance.id student_id=request.user.student.id %}" class="btn btn-info btn-block" onclick="spinOnClick(this)">Check your result</a>
+                        {% endif %}
+                        {% if more %}
+                            <p class="alert alert-primary"><i class="fa fa-caret-down"></i><br>{{ more }}</p>
                         {% endif %}
                     </div>
                 </div>
