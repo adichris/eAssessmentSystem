@@ -1,21 +1,37 @@
 {% extends 'base.html' %}
 {% load static %}
+{% url 'assessment:result' course_id=question_group_instance.course_id question_group_id=question_group_instance.id student_id=request.user.student.id script_pk=script_instance.pk questions_type=question_group_instance.questions_type as script_result_url %}
 {% block content %}
     <div class="container">
         <div class="row mt-4">
             <div class="col-md-6 mx-auto">
                 <div class="card">
-                    <div class="card-img-top text-center">
-                        <img src="{% static 'icons/time.svg' %}" alt="clock" style="max-height: 305px">
-                    </div>
-                    <div class="card-body">
+                    {% with question_group_instance=script_instance.question_group  %}
+                        {% if dead_line_ended %}
+                            <div class="card-img-top text-center">
+                                <img src="{% static 'icons/baby_calendar.svg' %}" alt="clock" style="max-height: 305px">
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text text-center alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
+                                    {{ question_group_instance.course }} {{ question_group_instance.get_title_display }} <br>
+                                    <i class="fa fa-calendar-day mr-1"></i><b>Date is Due -: {{ question_group_instance.preference.due_date }}</b>
+                                </p>
+                                <a href="{{ script_result_url }}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Continue</a>
+                            </div>
+                            {% else %}
+                                <div class="card-img-top text-center">
+                                    <img src="{% static 'icons/expired.svg' %}" alt="clock" class="img-fluid " style="max-height: 305px">
+                                </div>
+                                <div class="card-body">
 
-                        <p class="card-text text-center alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
-                            {{ question_group_instance.course }} {{ question_group_instance.get_title_display }} <br>
-                            <i class="fa fa-clock fa-spin mr-1"></i><b>TIME IS UP</b>
-                        </p>
-                        <a href="{% url 'assessment:result' course_id=question_group_instance.course_id question_group_id=question_group_instance.id student_id=request.user.student.id %}" class="btn btn-info btn-block" title="click to see your result" onclick="spinOnClick(this)">I Agree.</a>
-                    </div>
+                                    <p class="card-text text-center alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
+                                        {{ question_group_instance.course }} {{ question_group_instance.get_title_display }} <br>
+                                        <i class="fa fa-clock fa-spin mr-1"></i><b>TIME IS UP</b>
+                                    </p>
+                                    <a href="{{ script_result_url }}" class="btn btn-info btn-block" title="click to see your result" onclick="spinOnClick(this)">I Agree.</a>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
                 </div>
             </div>
         </div>

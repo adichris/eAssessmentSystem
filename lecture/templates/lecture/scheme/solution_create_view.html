@@ -1,76 +1,35 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 {% block content %}
     <div class="container">
-        <div class="row my-3">
-            <div class="col-md-6 mx-auto">
-                <h5 class="text-center">Marking Scheme</h5>
-            </div>
-        </div>
 
-    {% if scheme_instance.solution_set.exists %}
         <div class="row">
-            <div class="table-responsive">
-                <table class="table">
-                    {% for solution in scheme_instance.solution_set.all %}
-                        <tr>
-                            <th class="text-nowrap">Q {{ forloop.counter }}</th>
-                            <td>{{ solution.question.question|linebreaksbr }}</td>
-                        </tr>
-                        <tr>
-                            <td>Scheme</td>
-                            <th>
-                                <div class="jumbotron">
-                                    <h6>{{ solution.answer }}</h6>
-                                </div>
-                            </th>
-                            <td>
-                                <div class="jumbotron">
-                                    <h6>{{ solution.notes }}</h6>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        </div>
-    {% else %}
-        <div class="row mt-10vh">
-            <div class="col-md-6 mx-auto text-center">
-                <img src="{% static 'icons/empty_box.svg' %}" alt="" class="img-fluid img_fit_content" style="height: fit-content;">
+            <div class="col-12">
                 <hr>
-                <p class="lead">THIS SCHEME IS EMPTY</p>
+                <span href="" class="btn btn-link" onclick="onBackSpin(this)" onmousedown="windowHistoryBack()"><i class="fa fa-chevron-left mr-2"></i>back</span>
+                <hr>
             </div>
         </div>
-    {% endif %}
 
-    <div class="row">
-        <div class="col-md-8 col-lg-6 mx-auto text-center">
-            <h5>{{ scheme_instance.question_group.get_title_display }} QUESTION</h5>
+        <div class="row my-3">
+            <div class="col-md-12 col-lg-10 mx-auto">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="text-center">{{ question_instance.group.course }} - {{ question_instance.group.get_title_display }}</h5>
+                        <hr>
+                        <h6>Question {{ question_instance.question_number|default:"" }}</h6>
+                        <p>{{ question_instance.question|linebreaksbr }}</p>
+                        <hr>
+                       <form action="" method="post">
+                           {% csrf_token %}
+                           {{ form|crispy }}
+                           <button class="btn btn-primary btn-block " onclick="appendSpinOnClick(this)">Save Solution</button>
+                       </form>
+                        </div>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <div class="row">
-        <div class="table-responsive">
-            <table class="table">
-                {% for question in scheme_instance.question_group.question_set.all %}
-                    <tr>
-                        <td class="card-hover-shadow">
-                            <div class="d-flex">
-                                <span class="p-1"><b>Q {{ forloop.counter }}</b></span>
-                                <div class="card flex-grow-1">
-                                    <div class="card-body">
-                                        <a href="" class="card-link">{{ question.question|linebreaksbr }}</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-
-            </table>
-        </div>
-    </div>
 
     </div>
 {% endblock %}

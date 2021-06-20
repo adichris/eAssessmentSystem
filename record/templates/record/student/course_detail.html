@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
     <div class="container">
         <div class="row my-3">
@@ -6,49 +7,62 @@
                 <h5>{{ course }} Records</h5>
             </div>
         </div>
-
-        <div class="row d-print-none">
-            <div class="col">
-                <button onclick="window.print()"  class="btn btn-light"><span class="fa fa-print mr-2"></span>print</button>
+        {% if multichoice_script.exists or theory_script.exists %}
+            <div class="row d-print-none">
+                <div class="col">
+                    <button onclick="window.print()"  class="btn btn-light"><span class="fa fa-print mr-2"></span>print</button>
+                </div>
             </div>
-        </div>
 
-        <div class="row my-3">
-            <div class="table-responsive">
-                <table class="table">
-                    <tr>
-                        <th>#</th>
-                        <th>Quiz</th>
-                        <th>Quiz type</th>
-                        <th>Number of Questions</th>
-                        <th>Score</th>
-                    </tr>
-                    {% for script in multichoice_script %}
+            <div class="row my-3">
+                <div class="table-responsive">
+                    <table class="table">
                         <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ script.question_group.get_title_display }}</td>
-                            <td>{{ script.question_group.get_questions_type_display }}</td>
-                            <td>{{ script.question_group.question_set.count }}</td>
-                            <td>{{ script.score }}</td>
+                            <th>#</th>
+                            <th>Quiz</th>
+                            <th>Quiz type</th>
+                            <th>Number of Questions</th>
+                            <th>Score</th>
                         </tr>
-                    {% endfor %}
-                    {% for script in theory_script %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ script.question_group.get_title_display }}</td>
-                            <td>{{ script.question_group.get_questions_type_display }}</td>
-                            <td>{{ script.question_group.question_set.count }}</td>
-                            <td>{{ script.total_score }}</td>
-                        </tr>
+                        {% for script in multichoice_script %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ script.question_group.get_title_display }}</td>
+                                <td>{{ script.question_group.get_questions_type_display }}</td>
+                                <td>{{ script.question_group.question_set.count }}</td>
+                                <td>{{ script.score }}</td>
+                            </tr>
                         {% endfor %}
+                        {% for script in theory_script %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ script.question_group.get_title_display }}</td>
+                                <td>{{ script.question_group.get_questions_type_display }}</td>
+                                <td>{{ script.question_group.question_set.count }}</td>
+                                <td>{{ script.total_score }}</td>
+                            </tr>
+                            {% endfor %}
 
-                    <tr>
-                        <th colspan="4"></th>
-                        <th>Total Score: {{ total_score }}</th>
-                    </tr>
+                        <tr>
+                            <th colspan="4"></th>
+                            <th>Total Score: {{ total_score }}</th>
+                        </tr>
 
-                </table>
+                    </table>
+                </div>
             </div>
-        </div>
+
+        {% else %}
+            <div class="row my-3 my-lg-5">
+                <div class="col-md-6 mx-auto text-center">
+                    <img src="{% static 'icons/empty_box.svg' %}" alt="" class="img-fluid" style="height:10em;">
+                    <p class="mt-2">This course has no records at the moment</p>
+                    <hr>
+                    <p>Do more quiz to view their records</p>
+                    <small class="alert alert-info d-block">Only published Quiz records will be shown here</small>
+                </div>
+            </div>
+
+        {% endif %}
     </div>
 {% endblock %}

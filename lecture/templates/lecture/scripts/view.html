@@ -47,19 +47,19 @@
                                     </tr>
                                 </table>
                                 <div class="btn-group btn-block">
-                                    <a href="" class="btn btn-outline-secondary">View</a>
+                                    <a href="{% url 'lecture:question_group_detail' course_id=group.course_id question_group_pk=group.pk %}" class="btn btn-outline-secondary">View</a>
                                     {% if group.status == "marked" %}
                                         <a href="" class="btn btn-outline-secondary">Publish</a>
                                         {% elif group.status == "publish" %}
                                         <a href="" class="btn btn-outline-secondary">Records</a>
                                     {% endif %}
-                                    {% if group.question_type == "theory" %}
+                                    {% if group.questions_type == "theory" %}
                                          {% if group.status == "conducted" %}
-                                              <a href="" class="btn btn-outline-secondary">Mark</a>
+                                              <a href="{% url 'lecture:mark_scripts' question_group_pk=group.pk question_group_title=group.title %}" class="btn btn-outline-secondary">Mark</a>
                                          {% endif %}
                                     {% endif %}
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center mt-1">
                                     <span class="text-muted mt-1">{{ group.course.programme }}</span>
                                     <span class="text-muted mt-1">{{ group.course.level }}</span>
                                 </div>
@@ -80,7 +80,7 @@
     {% else %}
         <div class="row mt-3">
             <div class="col-md-6 mx-auto text-center">
-                <img src="{% static 'icons/empty_box.svg' %}" alt="empty box" class="img-fluid small no-pointer" style="width: fit-content; height: fit-content;">
+                <img src="{% static 'icons/empty_box.svg' %}" alt="empty box" class="img-fluid small no-pointer" style="width: fit-content; height:10em;">
                 <hr>
                 <p>There no  script available</p>
                 <a href="{% url 'assessment:all'  %}" class="btn btn-link">View assessment</a>

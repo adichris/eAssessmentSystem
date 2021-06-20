@@ -7,9 +7,9 @@ from lecture.models import LectureModel
 class CourseManager(models.Manager):
     def get_lecture_courses(self, lecture, programme=None):
         if programme:
-            return self.filter(lecture=lecture, programme=programme)
+            return self.filter(lecture=lecture, programme=programme, semester=lecture.profile.generalsetting.semester)
         else:
-            return self.filter(lecture=lecture)
+            return self.filter(lecture=lecture, semester=lecture.profile.generalsetting.semester)
 
 
 class CourseLevel(models.Model):
@@ -48,17 +48,20 @@ class CourseModel(models.Model):
     lecture = models.ForeignKey(LectureModel, on_delete=models.CASCADE, null=True, blank=True)
     objects = CourseManager()
 
-    # TODO add lecture to course model
-    # lecture =  models.ForeignKey(LectureModel, on_delete=models.CASCADE)
-
     class Meta:
         verbose_name = "Course"
         verbose_name_plural = "Courses"
         ordering = ("level", "name")
         # unique_together = ("lecture", "programme")
 
+    def question_conduct(self):
+        return self.questiongroup_set.filter(status__in=("conducted", "marked", "published"))
+
     def __str__(self):
         return "%s (%s)" % (self.name, self.code)
+
+    def conducted_quizzes(self):
+        return self.questiongroup_set.filter(status__in=("conducted", "published"))
 
     def get_lecture(self):
         return None

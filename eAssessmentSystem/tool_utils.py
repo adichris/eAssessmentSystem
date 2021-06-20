@@ -2,7 +2,7 @@ from string import ascii_letters, digits
 from random import choice
 from django.utils.text import slugify
 import datetime
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.http.response import HttpResponseForbidden
 
 
@@ -20,6 +20,25 @@ def unique_slug_gen(instance, new_slug=None):
     if qs_exists:
         slug = "{slug}-{random}".format(slug=slug, random=random_string_gen())
         return unique_slug_gen(instance, new_slug=slug)
+    else:
+        return slug
+
+
+def unique_slug_generator_scheme(klass, new_slug=None):
+    """
+    Generate a unique slug from
+    :param instance:
+    :param new_slug:
+    :return:
+    """
+    if new_slug:
+        slug = new_slug
+    else:
+        slug = slugify(random_string_gen(10))
+    qs_exists = klass.objects.filter(slug=slug).exists()
+    if qs_exists:
+        slug = "{slug}-{random}".format(slug=slug, random=random_string_gen())
+        return unique_slug_generator_scheme(klass, new_slug=slug)
     else:
         return slug
 
@@ -47,6 +66,12 @@ def is_lecture(current_user):
 
 def get_http_forbidden_response(message="Your not allowed to access this page because of your profile"):
     return HttpResponseForbidden(bytes(message, encoding="utf8", errors="ignore"))
+
+
+def get_not_allowed_render_response(request, message="Your not allowed to access this page because of your profile"):
+    return render(request, "assessment/status_not_allowed.html", {
+        "reason": message
+    })
 
 
 def get_time_obj_from(timedelta):

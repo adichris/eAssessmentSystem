@@ -5,7 +5,7 @@
             {% if question.group.status == "prepared" %}
                 <div class="row">
                     <div class="col-12 mx-auto">
-                        <h3 style="color: darkred"><i class="fa fa-trash-o"></i>Delete {{ question.group.get_title_display }} Question</h3>
+                        <h3 style="color: darkred"><i class="fa fa-trash mr-2"></i>Delete {{ question.group.get_title_display }} Question {{ question.question_number|default:"" }}</h3>
                     </div>
                 </div>
 
@@ -27,7 +27,7 @@
                              <div class="card">
                                 <div class="card-body">
                                     <h6>Question number:</h6>
-                                    <p>{{ question.question_number|default:"Automatic numbering" }}</p>
+                                    <p>{{ question.question_number|default:"Auto numbering" }}</p>
                                 </div>
                             </div>
                             <div class="card">
@@ -43,10 +43,22 @@
 
                         <form action="" method="post" class="mt-md-1">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-block">Confirm</button>
+                            <button type="submit" class="btn btn-danger btn-block">Confirm Delete</button>
                         </form>
                     </div>
                 </div>
+
+                {% if questiongroup.questions_type == "multichoice" %}
+                    <div class="row">
+                        <div class="col-md-8 col-lg-6 mx-auto">
+
+                            {% for option in question.multichoicequestion_set.all %}
+                                <p class="alert alert-secondary">{{ option.option }}      </p>
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                {% endif %}
 
             {% elif view == "qgd" %}
                 <div class="row">

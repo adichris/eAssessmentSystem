@@ -1,20 +1,38 @@
-{% extends 'base.html' %}
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Assessment Login</title>
+    <link rel="shortcut icon" href="{% static 'DefaultImg/class_logo.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/custom.css' %}">
+</head>
+<body style="background-image: url({% static 'DefaultImg/bgs/gh_sch_bg.svg' %}); background-attachment: fixed;background-repeat: no-repeat; background-size: cover;">
 
 {% load crispy_forms_tags %}
-{% block content %}
+
     <div class="container">
-        <div class="row mt-3" style="height: 60vh">
-            <div class="col-md-6 col-lg-5 mx-auto mt-auto ">
-            {% if request.user.is_authenticated %}
-                <p class="alert alert-warning">
-                    {{ request.user }}, this action will automatically logout your account.
-                Then the {{ cardHeader|lower }} to the system.
-                    <a href="\" class="alert-link" title="cancel {{ cardHeader|lower }}"><i class="fa fa-times-circle"></i></a>
-                </p>
-            {% endif %}
-                <div class="card">
-                    <div class="card-header bg-primary">
-                        <h3 class="text-center" style="color: #ffffff">{{ cardHeader }}</h3>
+        <div class="row" style="margin-top:20vh">
+            <div class="col-auto mx-auto text-center">
+                <h2 class="text-monospace text-dark mb-2"><a href="\" class="btn btn-primary">Continuous Assessment System</a></h2>
+                {% if request.user.is_authenticated %}
+                    <span class="alert alert-warning d-block">
+                        {{ request.user }}, this action will automatically logout your account.
+                        Then the {{ cardHeader|lower }} to the system.
+                        <a href="\" class="alert-link" title="cancel {{ cardHeader|lower }}"><i class="fa fa-times-circle"></i></a>
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row my-3">
+            <div class="col-md-7 col-lg-6 mx-auto mt-auto ">
+                <div class="card shadow transparentBlur mt-3" style="background-color: #ffffffb3">
+                    <div class="card-header">
+                        <h3 class="text-center text-primary">{{ cardHeader }}</h3>
                     </div>
                     <div class="card-body">
                         {% if admin_required %}
@@ -25,12 +43,16 @@
                         <form action="" method="post">
                             {% csrf_token %}
                             {{ form|crispy }}
-                            <input type="submit" value="Log in" class="btn btn-primary btn-block">
+                            <button type="submit" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Log In</button>
                         </form>
                     </div>
                 </div>
 
             </div>
         </div>
+
+
     </div>
-{% endblock %}
+   <script src="{% static 'utils/active_btn_spin.js' %}"></script>
+</body>
+</html>

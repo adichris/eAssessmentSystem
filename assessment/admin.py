@@ -1,7 +1,32 @@
 from django.contrib import admin
 from .models import (MultiChoiceQuestion, Question, QuestionGroup,
                      AssessmentPreference, StudentMultiChoiceAnswer, MultiChoiceScripts,
+                    StudentTheoryScript, Solution, StudentTheoryAnswer, TheoryMarkingScheme
                      )
+
+
+@admin.register(Solution)
+class SolutionModelAdmin(admin.ModelAdmin):
+    list_display = ("answer", "notes", "scheme")
+    readonly_fields = ("answer", "scheme")
+
+
+@admin.register(StudentTheoryScript)
+class StudentTheoryScriptAdmin(admin.ModelAdmin):
+    list_display = ("student", "question_group", "total_score", "status")
+    readonly_fields = ("student", "question_group")
+
+
+@admin.register(StudentTheoryAnswer)
+class StudentTheoryAnswerModelAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "script", "lecture_comment")
+    readonly_fields = ("question", "answer", "script")
+
+
+@admin.register(TheoryMarkingScheme)
+class TheoryMarkingSchemeModelAdmin(admin.ModelAdmin):
+    list_display = ("lecture", "updated_at")
+    readonly_fields = ("lecture", "updated_at")
 
 
 @admin.register(Question)

@@ -1,12 +1,99 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="container">
-        <div class="row mt-10vh">
-            <div class="col-md-6 mx-auto text-center">
-                <p>Student Result</p>
+        <div class="row mt-3 mt-lg-4">
+            <div class="col-md-12 col-lg-auto mx-auto  text-center">
+                <h5>{{ student_script.student.get_name }} ({{ student_script.student.index_number }}) - {{ course }} {{ student_script.question_group.get_title_display }} Script</h5>
                 <hr>
-                {{ request.user }}
             </div>
         </div>
+
+        <div class="row mt-3 mt-lg-4">
+            <div class="col-md-12">
+                <div class="card-group">
+                    <div class="card">
+                        <div class="card-body">
+                            <span>Score</span>
+                            <h5 class="text-center">{{ student_script.score|floatformat }}</h5>
+                            <hr class="text-center w-50">
+                            <h5 class="text-center">{{ student_script.question_group.total_marks }}</h5>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <span>Answers</span>
+                            <h5 class="text-center mt-2">{{ student_script.get_correct_answers_set.count }} Corrects</h5>
+                            <hr class="w-50">
+                                <h5 class="text-center">{{ student_script.get_wrong_answers_count }} Wrongs</h5>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <span>Question</span>
+                            <h5 class="text-center mt-2">{{ student_script.question_group.question_set.count }} Questions</h5>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body"><span>Script Key:</span>
+                            <div class="card-group mt-2 ">
+                                <small class="card card-body alert alert-primary small text-nowrap">Correct</small>
+                                <small class="card card-body alert alert-danger small text-nowrap">Wrong</small>
+                                <small class="card card-body alert alert-success small text-nowrap">Answer</small>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <hr>
+
+            </div>
+        </div>
+
+
+    {% if student_script.question_group.questions_type == "multichoice" %}
+        <div class="row">
+            <div class="col-md-12 col-lg-8 mx-auto">
+                <div class="table-responsive">
+                <table class="table">
+                    {% for choice_answer in studentmultichoiceanswer_set %}
+                        <tr>
+                        <td class="card my-2">
+                            <div class="card-body">
+                                <div class="d-flex flex-row justify-content-between align-items-center">
+                                    <h6>Question {{ choice_answer.question.question_number }}</h6>
+                                    <h6>{{ choice_answer.question.max_mark|floatformat }} Marks</h6>
+                                </div>
+                                <div>
+                                    <div class="d-flex flex-column">
+                                        <p>{{ choice_answer.question.question|linebreaksbr }}</p>
+                                        <div class="jumbotron">
+                                            {% for option in choice_answer.question.multichoicequestion_set.all %}
+                                                <p class="alert
+                                                              {% if option == choice_answer.selected_option and option.is_answer_option  %} alert-primary
+                                                               {% elif option == choice_answer.selected_option  %} alert-danger
+                                                               {% elif option.is_answer_option  %} alert-success
+                                                               {% else %} alert-light {% endif %} shadow">
+                                                    {{ option.option }}
+                                                </p>
+                                            {% endfor %}
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+            </div>
+        </div>
+    {% endif %}
+
     </div>
 {% endblock %}

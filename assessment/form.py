@@ -1,8 +1,8 @@
 from django import forms
 from .models import (
     MultiChoiceQuestion, Question, QuestionGroup,
-    AssessmentPreference, StudentMultiChoiceAnswer, StudentTheoryAnswer
-
+    AssessmentPreference, StudentMultiChoiceAnswer, StudentTheoryAnswer,
+    Solution,
 )
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.utils import timezone
@@ -14,7 +14,12 @@ class AssessmentPreferenceCreateForm(forms.ModelForm):
         fields = ("duration", "due_date", "environment", "is_question_shuffle")
 
         widgets = {
-            "due_date": forms.DateInput()
+            "due_date": forms.SplitDateTimeWidget(date_attrs={"type": "date", "class": "form-control"},
+                                                  time_attrs={"type": "time", "class": "form-control"}),
+            "duration": forms.TimeInput(attrs={"type": "time"}),
+        }
+        field_classes = {
+            "due_date": forms.SplitDateTimeField
         }
 
     def clean_due_date(self):
@@ -22,6 +27,9 @@ class AssessmentPreferenceCreateForm(forms.ModelForm):
         if due_date:
             if due_date < timezone.now():
                 raise forms.ValidationError("Due Date can not be in the Past")
+            elif due_date == timezone.now():
+                raise forms.ValidationError("Dead line time should be at least 10 minute more than now")
+
         return due_date
 
     def clean_duration(self):
@@ -110,7 +118,7 @@ class StudentMultiChoiceAnswerForm(forms.ModelForm):
         }
 
         widgets = {
-            "selected_option": forms.RadioSelect,
+            "selected_option": forms.RadioSelect(attrs={"onclick": "handleChange()"}),
         }
 
     def __init__(self, question_instance, *args, **kwargs):
@@ -122,3 +130,12 @@ class StudentTheoryAnswerUpdateForm(forms.ModelForm):
     class Meta:
         model = StudentTheoryAnswer
         fields = ("answer", )
+
+
+class LectureQuestionSolutionForm(forms.ModelForm):
+    class Meta:
+        model = Solution
+        fields = ("answer", "notes")
+        widgets = {
+            "notes": forms.Textarea(attrs={"rows": 0})
+        }

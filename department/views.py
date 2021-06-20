@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from programme.forms import ProgrammeCreateForm
 from course.models import CourseModel
 from student.models import Student
-from eAssessmentSystem.tool_utils import admin_required_message, get_http_forbidden_response
+from eAssessmentSystem.tool_utils import admin_required_message, get_http_forbidden_response, get_not_allowed_render_response
 
 
 class DepartmentCreateView(LoginRequiredMixin, CreateView):
@@ -104,11 +104,15 @@ class StudentDepartmentTemplateView(LoginRequiredMixin, TemplateView):
         return self.request.user.student
 
     def get(self, request, *args, **kwargs):
-        student = self.get_student()
-        if student and student.programme:
-            return super(StudentDepartmentTemplateView, self).get(request, *args, **kwargs)
-        else:
-            return get_http_forbidden_response()
+        try:
+            student = self.get_student()
+            if student and student.programme:
+                return super(StudentDepartmentTemplateView, self).get(request, *args, **kwargs)
+            else:
+                return get_http_forbidden_response()
+        except Exception as err:
+            print("Department.views 107 err", err)
+            return get_not_allowed_render_response(request)
 
     def get_course(self):
         student = self.get_student()

@@ -7,25 +7,41 @@
                 <div class="col-md-6 my-3">
                     <div class="card">
                         <div class="card-body">
-                            <table class="table">
+                             <table class="table table-borderless">
                                 <tr>
-                                    <td colspan="2">{{ script.question_group.get_title_display }}</td>
+                                    <td colspan="2"><h5 class="text-center">{{ script.question_group.course.name }} {{ script.question_group.get_title_display }}</h5></td>
+                                </tr>
+                                <tr>
+                                    <td>Questions Type</td>
+                                    <td>{{ script.question_group.get_questions_type_display }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Course</td>
+                                    <td>{{ script.question_group.course.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Course Code</td>
+                                    <td>{{ script.question_group.course.code }}</td>
                                 </tr>
                                 <tr>
                                     <td>Started Time</td>
                                     <td>{{ script.timestamp }}</td>
                                 </tr>
-                                {% with preference=script.question.preference %}
+                                {% with preference=script.question_group.preference %}
                                     <tr>
                                         <td>Duration</td>
-                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s" }}</td>
+                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s"|default:"No" }}</td>
                                     </tr>
                                     <tr>
                                         <td>Deadline</td>
-                                        <td>{{preference.due_date }}</td>
+                                        <td>{{preference.due_date|default_if_none:"No" }}</td>
                                     </tr>
                                 {% endwith %}
                             </table>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'assessment:result' course_id=script.question_group.course_id student_id=request.user.student.id question_group_id=script.question_group_id script_pk=script.pk questions_type=script.question_group.questions_type %}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">View Script</a>
                         </div>
                     </div>
                 </div>
@@ -39,11 +55,7 @@
                         <div class="card-body">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td colspan="2"><h5 class="text-center">{{ script.question_group.course }} {{ script.question_group.get_title_display }}</h5></td>
-                                </tr>
-                                <tr>
-                                    <td>Score</td>
-                                    <td>{{ script.score|floatformat }}</td>
+                                    <td colspan="2"><h5 class="text-center">{{ script.question_group.course.name }} {{ script.question_group.get_title_display }}</h5></td>
                                 </tr>
                                 <tr>
                                     <td>Questions Type</td>
@@ -65,17 +77,17 @@
                                 {% with preference=script.question_group.preference %}
                                     <tr>
                                         <td>Duration</td>
-                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s" }}</td>
+                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s"|default:"No" }}</td>
                                     </tr>
                                     <tr>
                                         <td>Deadline</td>
-                                        <td>{{preference.due_date }}</td>
+                                        <td>{{preference.due_date|default_if_none:"No" }}</td>
                                     </tr>
                                 {% endwith %}
                             </table>
                         </div>
                         <div class="card-footer bg-transparent">
-                            <a href="{% url 'assessment:result' course_id=script.course_id student_id=request.user.student.id question_group_id=script.question_group_id %}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">View Script</a>
+                            <a href="{% url 'assessment:result' course_id=script.course_id student_id=request.user.student.id question_group_id=script.question_group_id script_pk=script.pk questions_type=script.question_group.questions_type %}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">View Script</a>
                         </div>
                     </div>
                 </div>

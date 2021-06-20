@@ -5,7 +5,7 @@
         <div class="col-auto">
             <div class="breadcrumb small">
                 <a href="{% url 'assessment:student' %}" class="breadcrumb-item" onclick="appendSpinOnClick(this)" title="back to assessment"><i class="fa fa-chevron-left mr-1"></i>Assessment </a>
-                <a href="{% url 'assessment:result' course_id=student_script.course_id student_id=student_script.student_id question_group_id=student_script.question_group_id %}" class="breadcrumb-item" onclick="appendSpinOnClick(this)" title="back to assessment">Result </a>
+                <a href="{% url 'assessment:result' course_id=course.id student_id=student_script.student_id question_group_id=student_script.question_group_id script_pk=student_script.pk questions_type=student_script.question_group.questions_type %}" class="breadcrumb-item" onclick="appendSpinOnClick(this)" title="back to assessment">Result </a>
             </div>
             <hr>
         </div>
@@ -13,7 +13,7 @@
         <div class="row">
 
             <div class="col-auto mx-auto">
-                <h4 class="text-monospace">{{ student_script.course }} {{ student_script.question_group.get_title_display }} Scripts</h4>
+                <h4 class="text-monospace">{{ course }} {{ student_script.question_group.get_title_display }} Scripts</h4>
                 <hr>
             </div>
         </div>
@@ -25,15 +25,19 @@
                         <div class="card-body">
                             <p class="card-title">Your Score</p>
                             <h1 class="text-center mt-2 display-4 " title="You scored {{ score|floatformat }}">{{ score|floatformat }} / {{ question_group.total_marks }}</h1>
+                             {% if is_mulichoice %}
                             <p class="form-text text-center"><b>{{ correct_answers_num }}</b> out of  <b>{{ question_group.question_set.count }}</b> questions</p>
+                            {% endif %}
                         </div>
-                            <div class="d-flex justify-content-end p-2 ">
-                                {% if wrong_answers_num %}
-                                    <small class="text-muted">wrong answered questions are {{ wrong_answers_num }}</small>
-                                {% elif wrong_answers_num == 0 and correct_answers_num == total_questions_num %}
-                                    <small class="text-success">you scored all - {{ wrong_answers_num }} questions</small>
-                                {% endif %}
-                            </div>
+                            {% if is_mulichoice %}
+                                <div class="d-flex justify-content-end p-2 ">
+                                    {% if wrong_answers_num %}
+                                        <small class="text-muted">wrong answered questions are {{ wrong_answers_num }}</small>
+                                    {% elif wrong_answers_num == 0 and correct_answers_num == total_questions_num %}
+                                        <small class="text-success">you scored all - {{ total_questions_num }} questions</small>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                     </div>
                     <div class="card">
                         <div class="card-body">
@@ -45,7 +49,7 @@
                                     <td>
                                         {% if un_answered_option %}
                                             <ul class="list-group list-group-horizontal">
-                                                <li class="list-group-item list-group-item-info" title="{{ answered_option }} Attended">{{ answered_option }}</li>
+                                                <li class="list-group-item list-group-item-secondary" title="{{ answered_option }} Attended">{{ answered_option }}</li>
                                                 <li class="list-group-item list-group-item-warning" title="{{ un_answered_option }} Unattended">{{ un_answered_option }}</li>
                                             </ul>
                                         {% else %}
@@ -56,14 +60,14 @@
                                 <tr>
                                     <td>Duration</td>
                                     <td>
-                                        {{ question_group.preference.duration|time:"H\h\r\s : i\m\s" }}
+                                        {{ question_group.preference.duration|time:"H\h\r\s : i\m\s"|default:" No" }}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td title="correct and wrong answers">Answers</td>
                                     <td>
                                         <ul class="list-group list-group-horizontal w-100">
-                                            <li class="list-group-item list-group-item-success w-50" title="{{ correct_answers_num }} Corrects">{{ correct_answers_num }}</li>
+                                            <li class="list-group-item list-group-item-primary w-50" title="{{ correct_answers_num }} Corrects">{{ correct_answers_num }}</li>
                                             <li class="list-group-item list-group-item-danger w-50" title="{{ wrong_answers_num }} Wrongs">{{ wrong_answers_num }}</li>
                                         </ul>
                                     </td>
@@ -79,16 +83,19 @@
         <div class="row">
             <div class="col">
                 <p>{{ request.user.get_short_name }}, your answer scripts</p>
-                <ul class="list-group list-group-horizontal-md small text-center">
-                    <li class="list-group-item "><b>Table Guide</b></li>
-                    <li class="list-group-item list-group-item-primary">Answered Correct</li>
-                    <li class="list-group-item list-group-item-danger">Answered Wrong</li>
-                    <li class="list-group-item list-group-item-success">Correct Answer</li>
-                </ul>
+                {% if is_mulichoice %}
+                    <ul class="list-group list-group-horizontal-md small text-center">
+                        <li class="list-group-item "><b>Table Guide</b></li>
+                        <li class="list-group-item list-group-item-primary">Answered Correct</li>
+                        <li class="list-group-item list-group-item-danger">Answered Wrong</li>
+                        <li class="list-group-item list-group-item-success">Correct Answer</li>
+                    </ul>
+                {% endif %}
                 <hr>
             </div>
         </div>
 
+    {% if is_mulichoice %}
         <div class="row">
             <div class="col-12 ">
                 <div class="table-responsive">
@@ -97,37 +104,77 @@
                             <th>#</th>
                             <th>Question</th>
                             <th>Option</th>
-                            <th>Score Mark</th>
+                            <th>Score</th>
                         </tr>
                         {% for question_anwser in student_script.studentmultichoiceanswer_set.all %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
                                 <td>
-                                    {{ question_anwser.question }}
+                                    <p>{{ question_anwser.question|linebreaksbr }}</p>
+                                    <p class="alert alert-secondary float-right small">{{ question_anwser.question.max_mark|floatformat }} mark</p>
                                 </td>
                                 <td>
-                                    <ul class="list-group">
+                                    <div class="d-flex flex-column">
                                         {% for option in question_anwser.question.multichoicequestion_set.all %}
-                                            {% if option.is_answer_option and option == question_anwser.selected_option %}
-                                                <li class="list-group-item list-group-item-primary" title="you had correct">{{ option.option }}</li>
+                                            {% if question_anwser.selected_option == option and question_anwser.selected_option.is_answer_option  %}
+                                                <span class="my-1 alert d-block alert-primary shadow-sm" title="you had correct">{{ option.option }}</span>
                                             {% elif option.is_answer_option %}
-                                                <li class="list-group-item list-group-item-success" title="this is the correct answer. You missed">{{ option.option }}</li>
+                                                <span class="my-1 alert d-block alert-success shadow-sm" title="this is the correct answer. You missed">{{ option.option }}</span>
                                             {% elif option == question_anwser.selected_option %}
-                                                <li class="list-group-item list-group-item-danger" title="you had wrong">{{ option.option }}</li>
+                                                <span class="my-1 alert d-block alert-danger shadow-sm" title="you had wrong">{{ option.option }}</span>
                                             {% else %}
-                                                <li class="list-group-item">{{ option.option }}</li>
+                                                <span class="my-1 alert alert-light border-dark text-dark d-block shadow-sm">{{ option.option }}</span>
                                             {% endif %}
                                         {% endfor %}
-                                    </ul>
+                                    </div>
                                 </td>
-                                <td>{{ question_anwser.question.max_mark }}</td>
+                                <td>
+                                    {% if question_anwser.is_correct_answer %}
+                                        <p class="alert alert-primary">{{ question_anwser.question.max_mark|floatformat }}</p>
+                                    {% else %}
+                                        <p class="alert alert-secondary">0</p>
+                                    {% endif %}
+                                </td>
+
                             </tr>
                         {% endfor %}
                     </table>
                 </div>
             </div>
         </div>
+    {% else %}
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    {% for theoryanswer in student_script.studenttheoryanswer_set.all %}
+                        <tr>
+                            <td>
+                                <div class="card card-body shadow-sm">
+                                 <div class="d-flex flex-column align-items-start">
+                                    <p>Question {{ theoryanswer.question.question_number }} - <span class="badge badge-light">{{ theoryanswer.question.max_mark|floatformat }} marks</span></p>
+                                    <p>{{ theoryanswer.question.question|linebreaksbr }}</p>
+                                    <p>Answer</p>
+                                    <div class="alert border border-primary flex-grow-1 flex-fill">
+                                        <p class="text-primary">
+                                            {{ theoryanswer.answer|linebreaksbr }}
+                                        </p>
+                                    </div>
+                                     {% if theoryanswer.lecture_comment %}
+                                         <p class="alert alert-info">
+                                            <b title="By Lecture {{ course.lecture }}">Lecture's Comment</b> <br>
+                                             {{ theoryanswer.lecture_comment }}
+                                         </p>
+                                     {% endif %}
+                                    <p class="alert {% if theoryanswer.score == 0 %} alert-danger  {% else %} alert-primary {% endif %}">Score {{ theoryanswer.score }}</p>
+                                </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
 
-
+                </table>
+            </div>
+        </div>
+    {% endif %}
     </div>
 {% endblock %}

@@ -1,67 +1,100 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load questions_group_extra %}
 
 {% block content %}
     <div class="container-fluid">
         <div class="row my-3 my-lg-4">
-            <div class="col-md-8 mx-auto">
-                <h5>Mark {{ student_script }}</h5>
+            <div class="col-md-auto mx-auto">
+                <h5 class=>{{ course_title_code }}</h5>
+                <h5 class=>Student Name {{ student.get_name }}</h5>
+                <h5 class=>Index number {{ student.index_number }}</h5>
+                <h5 class=>Assessment {{ quiz_title }}</h5>
                 <hr>
             </div>
         </div>
 
-        <form action="" method="post">
-            {% csrf_token %}
-
+        {% if student_script_formset.errors %}
             <div class="row">
-                <div class="col-md-6">
-                    <p>Student Scripts</p>
-                    {{ student_script_form.management_form }}
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <tr>
-                                <td>
-                                    {% for answer_form in student_script_form.form %}
-                                        {{ answer_form|crispy }}
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                            </tr>
-                        </table>
+                <div class="col-auto mx-auto">
+                    <div class="alert alert-danger"  onclick="window.scrollBy(screen.availHeight/2, screen.availWidth/2)">
+                        <p>Please there are some errors in your markings.</p>
+                        <hr>
+                        <span>Score down <i class="fa fa-chevron-circle-down"></i> to address the issues</span>
                     </div>
                 </div>
-                <div class="col-md-6">
+            </div>
+        {% endif %}
+
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="row mb-3" style="box-shadow: #eee -1px 3px 4px 0px;">
+                <div class="col-md-6 d-md-block mb-2" style="height: 80vh; overflow-y: auto;">
+                    <p>Student Scripts</p>
+                    {{ student_script_formset.management_form }}
                     <div class="table-responsive">
-                        <p>Marking Scheme</p>
                         <table class="table table-bordered">
-                            {% for solution in lecture_scheme.solution_set.all %}
+                            {% for answer_form in student_script_formset %}
                                 <tr>
-                                    <th>Q{{ solution.question.question_number }}</th>
                                     <td>
-                                        <p>{{ solution.question|linebreaksbr }}</p>
-                                        <b class="badge badge-light mt-1">{{ solution.question.max_mark }} marks</b>
+                                        <a href="#id_solu_{{ answer_form.question.value }}" class="card-link" style="color:#255486;" id="id_{{ answer_form.question.value }}_quz">
+                                        <div class="d-flex flex-column">
+                                            {{ answer_form.question|question_text }}
+                                        </div>
+                                        </a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <th>Lecture Solution</th>
-                                    <td><p class="alert alert-primary">{{ solution.answer|linebreaksbr }}</p></td>
-                                </tr>
-                                {% if solution.notes %}
-                                <tr>
-                                    <th>Lecture Note</th>
-                                    <td><p class="alert alert-secondary">{{ solution.notes|linebreaksbr|default:"No Note" }}</p></td>
-                                </tr>
-                                {% endif %}
+                               <tr>
+                                    <td>{{ answer_form|crispy }}</td>
+                               </tr>
                                 {% if not forloop.last %}
-                                <tr>
-                                    <td colspan="2"></td>
-                                </tr>
+                                    <tr>
+                                        <td></td>
+                                    </tr>
                                 {% endif %}
                             {% endfor %}
-
                         </table>
+                    </div>
+
+                </div>
+                <div class="col-md-6 d-md-block mb-2" style="height: 80vh; overflow-y: auto;">
+                    <div class="d-flex flex-column">
+                        <p>Marking Scheme</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                {% for solution in lecture_scheme.solution_set.all %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <a href="#id_{{ solution.question.pk }}_quz" class="card-link" style="color:#255486;">
+                                                    <p>Question {{ solution.question.question_number }}</p>
+                                                        <p>{{ solution.question|linebreaksbr }}</p>
+                                                </a>
+                                            </div>
+                                            <b class="badge badge-light">{{ solution.question.max_mark }} marks</b>
+                                        </td>
+                                    </tr>
+                                    <tr id="id_solu_{{ solution.question.id }}">
+                                        <td>
+                                            <p><b>Lecture Solution</b></p>
+                                            <p class="alert border-primary text-dark">{{ solution.answer|linebreaksbr }}</p>
+                                            {% if solution.notes %}
+                                                <p><b>Lecture Note</b></p>
+                                                <p class="alert bg-light">{{ solution.notes|linebreaksbr|default:"No Note" }}</p>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% if not forloop.last %}
+                                        <tr>
+                                            <td></td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,3 +108,12 @@
 
     </div>
 {% endblock %}
+
+{#{% block afterScripts %}#}
+{#    <script>#}
+{#        function show_on_scheme(question) {#}
+{#            console.log("Question id ", question)#}
+{#            window.location.href = `#id_solu_${question}`#}
+{#        }#}
+{#    </script>#}
+{#{% endblock %}#}

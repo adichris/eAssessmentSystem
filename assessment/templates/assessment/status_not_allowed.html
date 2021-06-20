@@ -3,42 +3,66 @@
 {% block content %}
     <div class="container">
 
+{#        <div class="row mt-2">#}
+{#            <div class="col">#}
+{#                {% if return_link %}#}
+{#                    <a href="{{ return_link }}" class="btn btn-link" onclick="onBackSpin(this)"><i title="return to assessment" class="fa fa-chevron-left mr-2"></i>back</a>#}
+{#                {% endif %}#}
+{#            </div>#}
+{#        </div>#}
+
         <div class="row mt-3">
             <div class="col-auto mx-auto">
-                {% if question_group_instance %}
-                    <h5>{{ question_group_instance.course|upper }} {{ question_group_instance.get_title_display|upper }} ACTION DENIED</h5>
-                {% elif questiongroup %}
-                    <h5>{{ questiongroup.course|upper }} {{ questiongroup.get_title_display|upper }} ACTION DENIED</h5>
-                {% elif question %}
-                    <h5>{{ question_group_instance.course|upper }} {{ question_group_instance.get_title_display|upper }} ACTION DENIED</h5>
-                {% endif %}
-                <hr>
+            {% if question_group_instance or questiongroup or question_group_instance %}
+                <div class="alert alert-danger">
+                    {% if question_group_instance %}
+                        <h5>{{ question_group_instance.course|upper }} {{ question_group_instance.get_title_display|upper }} ACTION DENIED</h5>
+                    {% elif questiongroup %}
+                        <h5>{{ questiongroup.course|upper }} {{ questiongroup.get_title_display|upper }} ACTION DENIED</h5>
+                    {% elif question %}
+                        <h5>{{ question_group_instance.course|upper }} {{ question_group_instance.get_title_display|upper }} ACTION DENIED</h5>
+                    {% endif %}
+                </div>
+            {% endif %}
             </div>
         </div>
 
-        <div class="row mt-4">
+        <div class="row mb-4">
             <div class="col-md-6 mx-auto">
-                {% if return_link %}
-                    <a href="{{ return_link }}" class="btn btn-link" onclick="onBackSpin(this)"><i title="return to assessment" class="fa fa-chevron-left mr-2"></i>back</a>
-                    <hr>
-                {% endif %}
                 <div class="card">
-                    <div class="card-img-top text-center p-2">
+                    {% if return_link %}
+                        <div class="d-block">
+                            <a href="{{ return_link }}" class="alert-link text-danger float-right pr-1">
+                            <i title="close and return back" class="fa fa-times-circle"></i></a>
+                        </div>
+                    {% endif %}
+                    <div class="card-img-top text-center p-2 no-pointer">
+
                         {% if face_icon %}
                             <img src="{% static 'DefaultImg/500.webp' %}" class="img-fluid" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
                         {% elif script_icon %}
                             <img src="{% static 'DefaultImg/receipt_declined_1.svg' %}" class="img-fluid" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
+                       {% elif settings_icon %}
+                            <img src="{% static 'icons/settings.svg' %}" class="img-fluid fa-spin" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
+{#                            <span class="fa fa-cog fa-spin fa-5x"></span>#}
+                        {% elif published_icon %}
+                            <img src="{% static 'icons/rolled_up_newspaper.svg' %}" class="img-fluid" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
                         {% else %}
-                            <img {% if is_completed %} src="{% static 'icons/completed_task.svg' %}" {% elif script_instance %} src="{% static 'DefaultImg/receipt_approved.svg' %}" {% else %} src="{% static 'DefaultImg/no_entry.svg' %}" {% endif %} class="img-fluid" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
+                            <img {% if is_completed %} src="{% static 'icons/completed_task.svg' %}" {% elif script_instance %} src="{% static 'DefaultImg/receipt_approved.svg' %}" {% else %} src="{% static 'DefaultImg/no_entry.svg' %}" {% endif %} class="img-fluidr" alt="{{ reason|truncatewords:4 }}" style="max-height: 305px">
                         {% endif %}
                     </div>
-                    <div class="card-body shadow">
-                        {% if reason %}
+                    <div class="card-body">
+                        {% if reason and not published_icon %}
                             <p class="card-text alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
                                 {{ reason|safe }}
     {#                            {% if return_link %}#}
     {#                                <a href="{{ return_link }}" class="alert-link"><i title="return to assessment" class="fa fa-times-circle"></i></a>#}
     {#                            {% endif %}#}
+                            </p>
+                        {% elif published_icon %}
+
+                            <p class="card-text alert  alert-primary">
+                                {{ reason|safe }}
                             </p>
                         {% endif %}
                         {% if script_instance %}
@@ -56,19 +80,27 @@
                                 <span><b>{{ question_group_instance.course }} {{ question_group_instance.get_title_display }} </b> <br>Is still in
                                     {{ question_group_instance.status }} mode
                                     <a href="{% url 'assessment:exam_stop_all' course_id=question_group_instance.course_id question_group_title=question_group_instance.title question_group_pk=question_group_instance.pk %}" class="card-link px-1">stop it's work</a> to view details, records.</span>
-
                             </div>
                         {% endif %}
                         {% if tip %}
                             <p class="alert alert-info small"><i class="fa fa-info-circle mr-2"></i>{{ tip }}</p>
                         {% endif %}
                         {% if is_completed and question_group_instance %}
-                            <a href="{% url 'assessment:result' course_id=question_group_instance.course_id question_group_id=question_group_instance.id student_id=request.user.student.id %}" class="btn btn-info btn-block" onclick="spinOnClick(this)">Check your result</a>
+                            {% url 'assessment:result' course_id=question_group_instance.course_id question_group_id=question_group_instance.id student_id=request.user.student.id questions_type=script_instance.question_group.questions_type script_pk=script_instance.pk as completed_url %}
+                            <a href="{{ completed_url }}" class="btn btn-info btn-block" onclick="spinOnClick(this)">Check your result</a>
                         {% endif %}
                         {% if more %}
-                            <p class="alert alert-primary"><i class="fa fa-caret-down"></i><br>{{ more }}</p>
+                            <p class="alert alert-info my-1"><i class="fa fa-caret-right mr-2"></i>{{ more }}</p>
                         {% endif %}
                     </div>
+                    {% if return_link %}
+                        <div class="card-footer">
+                            <a href="{{ return_link }}" class="btn btn-secondary">back</a>
+                            {% if open_page_link %}
+                                <a href="{{ open_page_link }}" class="btn btn-secondary">open page</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

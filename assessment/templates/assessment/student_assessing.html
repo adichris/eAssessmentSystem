@@ -26,18 +26,13 @@
             <table class="table table-bordered">
 
                 <tr>
-                    <td>TIME ALLOWED</td>
+                    <td>DURATION</td>
                     <td>{{ q_preference.duration|time:"H \h\o\u\r\s  i \m\i\n\u\t\e\s"}}</td>
                 </tr>
                 {% if q_preference.due_date %}
                 <tr>
-                    <td>DUE ON</td>
-                    <td>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <p>{{ q_preference.due_date|timeuntil }}</p>
-                            <p>it's on {{ q_preference.due_date }}</p>
-                        </div>
-                         </td>
+                    <td>DEADLINE</td>
+                    <td><p>{{ q_preference.due_date|date:"l F jS, Y. g:i:sA" }}</p></td>
                 </tr>
                 {% endif %}
                 <tr>

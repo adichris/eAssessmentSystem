@@ -5,8 +5,12 @@
     <div class="container">
         <div class="row">
                 <div class="col-auto mx-auto">
+                    {% if home_page %}
                     <h4>Do Various Courses Quizzes and Midsem in {{ request.user.student.programme }}</h4>
                     <h4>View your Records and Results</h4>
+                    {% else %}
+                        <h4>{{ sub_header|upper }}</h4>
+                    {% endif %}
                 </div>
         </div>
     </div>
@@ -18,20 +22,20 @@
         <div class="row my-3">
             <div class="col-md-6 col-lg-4 my-2">
                 {% static 'icons/working_at_the_imac.svg' as ongoing_src %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="On going" src=ongoing_src  search_name="next_page" link=on_going_page_id %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="On going" src=ongoing_src  search_name="page" link=on_going_page_id %}
             </div>
             <div class="col-md-6 col-lg-4 my-2">
                 {% static 'icons/quiz.png' as assessment_src %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="New Assessment" src=assessment_src search_name="next_page" link=new_assessment_page_id %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="New Assessment" src=assessment_src search_name="page" link=new_assessment_page_id %}
             </div>
             <div class="col-md-6 col-lg-4 my-2">
                 {% static 'icons/records.png' as published_src %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="Published Script" src=published_src search_name="next_page" link=published_script_page_id %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="Published Script and Completed Assessment" src=published_src search_name="page" link=published_script_page_id %}
             </div>
 
             <div class="col-md-6 col-lg-4 my-2">
                 {% static 'icons/rolled_up_newspaper.svg' as reocrds_src  %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="Assessment Records" src=reocrds_src search_name="next_page" link=assessment_records_page_id %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="Assessment Records" src=reocrds_src search_name="page" link=assessment_records_page_id %}
             </div>
 
         </div>
@@ -40,16 +44,6 @@
             <div class="col">
                 <a type="reset" class="btn btn-link" href="?" onclick="onBackSpin(this)"><span class="fa fa-chevron-left mr-2"></span>back</a>
                 <hr>
-            </div>
-        </div>
-
-        <div class="jumbotron">
-            <div class="container">
-                <div class="row">
-                    <div class="col-auto mx-auto">
-                        <h3 class="text-center">{{ sub_header|title }}</h3>
-                    </div>
-                </div>
             </div>
         </div>
 

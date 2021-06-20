@@ -49,5 +49,8 @@
 }
 
 .card-hover-shadow:hover {
+    box-shadow: #cccccc 0 0 4px 0;
+}
+.hover-inset:hover {
     box-shadow: inset #cccccc 0 0 4px 0;
 }

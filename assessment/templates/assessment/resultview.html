@@ -1,27 +1,84 @@
 {% extends 'base.html' %}
+{% load static  %}
 {% block content %}
     <div class="container">
+
         <div class="row">
-            <div class="col-md-8 col-lg-6 mx-auto mt-3 mt-lg-4">
-                <p class="text-center">{{ student_script.course }} {{ student_script.question_group.get_questions_type_display }} Result</p>
-                <hr>
-                <a href="{% url 'assessment:student' %}" onclick="appendSpinOnClick(this)"><i class="fa fa-chevron-left"></i> back</a>
-                <hr>
-                <div class="card alert {% if score > avg_mark %} alert-success {% elif score == avg_mark %} alert-primary {% else %} alert-danger {% endif %} shadow">
-                    <div class="card-body">
-                        <p class="card-title">Your Score</p>
-                        <p class="display-2 text-center">{{ score }}</p>
-                        <hr class="w-50 my-0" style="border-top: 0.2em solid #484747;">
-                        <p class="display-2 text-center m-0">{{ total_marks }}</p>
-                        <div class="d-flex justify-content-between align-content-center">
-                            <p>You had <b>{{ total_correct_ans_num }}</b> corrects out of <b>{{ total_questions_num }}</b> questions</p>
-                            <a href="{%  url 'assessment:result_detail' course_id=student_script.course_id question_group_id=student_script.question_group_id student_id=student_script.student_id %}" class="alert-link" onclick="appendSpinOnClick(this)" title="Details about your scripts">Detail <i class="fa fa-chevron-right"></i></a>
+            <div class="col-auto mx-auto mx-md-0">
+                <div class="breadcrumb">
+                    <a href="{% url 'assessment:student' %}" onclick="onBackSpin(this)" class="breadcrumb-item"><i class="fa fa-chevron-left"></i> Assessment</a>
+                    <a href="{% url 'assessment:student' %}" onclick="onBackSpin(this)" class="breadcrumb-item">back</a>
+                </div>
+            </div>
+                <div class="col-12">
+                    <h5 class="text-center">{% firstof student_script.course student_script.question_group.course  %}  {{ student_script.question_group.get_questions_type_display }} Result</h5>
+                </div>
+        </div>
+
+        {% if student_script.question_group.questions_type == "multichoice" %}
+            <div class="row">
+                <div class="col-md-8 col-lg-6 mx-auto mt-3">
+                    <div class="card {% if score > avg_mark %} alert-success {% elif score == avg_mark %} alert-primary {% else %} alert-danger {% endif %} shadow">
+                        <div class="card-body">
+                            <p class="card-title">Your Score</p>
+                            <p class="display-2 text-center">{{ score|floatformat }}</p>
+                            <hr class="w-50 my-0" style="border-top: 0.2em solid #484747;">
+                            <p class="display-2 text-center m-0">{{ total_marks }}</p>
+                            <div class="d-flex justify-content-between align-content-center">
+                                {% if total_questions_num == total_correct_ans_num %}
+                                    <p>You <b>had all</b> <b>{{ total_questions_num }}</b> questions correct</p>
+                                {% else %}
+                                    <p>You had <b>{{ total_correct_ans_num }}</b> corrects out of <b>{{ total_questions_num }}</b> questions</p>
+                                {% endif %}
+                            {% if student_script.status == "published" %}
+                                <a href="{%  url 'assessment:result_detail' course_id=student_script.course_id question_group_id=student_script.question_group_id student_id=student_script.student_id questions_type=student_script.question_group.questions_type %}" class="alert-link" onclick="appendSpinOnClick(this)" title="Details about your scripts">Detail <i class="fa fa-chevron-right"></i></a>
+                            {% endif %}
+                            </div>
+
                         </div>
-                            
                     </div>
                 </div>
-                <p class="small text-muted p-2">Marked by {% if student_script.question_group.questions_type == "multichoice" %} Computer {% else %} {{ student_script.course.lecture }} {% endif %}</p>
+            </div>
+
+        {% elif student_script.question_group.questions_type == "theory" %}
+            <div class="row my-3">
+                <div class="col-md-8 col-lg-6 mx-auto mt-3">
+                    {% if student_script.status == "published" %}
+                        <div class="card {% if pass_better %} alert-success {% elif pass_avg %} {% else %} alert-danger {% endif %} shadow">
+                            <div class="card-body">
+                                <p class="card-title">Your Score</p>
+                                <p class="display-2 text-center">{{ student_script.total_score|floatformat }}</p>
+                                <hr class="w-50 my-0" style="border-top: 0.2em solid #484747;">
+                                <p class="display-2 text-center m-0">{{ total_marks }}</p>
+                                <div class="d-flex justify-content-end align-content-center">
+                                    <a href="{%  url 'assessment:result_detail' course_id=student_script.question_group.course_id question_group_id=student_script.question_group_id student_id=student_script.student_id questions_type=student_script.question_group.questions_type %}" class="alert-link" onclick="appendSpinOnClick(this)" title="Details about your scripts">Detail <i class="fa fa-chevron-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="card shadow">
+                            <img src="{% static 'icons/script.svg' %}" alt="scripts img" class="img-fluid card-img-top" style="height: 15em">
+                            <div class="card-body ">
+                                <p class="alert">Your scripts was successfully submitted, please wait while the lecture is marking it </p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% if is_published %}
+        <div class="row">
+            <div class="col-md-8 col-lg-6 mx-auto">
+                <p class="small text-muted p-2">Marked by {% if student_script.question_group.questions_type == "multichoice" %} Computer {% else %} {{ student_script.question_group.course.lecture }} {% endif %}</p>
             </div>
         </div>
+    {% else %}
+        <div class="row">
+            <div class="col-md-8 col-lg-6 mx-auto">
+                <p class="small text-muted p-2">Your script status is {{ student_script.get_status_display }}</p>
+            </div>
+        </div>
+    {% endif %}
+
     </div>
 {% endblock %}

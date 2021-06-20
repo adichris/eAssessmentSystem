@@ -14,6 +14,14 @@ class StudentRegisterForm(forms.ModelForm):
             }
         }
 
+    def __init__(self, lecture=None, *args, **kwargs):
+        super(StudentRegisterForm, self).__init__(*args, **kwargs)
+        if lecture is not None:
+            try:
+                self.fields["programme"].queryset = lecture.department.programme_set.all()
+            except Exception:
+                pass
+
 
 class PasswordSetForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -21,9 +29,7 @@ class PasswordSetForm(forms.Form):
 
     def clean_password(self):
         password = self.cleaned_data.get("password")
-        NumericPasswordValidator().validate(password)
         MinimumLengthValidator(min_length=4).validate(password=password)
-
         return password
 
     def clean_password_confirm(self):

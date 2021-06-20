@@ -1,1 +1,56 @@
- {% extends %}
+ {% extends 'base.html' %}
+ {% block content %}
+    <div class="container">
+        <div class="row my-3 my-lg-4">
+            <div class="col-md-auto mx-auto text-center">
+                <h5>{{ object.course|upper }} {{ object.get_title_display|upper }} RECORDS DETAIL</h5>
+                <p class="text-center">Total Mark: {{ object.total_marks|floatformat }}</p>
+            </div>
+        </div>
+
+    <div class="row my-3 d-print-none">
+        <div class="col">
+            <hr>
+            <div class="d-flex justify-content-end">
+                <a href="" class="btn btn-outline-secondary" onclick="window.print()"><span class="fa fa-print mr-2"></span>Print this table</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <th>#</th>
+                    <th>Index Number</th>
+                    <th>First</th>
+                    <th>Last Name</th>
+                    <th>Score</th>
+                </tr>
+                {% if object.questions_type == "multichoice" %}
+                    {% for script in object.multichoicescripts_set.all %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ script.student.index_number }}</td>
+                            <td>{{ script.student.profile.first_name }}</td>
+                            <td>{{ script.student.profile.last_name }}</td>
+                            <td>{{ script.score|floatformat }}</td>
+                        </tr>
+                    {% endfor %}
+
+                {% elif object.questions_type == "theory" %}
+                    {% for script in object.studenttheoryscript_set.all %}
+                      <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ script.student.index_number }}</td>
+                        <td>{{ script.student.profile.first_name }}</td>
+                        <td>{{ script.student.profile.last_name }}</td>
+                        <td>{{ script.total_score|floatformat }}</td>
+                      </tr>
+                    {% endfor %}
+                {% endif %}
+            </table>
+        </div>
+    </div>
+    </div>
+ {% endblock %}

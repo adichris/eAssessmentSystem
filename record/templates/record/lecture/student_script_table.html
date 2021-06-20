@@ -1,0 +1,34 @@
+               <table class="table table-bordered table-light table-hover">
+                    <tr>
+                        <th>#</th>
+                        <th>Index Number</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Phone Number</th>
+                        <th>Level</th>
+                        <th>Score</th>
+                        <th>Starting Time</th>
+                    </tr>
+                    {% for script in scripts %}
+                        <tr>
+                        <th>{{ forloop.counter }}</th>
+                        {% with student=script.student %}
+                            <td>{{ student.index_number }}</td>
+                            <td>{{ student.profile.first_name }}</td>
+                            <td>{{ student.profile.last_name }}</td>
+                            <td>{{ student.profile.phone_number }}</td>
+                            <td>{{ student.level }}</td>
+                        {% endwith %}
+                        {% if question_type == "multichoice" %}
+                            <td>{{ script.score|floatformat|default:"---" }}</td>
+                        {% elif question_type == "theory" %}
+                            <td>{{ script.total_score|floatformat|default:"---" }}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %}
+                        <td>{{ script.timestamp }}</td>
+                        </tr>
+
+                    {% endfor %}
+
+                </table>

@@ -2,6 +2,16 @@
 {% load static %}
 {% block content %}
     <div class="container">
+        <div class="row mt-3">
+            <div class="col-md-auto">
+                <div class="breadcrumb">
+                    <a href="{% url 'assessment:all' %}" class="breadcrumb-item">Assessment</a>
+                    <a href="{% url 'lecture:scripts_all' %}" class="breadcrumb-item">Scripts</a>
+                    <a href="{% url 'lecture:question_group_detail' course_id=question_group.course_id question_group_pk=question_group.pk %}" class="breadcrumb-item">Student Scripts</a>
+                </div>
+            </div>
+        </div>
+
         <div class="row my-3 my-lg-4">
             <div class="col-md-6 mx-auto">
                 <h4 class="text-center">MARK SCRIPTS {{ object.get_title_display|upper }}</h4>
@@ -9,7 +19,7 @@
         </div>
 
     {% if question_group.questions_type == "theory" %}
-        <div class="row">
+        <div class="row my-3">
             <div class="col-md-8 mx-auto">
                 <div class="card-group">
                     <div class="card">

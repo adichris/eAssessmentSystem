@@ -2,65 +2,77 @@
 {% load static %}
 {% block content %}
     <div class="container">
+    
         <div class="row my-3 my-lg-4">
-            <div class="col-md-6 mx-auto">
-                <h5 class="text-center">{{ course }} MARKING SCHEMES</h5>
-            </div>
-        </div>
-
-        <div class="row">
             <div class="col">
-                <h5>Please Select the Quiz available to view it Marking Scheme Detail</h5>
+                <hr>
+                <a href="?" onclick="onBackSpin(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
+                <hr>
+            </div>
+        </div>   
+    
+        <div class="row my-3 my-lg-4">
+            <div class="col-auto mx-auto">
+                <h4 class="text-center">{{ course }} MARKING SCHEMES</h4>
                 <hr>
             </div>
         </div>
 
-        <div class="row">
-            {% for quiz in courses %}
-                <div class="col-md-6 col-lg-4 my-2">
-                    <div class="card">
-                        <div class="card-body">
-                            <p>{{ quiz.get_title_display }}</p>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <tr>
-                                        <td>Number of Question</td>
-                                        <td>{{ quiz.question_set.count }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Questions Type</td>
-                                        <td>{{ quiz.get_questions_type_display }}</td>
-                                    </tr>
-                                    {% if quiz.questions_type == "mulitchoice" %}
+    {% if course.questiongroup_set.exists %}
+            <div class="row">
+                <div class="col">
+                    <h5>Please Select the Quiz available to view it Marking Scheme Detail</h5>
+                    <hr>
+                </div>
+            </div>
+
+            <div class="row">
+                {% for quiz in course.questiongroup_set.all %}
+                    <div class="col-md-6 col-lg-4 my-2">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <p>{{ quiz.get_title_display }}</p>
+                                <div class="table-responsive">
+                                    <table class="table">
                                         <tr>
-                                            <td>Scheme Last Update</td>
-                                            <td>{{ quiz.updated_at }}</td>
+                                            <td>Number of Question</td>
+                                            <td>{{ quiz.question_set.count }}</td>
                                         </tr>
                                         <tr>
-                                            <td colspan="2">
-                                                <a href="{% url 'assessment:question_grp_detail' pk=quiz.pk courseName=course.name title=quiz.title %}" class="btn btn-outline-primary btn-block">View scheme</a>
-                                            </td>
+                                            <td>Questions Type</td>
+                                            <td>{{ quiz.get_questions_type_display }}</td>
                                         </tr>
-                                    {% elif quiz.questions_type == "theory" %}
-                                        <tr>
-                                            <td>Question Solved</td>
-                                            <td>{{ quiz.theorymarkingscheme.solution_set.count }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Scheme Last Update</td>
-                                            <td>{{ quiz.theorymarkingscheme.updated_at }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2"><a href="{% url 'lecture:theory_scheme_detail' question_group_pk=quiz.pk course_id=course.id %}" class="btn btn-outline-primary btn-block"></a></td>
-                                        </tr>
-                                    {% endif %}
-                                </table>
+                                        {% if quiz.questions_type == "theory" %}
+                                            <tr>
+                                                <td>Questions Solved</td>
+                                                <td>{{ quiz.theorymarkingscheme.solution_set.count }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                {% if quiz.questions_type == "theory" %}
+                                    <a href="{% url 'lecture:theory_scheme_detail' question_group_pk=quiz.pk course_id=course.id %}" class="btn btn-outline-primary btn-block">View Scheme</a>
+                                {% else %}
+                                    <a href="{% url 'assessment:question_grp_detail' pk=quiz.pk courseName=course.name title=quiz.title %}" class="btn btn-outline-primary btn-block">View scheme</a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+
+            </div>
+    {% elif not course.questiongroup_set.exists %}
+      <div class="row my-3 my-lg-4">
+        <div class="col-md-auto mx-auto text-center">
+            <img src="{% static 'icons/empty_box.svg' %}" alt="empty_box img" style="height: 10em;">
+            <hr>
+            <span class="d-block">{{ request.user }}, you have no quiz for this academic year ({{ request.user.generalsetting.academic_year }}) {{ request.user.generalsetting.get_semester_display }}</span>
+            <a href="{% url 'assessment:create_group' courseName=course.name coursePK=course.pk %}" class="btn btn-link">add new quiz</a>
         </div>
-    
+      </div>
+    {% endif %}
+
     </div>
 {% endblock %}

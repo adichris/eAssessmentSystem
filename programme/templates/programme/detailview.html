@@ -54,11 +54,11 @@
             </div>
                 {% for course in courses_lst.list %}
                     <div class="col-md-5 col-lg-4">
-                        <div class="card  my-2 h-100">
+                        <div class="card hover-inset my-2 h-100 ">
                             <div class="card-body">
                                 <a href="{{ course.get_absolute_url }}" class="card-link">
                                     <p class="card-title text-center">{{ course }}</p></a>
-                                    <table class="table borderless">
+                                    <table class="table table-borderless">
                                         <tr>
                                             <td>Course Master</td>
                                             <td>{{ course.lecture }}</td>
@@ -73,7 +73,7 @@
                                         </tr>
                                     </table>
                             </div>
-                            <div class="card-footer">
+                            <div class="card-footer bg-transparent">
                                 <div class="mt-2 d-flex justify-content-between align-items-center">
                                     <div class="btn-group">
                                         <a href="{{ course.get_absolute_url }}" class="btn btn-sm btn-outline-secondary" onclick="spinOnClick(this)">View</a>
@@ -116,25 +116,30 @@
             </div>
             <div class="row">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Index Number</th>
-                    <th>level</th>
-                    <th>Number of assignment taken</th>
-                </tr>
-                {% for student in programme.student_set.all %}
+            {% regroup programme.all_students by level as prog_students %}
+            {% for prog_student in prog_students %}
+                <table class="table table-bordered">
                     <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td><a href="{{ student.get_absolute_url }}">{{ student.profile.get_full_name }}</a></td>
-                        <td>{{ student.index_number }}</td>
-                        <td>{{ student.level }}</td>
-                        <td>0</td>
+                        <th colspan="5">{{ prog_student.grouper }}</th>
                     </tr>
-                {% endfor %}
-
-            </table>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Index Number</th>
+                        <th>level</th>
+                        <th>Number of Assignment taken</th>
+                    </tr>
+                    {% for student in prog_student.list %}
+                        <tr class="hover-inset">
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{{ student.get_absolute_url }}">{{ student.profile.get_full_name }}</a></td>
+                            <td>{{ student.index_number }}</td>
+                            <td>{{ student.level }}</td>
+                            <td>{{ student.quiz_counts }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endfor %}
         </div>
     </div>
     {% else %}

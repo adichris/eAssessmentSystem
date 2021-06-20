@@ -2,16 +2,31 @@
 {% load static %}
 {% block content %}
     <div class="container">
+
+        <div class="row">
+            <div class="col-12">
+                <hr>
+                {# TODO MAKE THE BACK BTN SMART #}
+                <div class="d-flex justify-content-between">
+                    <a href="" class="btn btn-link" onclick="onBackSpin(this)" onmousedown="window.history.back()"><i class="fa fa-chevron-left mr-2"></i>back</a>
+                    {% if is_questions_editable %}
+                    <a href="{% url 'assessment:question_grp_detail' pk=scheme_instance.question_group.pk courseName=scheme_instance.question_group.course.name title=scheme_instance.question_group.title %}" onclick="appendSpinOnClick(this)">
+                        <i class="fa fa-edit mr-2"></i>Edit Questions</a>
+                    {% endif %}
+                </div>
+                <hr>
+            </div>
+        </div>
         <div class="row my-3">
             <div class="col-md-6 mx-auto">
-                <h5 class="text-center">Marking Scheme</h5>
+                <h4 class="text-center">Marking Scheme</h4>
             </div>
         </div>
 
     {% if scheme_instance.solution_set.exists %}
         <div class="row">
             <div class="table-responsive">
-                <table class="table">
+                <table class="table table-bordered">
                     {% for solution in scheme_instance.solution_set.all %}
                         <tr>
                             <th class="text-nowrap">Q{{ solution.question.question_number|default:"uestion" }}</th>
@@ -23,22 +38,28 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Scheme</td>
-                            <th>
-                                <div class="jumbotron">
+                            <th>Answer</th>
+                            <th title="Q{{ solution.question.question_number|default:"uestion" }} Solution">
+                                <div class="alert alert-primary">
                                     <h6>{{ solution.answer|linebreaksbr }}</h6>
                                 </div>
                             </th>
                         </tr>
                         {% if solution.notes %}
                             <tr>
+                                <td>Notes</td>
                                 <td>
-                                    <div class="jumbotron">
-                                        <h6>{{ solution.notes|linebreaksbr }}</h6>
+                                    <div class="alert alert-secondary">
+                                        <span>{{ solution.notes|linebreaksbr }}</span>
                                     </div>
                                 </td>
                             </tr>
                         {% endif %}
+                        <tr>
+                            <td colspan="2">
+                                <a href="{% url 'lecture:theory_solution_update' solution_pk=solution.pk course_id=scheme_instance.question_group.course_id scheme_id=solution.scheme_id question_group_id=scheme_instance.question_group_id question_id=solution.question_id %}" class="btn btn-light btn-block" onclick="appendSpinOnClick(this)">Edit Q{{ solution.question.question_number|default:"uestion" }} Answer</a>
+                            </td>
+                        </tr>
                     {% endfor %}
                 </table>
             </div>
@@ -46,17 +67,20 @@
     {% else %}
         <div class="row mt-10vh">
             <div class="col-md-6 mx-auto text-center">
-                <img src="{% static 'icons/empty_box.svg' %}" alt="" class="img-fluid img_fit_content" style="height: fit-content;">
+                <img src="{% static 'icons/empty_box.svg' %}" alt="" class="img-fluid" style="height:10em;">
                 <hr>
-                <p class="lead">THIS SCHEME IS EMPTY</p>
+                <p class="lead">Any solved question will appear here</p>
             </div>
         </div>
+
     {% endif %}
 
+
+    {% if scheme_instance.get_unsolved_question.exists %}
     <div class="row">
         <div class="col-md-8 col-lg-6 mx-auto text-center">
             {% filter title %}
-              <h5>ADD SOLUTION FROM {{ scheme_instance.question_group.get_title_display }} QUESTION</h5>
+              <h5>SELECT {{ scheme_instance.question_group.get_title_display }} QUESTION to solve</h5>
             {% endfilter %}
         </div>
     </div>
@@ -66,13 +90,15 @@
             <table class="table">
                 {% for question in scheme_instance.get_unsolved_question %}
                     <tr>
-                        <td class="card-hover-shadow">
+                        <td>
                             <div class="d-flex">
-                                <span class="p-1"><b>Q{{ solution.question.question_number|default:"uestion" }}</b></span>
-                                <div class="card flex-grow-1">
-                                    <div class="card-body">
-                                        <a href="{% url 'lecture:theory_solution_create' question_id=question.id question_group_id=scheme_instance.question_group_id course_id=scheme_instance.question_group.course_id scheme_pk=scheme_instance.pk %}" class="card-link">{{ question.question|linebreaksbr }}</a>
-                                    </div>
+                                <span class="p-1 mr-2"><b>Q{{ question.question_number|default:"uestion" }}</b></span>
+                                <div class="rounded flex-grow-1 card-hover-shadow" title="click to solve this question">
+                                    <a href="{% url 'lecture:theory_solution_create' question_id=question.id question_group_id=scheme_instance.question_group_id course_id=scheme_instance.question_group.course_id scheme_pk=scheme_instance.pk %}" class="card-link">
+                                        <div class="card-body">
+                                            {{ question.question|linebreaksbr }}
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         </td>
@@ -82,6 +108,15 @@
             </table>
         </div>
     </div>
+{% else %}
+
+        <div class="row my-3">
+            <div class="col mx-auto text-center">
+                <hr>
+                <p class="alert alert-info">MARKING SCHEME IS COMPLETED</p>
+            </div>
+        </div>
+{% endif %}
 
     </div>
 {% endblock %}

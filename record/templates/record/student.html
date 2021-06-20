@@ -1,12 +1,23 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
     <div class="container">
-        <div class="row mt-10vh">
+        <div class="row my-3">
             <div class="col-md-6 mx-auto text-center">
-                <p>Student Records</p>
-                <hr>
-                {{ request.user }}
+                <h5>{{ request.user.student.programme }} Programme Courses</h5>
+                <p>Select course to view its records</p>
             </div>
+        </div>
+
+        <div class="row">
+            {% for course in courses %}
+                <div class="col-md-6 col-lg-4">
+                    {% static 'DefaultImg/course.png' as course_img_src %}
+                    {% url 'records:student_course_records' course_id=course.id course_code=course.code as course_record_url %}
+                    {% include 'snippet/lecture_asscessment_card.html' with title=course.name link=course_record_url src=course_img_src %}
+                </div>
+            {% endfor %}
+
         </div>
     </div>
 {% endblock %}

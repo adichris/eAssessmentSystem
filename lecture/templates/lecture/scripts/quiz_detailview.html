@@ -1,10 +1,245 @@
 {% extends 'base.html' %}
 {% block content %}
+     {% if has_published_alert %}
+         {% include 'snippet/alert_success_beginStart.html' with alert_message=has_published_alert %}
+    {% endif %}
     <div class="container">
-        <div class="row">
-            <div class="col-md-6 mx-auto">
-                <h5 class="text-center">{{ question_group_instance.get_title_display }} DETAIL</h5>
+        <div class="row mt-3">
+            <div class="col-md-8 mx-auto">
+                <ul class="list-group list-group-horizontal-md mb-2">
+                    <li class="list-group-item">Programme</li>
+                    <li class="list-group-item list-group-item-secondary">{{ questiongroup.course.programme }}</li>
+                    <li class="list-group-item">Course</li>
+                    <li class="list-group-item list-group-item-secondary">{{ questiongroup.course }}</li>
+                </ul>
+                <h5 class="text-center">{{ questiongroup.get_title_display }} Scripts</h5>
+            </div>
+        </div>
+
+    <div class="row my-3">
+        <div class="col-md-12 mx-auto">
+            <div class="btn-group btn-group-justified btn-block">
+                <a href="" class="btn btn-outline-secondary" title="Allow student to continue quiz">Resume {{ object.get_title_display }}</a>
+                <a href="{% url 'assessment:pre_questions_conducting' question_group_pk=questiongroup.pk question_group_title=questiongroup.title %}" class="btn btn-outline-secondary" title="questions preview">View Questions</a>
+                <a href="{% url 'lecture:mark_scripts' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-outline-secondary">Mark Scripts</a>
+                <a href="{% url 'records:publish' course_code=questiongroup.course.code question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-outline-secondary {% if questiongroup.status == "published" %} disabled">Published{% else %}">Publish{% endif %}</a>
+                <a href="{% url 'records:lecture_quiz_detail' question_group_pk=questiongroup.pk question_group_title=questiongroup.title course_code=questiongroup.course.code %}" class="btn btn-outline-secondary">Records</a>
             </div>
         </div>
     </div>
+
+    <div class="row mt-3">
+        <div class="col-12 mx-auto">
+            <div class="card-group">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="text-center">Scripts Details</h5>
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                {% if questiongroup.questions_type == "multichoice" %}
+                                <tr>
+                                    <td>Total Scripts</td>
+                                    <td>{{ questiongroup.multichoicescripts_set.count }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Student Completed</td>
+                                    <td>{{ questiongroup.get_completed_script.count }}</td>
+                                </tr>
+                                    {% if questiongroup.status == "marked" or questiongroup.status == "published" %}
+
+                                        <tr>
+                                            <td>Average Score</td>
+                                            <td>{{ questiongroup.get_scripts_average_score }}</td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td>Scripts Status</td>
+                                            <td>{{ questiongroup.get_status_display }}</td>
+                                        </tr>
+                                    {% endif %}
+
+                                {% elif questiongroup.questions_type == "theory"  %}
+                                    <tr>
+                                        <td>Total Scripts</td>
+                                        <td>{{ questiongroup.multichoicescripts_set.count }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Student Completed</td>
+                                        <td>{{ questiongroup.get_completed_script.count }}</td>
+                                    </tr>
+                                    {% if questiongroup.status == "marked" or questiongroup.status == "published" %}
+                                        <tr>
+                                            <td>Average Score</td>
+                                            <td>{{ questiongroup.get_scripts_average_score }}</td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td>Scripts Status</td>
+                                            <td>
+                                                {% if questiongroup.status == "marked" or questiongroup.status == "published" %}
+                                                    <span>Marked</span>
+                                                {% else %}
+                                                    <span>Not Marked</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        {% if questiongroup.questions_type == "theory" %}
+                            {% url 'lecture:theory_scheme_detail' course_id=questiongroup.course_id question_group_pk=questiongroup.pk as scheme_url %}
+                        {% elif questiongroup.questions_type == "multichoice" %}
+                            {% url 'assessment:question_grp_detail' pk=questiongroup.pk title=questiongroup.title courseName=questiongroup.course.name as scheme_url %}
+                        {% endif %}
+                        <h5 class="text-center"><a href="{{ scheme_url }}{% if questiongroup.questions_type == "multichoice" %}?scheme_view=1{% endif %}">Marking Scheme</a></h5>
+                        {% if questiongroup.theorymarkingscheme %}
+                            <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>Questions</span>
+                                            {% if solved_q_num == questions_num %}
+                                                <span>All Solved</span>
+                                            {% else  %}
+                                                <ul class="list-group list-group-horizontal">
+                                                    <li class="list-group-item"><span>Solved {{ solved_q_num }}</span></li>
+                                                    <li class="list-group-item"><span>Total {{ questions_num }}</span></li>
+                                                </ul>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Last modified</td>
+                                    <td>{{ questiongroup.theorymarkingscheme.updated_at }}</td>
+                                </tr>
+                            </table>
+                            </div>
+                        {% elif questiongroup.questions_type == "theory" %}
+                            <div class="mt-3 jumbotron">
+                                <div class="text-center">
+                                <p>No Marking Scheme</p>
+                                <hr>
+                                <a href="{{ scheme_url }}" class="card-link ">Create Marking Scheme</a>
+                            </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="text-center">Question Detail</h5>
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td>Questions</td>
+                                    <td>{{ questiongroup.question_set.count }} Questions</td>
+                                </tr>
+                                <tr>
+                                    <td>Total Mark</td>
+                                    <td>{{ questiongroup.total_marks }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Questions Type</td>
+                                    <td>{{ questiongroup.get_questions_type_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Status</td>
+                                    <td>{{ questiongroup.get_status_display }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <hr>
+        </div>
+    </div>
+
+    {% if questiongroup.questions_type == "multichoice" %}
+        <div class="row">
+            <p class="lead">Student Scripts - Records</p>
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th>#</th>
+                        <th>Index Number</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                        <th>Correct Answers</th>
+                        <th>Wrongs</th>
+                    </tr>
+                    {% for script in student_script %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            {% url 'assessment:lecture_student_script' questions_type=questiongroup.questions_type question_group_id=questiongroup.id course_id=questiongroup.course_id student_id=script.student_id as script_url%}
+                            <td><a href="{{ script_url }}" class="btn btn-link">{{ script.student.index_number }}</a></td>
+                            <td><a href="{{ script_url }}" class="btn btn-link">{{ script.student.get_name }}</a></td>
+                            <td>{{ script.score|floatformat }}</td>
+                            <td>{{ script.get_correct_answers_set.count }}</td>
+                            <td>{{ script.get_wrong_answers_count }}</td>
+                        </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+        </div>
+    {% elif questiongroup.questions_type == "theory" %}
+        <div class="row">
+            <div class="table-responsive">
+                <p class="lead small">Students Scripts - Records</p>
+                <table class="table table">
+                    <tr>
+                        <th>#</th>
+                        <th>Index Number</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                        <th>Question Answered</th>
+                    </tr>
+                    {% for script in student_script %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ script.student.index_number }}</td>
+                            <td>{{ script.student.get_name }}</td>
+                            <td>{{ script.student.score|default:"Not marked" }}</td>
+                            <td>{{ script.studenttheoryanswer_set.count }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    {% else %}
+    <div class="row mt-3">
+        <div class="col-12 mx-auto">
+            <div class="jumbotron">
+                <p class="text-center text-muted lead"><b>RECORDS</b></p>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+
+    </div>
+{% endblock %}
+
+{% block afterScripts %}
+    <script>
+        setTimeout(function (){
+            $("#id_auto_close_alert_success").hide("fade")
+        }, 10000)
+    </script>
 {% endblock %}

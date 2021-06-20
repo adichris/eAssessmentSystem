@@ -20,25 +20,26 @@ class StudentCreateView(View):
     template_name = 'student/register_form.html'
 
     def get(self, *args, **kwargs):
+        lecture = None
+        if self.request.user.is_authenticated and self.request.user.is_lecture:
+            lecture = self.request.user.lecturemodel
         ctx = {
             "HeaderTitle": "Student Registration",
-            "student_form": self.student_form_class(initial=self.get_initial()),
-            "profile_form": self.profile_form_class(),
-            "pwd_form": self.pwd_set_form_class(),
+            "student_form": self.student_form_class(initial=self.get_initial(), lecture=lecture, prefix="student_form"),
+            "profile_form": self.profile_form_class(prefix="profile_form"),
+            "pwd_form": self.pwd_set_form_class(prefix="password_form"),
             "programme_default": self.request.session.get("programme_pk")
         }
         return render(self.request, self.template_name, context=ctx)
 
     def post(self, *args, **kwargs):
-        profile_form = self.profile_form_class(self.request.POST)
-        student_form = self.student_form_class(self.request.POST)
-        pwd_form = self.pwd_set_form_class(self.request.POST)
-        ctx = {
-            "HeaderTitle": "Student Registration",
-            "student_form": student_form,
-            "profile_form": profile_form,
-            "pwd_form": pwd_form,
-        }
+        lecture = None
+        if self.request.user.is_authenticated and self.request.user.is_lecture:
+            lecture = self.request.user.lecturemodel
+        profile_form = self.profile_form_class(self.request.POST, prefix="profile_form")
+        student_form = self.student_form_class(data=self.request.POST, prefix="student_form", lecture=lecture)
+
+        pwd_form = self.pwd_set_form_class(self.request.POST, prefix="password_form")
         if student_form.is_valid() and profile_form.is_valid() and pwd_form.is_valid():
             profile = profile_form.save(False)
             profile.username = student_form.cleaned_data["index_number"]
@@ -53,9 +54,18 @@ class StudentCreateView(View):
             elif self.request.user.is_authenticated and self.request.user.is_lecture:
                 self.request.session["registered_student_pk"] = student.pk
                 return redirect("student:registered")
-            else:
-                login(self.request, user=profile)
-                return redirect("landing-page")
+
+            login(self.request, user=profile)
+            return redirect("landing-page")
+
+        ctx = {
+            "HeaderTitle": "Student Registration",
+            "student_form": student_form,
+            "profile_form": profile_form,
+            "pwd_form": pwd_form,
+        }
+        print(student_form.errors)
+        print(student_form.non_field_errors())
         return render(self.request, self.template_name, context=ctx)
 
     def get_initial(self):

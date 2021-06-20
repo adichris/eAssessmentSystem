@@ -1,4 +1,4 @@
-{% extends 'assessment/student_assesssment_view.html' %}
+{% extends 'assessment/student/assessment/view.html' %}
 {% load static %}
 {% block page_content %}
 
@@ -52,7 +52,7 @@
     {% else %}
         <div class="row">
             <div class="col-md-8 col-lg-6 mx-auto mt-10vh text-center">
-                <img src="{% static 'icons/empty_box.svg' %}" alt="NO UNFINISHED img" class="no-pointer img-fluid mb-3"  style="height: 15em">
+                <img src="{% static 'icons/empty_box.svg' %}" alt="NO UNFINISHED img" class="no-pointer img-fluid mb-3" style="height: 15em">
                 <h5>Come back later</h5>
                 <hr>
                 <p>There is no Quizzes or Midsem available.</p>

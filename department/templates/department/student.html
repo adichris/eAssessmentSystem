@@ -11,9 +11,9 @@
         <div class="row">
             <div class="col-md-10 mx-auto">
                 <div class="card-group">
-                    {%  include 'snippet/H_label_value_card.html' with label="Number of courses" value=programme.coursemodel_set.count fa_icon="fa fa-database" %}
-                    {%  include 'snippet/H_label_value_card.html' with label=student.level %}
-                    {%  include 'snippet/H_label_value_card.html' with label="Number of student" value=class_mates.count %}
+                    {%  include 'snippet/H_label_value_card.html' with label="Number of courses" value=programme.coursemodel_set.count new_line=1 tc=1 %}
+                    {%  include 'snippet/H_label_value_card.html' with value=student.level new_line=1 tc=1 %}
+                    {%  include 'snippet/H_label_value_card.html' with label="Number of student" value=class_mates.count new_line=1 tc=1 %}
                 </div>
             </div>
         </div>
@@ -24,25 +24,18 @@
             <table class="table table-bordered">
                 <tr>
                     <th>#</th>
-                    <th>Course</th>
-                    <th>Course Short Code</th>
+                    <th>Name</th>
+                    <th>Code</th>
                     <th>Quizzes</th>
                     <th>Lecture</th>
                 </tr>
                 {% for course in courses %}
-                <tr>
+                <tr class="hover-inset">
                     <td>{{ forloop.counter }}</td>
                     <td>{{ course.name }}</td>
                     <td>{{ course.code }}</td>
-                    <td class="quizzes">
-                        {% for question_group in course.questiongroup_set.all %}
-                            {% if question_group.status == "conducted" %}
-                                <span>{{ question_group.get_title_display }}</span>
-                                {% if not forloop.last %}
-                                    ,
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
+                    <td>
+                        {{ course.conducted_quizzes.count }}
                     </td>
                     <td>{{ course.lecture }}</td>
                 </tr>
@@ -62,7 +55,7 @@
                     <th>Mobile</th>
                 </tr>
                 {% for mate in class_mates %}
-                <tr class=" {% if mate.profile == request.user %} table-active" title="This is you" {% else %} " {% endif %}>
+                <tr class="hover-inset {% if mate.profile == request.user %} table-primary" title="This is you, {{ request.user.get_short_name }} {% else %} {% endif %}">
                     <td>{{ forloop.counter }}</td>
                     <td>{{ mate }}</td>
                     <td>{{ mate.get_name }}</td>

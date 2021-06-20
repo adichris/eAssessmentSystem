@@ -1,9 +1,21 @@
 from django import forms
 from .models import User
+from phonenumber_field.widgets import PhoneNumberPrefixWidget
 import datetime
 
-dateMax = datetime.date.today().year - 10
-DOY = tuple(x+1 for x in range(1900, dateMax, 1))
+
+def clean_dob(self):
+    dob = self.cleaned_data.get("dob")
+    """
+        Student date of birth can not be less than 9 year 
+    """
+    today = datetime.date.today()
+    if dob is None:
+        raise forms.ValidationError("Please enter your date of birth.")
+
+    if dob >= datetime.date(year=today.year - 9, month=today.month, day=today.day):
+        raise forms.ValidationError("Sorry we can not accept this as your date of birth. Your too young.")
+    return dob
 
 
 class UserCreateForm(forms.ModelForm):
@@ -14,7 +26,8 @@ class UserCreateForm(forms.ModelForm):
         fields = ("first_name", "last_name", "username", "phone_number", "email", "dob", "password")
         widgets = {
             "password": forms.PasswordInput,
-            "dob":forms.SelectDateWidget(years=DOY)
+            "dob": forms.DateInput(attrs={"type": "date"}),
+            "phone_number": PhoneNumberPrefixWidget(attrs={"class":"form-control", "type": "tel"})
         }
 
         error_messages = {
@@ -61,6 +74,9 @@ class UserCreateForm(forms.ModelForm):
 
         return instance
 
+    def clean_dob(self):
+        return clean_dob(self)
+
 
 class StudentProfileCreateForm(forms.ModelForm):
     class Meta:
@@ -68,7 +84,8 @@ class StudentProfileCreateForm(forms.ModelForm):
         fields = ("first_name", "last_name", "phone_number", "email", "dob")
         widgets = {
             "password": forms.PasswordInput,
-            "dob":forms.SelectDateWidget(years=DOY)
+            "dob": forms.DateInput(attrs={"type": "date"}),
+            "phone_number":PhoneNumberPrefixWidget(attrs={"class": "form-control", "type": "tel"})
         }
 
         error_messages = {
@@ -90,6 +107,9 @@ class StudentProfileCreateForm(forms.ModelForm):
             },
 
         }
+
+    def clean_dob(self):
+        return clean_dob(self)
 
 
 class StudentLoginForm(forms.Form):

@@ -49,10 +49,14 @@ class Student(models.Model):
     objects = StudentManager()
 
     class Meta:
-        ordering = ("programme", "level", "index_number")
+        ordering = ("programme", "level", "profile__first_name", "profile__last_name", "index_number")
 
     def get_name(self):
         return self.profile.get_full_name()
+
+    @property
+    def quiz_counts(self):
+        return self.multichoicescripts_set.count() + self.studenttheoryscript_set.count()
 
     def __str__(self):
         return self.index_number

@@ -13,7 +13,7 @@
     <link rel="shortcut icon" href="{% static 'DefaultImg/class_logo.png' %}" type="image/x-icon">
     <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
-    <link rel="stylesheet" href="{% static 'custom.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/custom.css' %}">
 
 </head>
 <body>
@@ -35,9 +35,8 @@
     {% block afterScripts %} {% endblock afterScripts %}
 
 <script>
-    var dobDiv = $("div #id_dob_month").parent();
-    dobDiv.addClass("input input-group");
-
+    $("#id_profile_form-phone_number_0").parent().addClass("input-group");
+    $("#id_due_date_0").parent().addClass("input-group");
 </script>
 </body>
 </html>

@@ -1,0 +1,56 @@
+.transparentBlur {
+        backdrop-filter: saturate(180%) blur(20px) !important;
+        /*background-color: #ccc;*/
+    }
+
+.bg-white50 {
+        background-color: #ffffff7d !important;
+    }
+
+.bg-admin-nav{
+       background-color: #004085 !important;
+}
+
+.bg-admin-nav .dropdown-item {
+    color: white;
+}
+.bg-admin-nav .dropdown-item:hover {
+    color: #004085;
+}
+
+.no-pointer {
+    pointer-events: none !important;
+    user-select: none;
+    user-focus: none;
+}
+
+.no-user-select {
+    pointer-events: visible;
+    user-select: none;
+    user-focus: none;
+}
+
+.active_underline {
+    text-decoration-line: underline;
+    font-weight: bold;
+}
+
+.mt-10vh {
+    margin: 10vh;
+}
+
+.img_fit_content{
+    height: fit-content;
+    width: fit-content;
+}
+
+@media screen and (max-width: 900px) {
+    .mt-10vh { margin-top: 1em}
+}
+
+.card-hover-shadow:hover {
+    box-shadow: #cccccc 0 0 4px 0;
+}
+.hover-inset:hover {
+    box-shadow: inset #cccccc 0 0 4px 0;
+}

@@ -70,13 +70,21 @@
 
         <div class="row my-3">
             <div class="col-md-12 col-lg-10 mx-auto">
-                <form action="" method="post" >
+                <form action="" method="post" name="SelectOption">
                     <div id="id_form_question">
                     {% csrf_token %}
-                        <h1>Question {{ question_page.number }}</h1>
+                        <h5>Question {{ question_page.number }}</h5>
                         <hr>
-                        <h5>{{ question.question }}</h5>
-                        {{ answer_form | crispy }}
+                        <p>{{ question.question|linebreaksbr }}</p>
+                        <span class="lead small">Select ans answer</span>
+                        <hr>
+                        {% for radio_btn in answer_form.selected_option %}
+                            <label for="{{ radio_btn.id_for_label }}" class="alert alert-light text-dark border-secondary shadow-sm d-block" style="cursor: auto">
+                                <span class="radio">{{ radio_btn.tag }}</span>
+                                <span>{{ radio_btn.choice_label }}</span>
+                            </label>
+                        {% endfor %}
+
                         <input type="hidden" name="question" value="{% if question_page.has_next %} {{ question_page.next_page_number }} {% else %} {{ question_page.number }}  {% endif %}">
                         <div class="btn-group btn-block">
                             <button type="submit" class="btn btn-primary" onclick="appendSpinOnClick(this)">{% if question_page.paginator.num_pages == question_page.number %} Done {% else %}Save{% endif %}</button>
@@ -166,19 +174,30 @@
 
         }, 1000)
 
-
-        for ( idx = 0; idx < formCheckInput.length; idx ++){
-            elem = formCheckInput[idx]
-            elem.addEventListener("click",checked)
-            if (elem.checked){
-                elem.labels[0].classList.add("active")
+        function onchange(theTag) {
+            if (theTag.checked){
+                theTag.labels[0].classList.remove("alert-light")
+                theTag.labels[0].classList.remove("text-dark")
+                theTag.labels[0].classList.remove("border-secondary")
+                theTag.labels[0].classList.add("alert-primary")
+            }
+            else {
+                theTag.labels[0].classList.add("alert-light")
+                theTag.labels[0].classList.add("text-dark")
+                theTag.labels[0].classList.add("border-secondary")
+                theTag.labels[0].classList.remove("alert-primary")
             }
         }
 
-        function checked() {
-            if (this.checked)
-                formCheckInputLabel.removeClass("active")
-                this.labels[0].classList.add("active")
+        function handleChange() {
+            var radioButtons = document.SelectOption.selected_option
+            for (let idx = 0; idx < radioButtons.length; idx++){
+                const radioBtn = radioButtons[idx];
+               radioBtn.addEventListener("onchange", onchange(radioBtn))
+            }
+
         }
+        handleChange()
+
     </script>
 {% endblock %}

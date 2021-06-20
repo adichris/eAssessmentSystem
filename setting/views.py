@@ -2,7 +2,7 @@ from django.shortcuts import reverse, redirect
 from django.views.generic import CreateView, UpdateView, DetailView, RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import GeneralSetting
-from .forms import GeneralSettingCreateForm, GeneralSettingUpdateForm
+from .forms import GeneralSettingUpdateForm
 
 
 class GeneralSettingUpdateView(LoginRequiredMixin, UpdateView):
@@ -18,7 +18,7 @@ class GeneralSettingUpdateView(LoginRequiredMixin, UpdateView):
 
 class GeneralSettingCreateView(LoginRequiredMixin, CreateView):
     model = GeneralSetting
-    form_class = GeneralSettingCreateForm
+    form_class = GeneralSettingUpdateForm
     template_name = "settings/create.html"
 
     def get_context_data(self, **kwargs):
@@ -34,10 +34,9 @@ class GeneralSettingCreateView(LoginRequiredMixin, CreateView):
             form.instance.user = self.request.user
             return super(GeneralSettingCreateView, self).form_valid(form)
 
-    def form_invalid(self, form):
-        returns = super(GeneralSettingCreateView, self).form_invalid(form)
-        print(form.errors)
-        return returns
+    # def form_invalid(self, form):
+    #     returns = super(GeneralSettingCreateView, self).form_invalid(form)
+    #     return returns
 
 
 class GeneralSettingDetailView(LoginRequiredMixin, DetailView):

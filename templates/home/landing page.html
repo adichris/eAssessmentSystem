@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% block content %}
-    <div class="container-fluid" style="height: 95vh; background: url({% static 'DefaultImg/bgs/bg2.jpg'  %}) no-repeat center; background-size: cover">
+    <div class="container-fluid" style="height: 95vh; background: url({% static 'DefaultImg/bgs/gh_sch_bg.svg'  %}) no-repeat center; background-size: cover; background-attachment: fixed">
         <div class="row">
             <div class="col-auto mx-auto mt-10vh pt-lg-5 text-monospace ">
                 {%  if request.user.is_authenticated %}
@@ -33,7 +33,7 @@
                         <form action="{% url 'accounts:student_login' %}" method="post">
                             {% csrf_token %}
                             {{ student_login_form|crispy }}
-                            <input type="submit" value="Login" class="btn btn-outline-primary btn-block">
+                            <button type="submit" class="btn btn-outline-primary btn-block" onclick="spinOnClick(this)">Login</button>
                             <a href="" class="card-link small" style="color: crimson">forgotten your password?</a>
                         </form>
                     </div>

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <div class="row my-3 mt-lg-4">
+            <div class="col-md-8 col-lg-6 mx-auto">
+                <h5 class="text-center">ASSESSMENT RECORDS</h5>
+            </div>
+        </div>
+
+
+        <div class="row mb-2">
+            <div class="col-md-12">
+                <hr>
+                <form method="get">
+                    <div class="d-flex justify-content-around">
+                       {{ filter_form|crispy }}
+                    </div>
+                    <button type="submit" class="btn btn-light btn-block" onclick="spinOnClick(this)" ><i class="fa fa-filter mr-2"></i> filter</button>
+                    <hr>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 col-lg-6 mx-auto">
+            </div>
+        </div>
+        {% if all_course_scripts and all_course_scripts.exists %}
+            {% regroup all_course_scripts by course as all_course_scripts_list  %}
+            {% for all_course in all_course_scripts_list %}
+                <div class="row my-3 my-md-4">
+                    <div class="col-12">
+                        <a href="{% url 'records:lecture_all' %}?course={{ all_course.grouper.id }}&question_group_title=&level={{ all_course.grouper.level_id }}&programme={{ all_course.grouper.programme_id }}" class="btn btn-outline-secondary btn-block" title="click to view {{ all_course.grouper.code }} specific details">Course - <b>{{ all_course.grouper }} - {{ all_course.grouper.level }}</b></a>
+                        <hr>
+                    </div>
+                    {% for course_quiz in all_course.list %}
+                        <div class="jumbotron mx-auto w-100">
+                            <div class="col-12 my-2">
+                                <div class="card-group">
+
+                                    <div class="card">
+                                        {% url 'records:lecture_quiz_detail' course_code=all_course.grouper.code question_group_pk=course_quiz.pk question_group_title=course_quiz.title as quiz_records_url %}
+                                        <a href="{{ quiz_records_url }}" class="btn btn-outline-light text-left">
+                                    <div class="card-body">
+                                        <p class="text-dark">{{ course_quiz.get_title_display }}</p>
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td>Questions Type</td>
+                                                <th>{{ course_quiz.get_questions_type_display }}</th>
+                                            </tr>
+                                            <tr>
+                                                <td>Number of Questions</td>
+                                                <th>{{ course_quiz.question_set.count }}</th>
+                                            </tr>
+                                            <tr>
+                                                <td>Total</td>
+                                                <th>{{ course_quiz.total_marks }}</th>
+                                            </tr>
+                                            <tr>
+                                                <td>Programme</td>
+                                                <th>{{ course_quiz.course.programme }}</th>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                        </a>
+                                    </div>
+                                    <div class="card">
+                                        <a href="{{ quiz_records_url }}" class="btn btn-outline-light text-left">
+                                        <div class="card-body">
+                                            <p class="text-dark">Score</p>
+                                            <table class="table table-borderless">
+                                                <tr>
+                                                    <td>Number of Passes</td>
+                                                    <th>------</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>Average Score</td>
+                                                    <th>-------</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>Highest Score</td>
+                                                    <th>-------</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>Lowest Score</td>
+                                                    <th>-------</th>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    {% if course_quiz.questions_type == "multichoice" %}
+                                        {% include 'record/lecture/student_script_table.html' with scripts=course_quiz.multichoicescripts_set.all question_type=course_quiz.questions_type %}
+                                    {% elif course_quiz.questions_type == "theory" %}
+                                        {% include 'record/lecture/student_script_table.html' with scripts=course_quiz.studenttheoryscript_set.all question_type=course_quiz.questions_type %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="row mt-3 mt-lg-4">
+                <div class="col-md-6 mx-auto text-center">
+                    <img src="{% static 'icons/empty_box.svg' %}" alt="empty_box" class="img-fluid no-pointer fa-spin" style="height: 10em">
+{#                    <span class="fa fa-box-open fa-5x fa-spin"></span>#}
+                    <hr>
+                    <span class="lead d-block">No records found</span>
+                    <a href="{% url 'records:lecture_all' %}" class="btn btn-link">Ignore filter</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}
+{% block afterScripts %}
+{% endblock %}

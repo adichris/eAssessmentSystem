@@ -1,8 +1,18 @@
-from django.shortcuts import redirect
-from django.views.generic import TemplateView, View
+from django.shortcuts import redirect, render, get_object_or_404
+from django.views.generic import TemplateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user
-from eAssessmentSystem.tool_utils import admin_required_message, get_http_forbidden_response
+from eAssessmentSystem.tool_utils import (admin_required_message, get_http_forbidden_response,
+                                          get_not_allowed_render_response,
+                                          )
+from student.models import Student
+from django.utils.text import slugify
+from django.utils import timezone
+from .form import LectureFilterForm
+from assessment.models import (QuestionGroupStatus, QuestionGroup, QuestionTypeChoice, ScriptStatus,
+                               StudentTheoryScript, MultiChoiceScripts, CourseModel)
+from django.db.models import ObjectDoesNotExist, Sum
+REASON = "Your not allowed to access this page because of your profile"
 
 
 class RecordsView(LoginRequiredMixin, TemplateView):
@@ -24,8 +34,8 @@ class StudentRecordTemplateView(LoginRequiredMixin, TemplateView):
         user = get_user(self.request)
         try:
             return user.student
-        except AttributeError:
-            return None
+        except ObjectDoesNotExist:
+            return
 
     def get(self, request, *args, **kwargs):
         student = self.get_student()
@@ -36,7 +46,202 @@ class StudentRecordTemplateView(LoginRequiredMixin, TemplateView):
             return get_http_forbidden_response()
 
         elif self.request.user.is_authenticated:
-            return get_http_forbidden_response("You are not registered as a student")
+            return get_http_forbidden_response()
         else:
             return redirect("accounts:student_login")
+
+    def get_context_data(self, **kwargs):
+        ctx = super(StudentRecordTemplateView, self).get_context_data(**kwargs)
+        student = self.request.user.student
+        ctx["courses"] = student.programme.coursemodel_set.filter(
+            level=student.level,
+            semester=self.request.user.generalsetting.semester
+        )
+        return ctx
+
+
+class LectureRecordsTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "record/lecture/all_records_view.html"
+    filter_form_class = LectureFilterForm
+
+    def get_context_data(self, **kwargs):
+        ctx = super(LectureRecordsTemplateView, self).get_context_data(**kwargs)
+        ctx["all_course_scripts"] = self.get_all_lecture_records()
+        ctx["filter_form"] = self.filter_class
+        return ctx
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_lecture:
+            return super(LectureRecordsTemplateView, self).get(request, *args, **kwargs)
+        elif self.request.user:
+            return render(request, "assessment/status_not_allowed.html", {
+                "reason": REASON
+            })
+        else:
+            return get_http_forbidden_response()
+
+    def get_all_lecture_records(self):
+        lecture_profile = self.request.user
+        queryset = QuestionGroup.objects.filter(
+            course__lecture=lecture_profile.lecturemodel,
+            course__semester=lecture_profile.generalsetting.semester,
+            academic_year=lecture_profile.generalsetting.academic_year,
+            status__in=(QuestionGroupStatus.CONDUCTED, QuestionGroupStatus.PUBLISHED, QuestionGroupStatus.MARKED)
+        )
+        self.filter_class = self.filter_form_class(data=self.request.GET, lecture=lecture_profile.lecturemodel)
+        self.filter_class.is_valid()
+        # Check if the filter tag is not None
+        question_group_title = self.filter_class.cleaned_data.get("question_group_title")
+        course_id = self.filter_class.cleaned_data.get("course")
+        course__level = self.filter_class.cleaned_data.get("level")
+        course__programme_id = self.filter_class.cleaned_data.get("programme")
+
+        if question_group_title:
+            queryset = queryset.filter(title=question_group_title)
+        if course_id:
+            queryset = queryset.filter(course_id=course_id)
+        if course__programme_id:
+            queryset = queryset.filter(course__programme_id=course__programme_id)
+        if course__level:
+            queryset = queryset.filter(course__level=course__level)
+        return queryset.order_by("course__code", "course__level")
+
+
+class LectureQuizRecordDetailView(LoginRequiredMixin, DetailView):
+    template_name = "record/lecture/lecture_record_detail.html"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+            QuestionGroup,
+            title=self.kwargs.get("question_group_title"),
+            pk=self.kwargs.get("question_group_pk"),
+            course__lecture=self.request.user.lecturemodel,
+            course__code=self.kwargs.get("course_code"),
+            status__in=(QuestionGroupStatus.CONDUCTED, QuestionGroupStatus.PUBLISHED, QuestionGroupStatus.MARKED)
+        )
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_lecture:
+            return super(LectureQuizRecordDetailView, self).get(request, *args, **kwargs)
+        elif self.request.user.is_admin:
+            return render(request, "assessment/status_not_allowed.html",
+            {
+                "reason": REASON
+            })
+
+        else:
+            return get_http_forbidden_response()
+
+
+class PublishRecordsDetailView(LoginRequiredMixin, DetailView):
+    template_name = "lecture/publish/detailview.html"
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_lecture:
+            self.init_instance()
+            confirm_code = request.GET.get("confirm_code")
+            if confirm_code and confirm_code == self.get_confirm_code():
+                return self.publish_scripts()
+            return super(PublishRecordsDetailView, self).get(request, *args, **kwargs)
+        elif self.request.user.is_staff:
+            return get_not_allowed_render_response(request)
+        else:
+            return get_http_forbidden_response()
+
+    def publish_scripts(self):
+        self.question_group_instance.status = QuestionGroupStatus.PUBLISHED
+        self.question_group_instance.updated = timezone.now()
+        self.question_group_instance.save()
+        affected_rows = None
+        if self.question_group_instance.questions_type == QuestionTypeChoice.MULTICHOICE:
+            affected_rows = self.question_group_instance.multichoicescripts_set.update(status=ScriptStatus.PUBLISHED)
+        elif self.question_group_instance.questions_type == QuestionTypeChoice.THEORY:
+            affected_rows = self.question_group_instance.studenttheoryscript_set.update(status=ScriptStatus.PUBLISHED)
+        self.request.session["publish_alert"] = affected_rows
+        return redirect("lecture:question_group_detail", course_id=self.question_group_instance.course_id,
+                        question_group_pk=self.question_group_instance.pk)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PublishRecordsDetailView, self).get_context_data(**kwargs)
+        ctx["script_mark"] = self.get_scripts_marked()
+        ctx["students_count"] = self.get_all_student_count()
+        ctx["confirm_code"] = self.get_confirm_code()
+        ctx["students_null_work"] = ctx["students_count"] - ctx["script_mark"]
+        return ctx
+
+    def get_confirm_code(self):
+        return slugify(self.question_group_instance.question_set.first().question)
+
+    def init_instance(self):
+        self.question_group_instance = get_object_or_404(
+            QuestionGroup,
+            course__lecture=self.request.user.lecturemodel,
+            course__semester=self.request.user.generalsetting.semester,
+            academic_year=self.request.user.generalsetting.academic_year,
+            pk=self.kwargs.get("question_group_pk"),
+            title=self.kwargs.get("question_group_title"),
+            course__code=self.kwargs.get("course_code")
+        )
+
+    def get_object(self, queryset=None):
+        return self.question_group_instance
+
+    def get_scripts_marked(self):
+        if self.question_group_instance.questions_type == QuestionTypeChoice.MULTICHOICE:
+            return self.question_group_instance.multichoicescripts_set.count()
+
+        elif self.question_group_instance.questions_type == QuestionTypeChoice.THEORY:
+            return self.question_group_instance.studenttheoryscript_set.count()
+
+    def get_all_student_count(self):
+        coursemodel = self.question_group_instance.course
+        return Student.objects.filter(level=coursemodel.level,
+                                      programme=coursemodel.programme).count()
+
+
+class StudentRecordsTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "record/student/course_detail.html"
+
+    def get(self, request, *args, **kwargs):
+        try:
+            if self.request.user.student:
+                self.init_instances()
+                return super(StudentRecordsTemplateView, self).get(request, *args, **kwargs)
+        except ObjectDoesNotExist:
+            return get_not_allowed_render_response(request)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(StudentRecordsTemplateView, self).get_context_data(**kwargs)
+        ctx["theory_script"] = self.theory_scripts
+        ctx["multichoice_script"] = self.multichoice_script
+        ctx["total_score"] = self.total_score
+        ctx["course"] = self.course_instance
+        return ctx
+
+    def init_instances(self):
+        generalsetting = self.request.user.generalsetting
+        self.course_instance = CourseModel.objects.get(
+            code=self.kwargs.get("course_code"),
+            semester=generalsetting.semester,
+            id=self.kwargs.get("course_id")
+        )
+
+        self.theory_scripts = StudentTheoryScript.objects.filter(
+            question_group__course=self.course_instance,
+            student=self.request.user.student,
+            status=ScriptStatus.PUBLISHED,
+            question_group__academic_year=generalsetting.academic_year,
+            question_group__status=QuestionGroupStatus.PUBLISHED
+        )
+        self.multichoice_script = MultiChoiceScripts.objects.filter(
+            question_group__academic_year=generalsetting.academic_year,
+            student=self.request.user.student,
+            course_id=self.course_instance.id,
+            question_group__status=QuestionGroupStatus.PUBLISHED,
+            status=ScriptStatus.PUBLISHED
+        )
+
+        total_score_sum = self.theory_scripts.aggregate(total_score_sum=Sum("total_score")).get("total_score_sum", 0)
+        score_sum = self.multichoice_script.aggregate(score_sum=Sum("score")).get("score_sum", 0)
+        self.total_score = total_score_sum + score_sum
 

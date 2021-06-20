@@ -1,4 +1,4 @@
-{% extends 'assessment/student_assesssment_view.html' %}
+{% extends 'assessment/student/assessment/view.html' %}
 {% load static %}
 {% block page_content %}
     {% if theory_script or multichoice_script %}
@@ -85,7 +85,7 @@
     {% else %}
         <div class="row my-3">
             <div class="col-md-8 col-lg-6 mx-auto text-center">
-                    <img src="{% static 'icons/empty_box.svg' %}" alt="NO UNFINISHED img" class="no-pointer img-fluid"  style="height: 15em">
+                    <img src="{% static 'icons/empty_box.svg' %}" alt="NO UNFINISHED img" class="no-pointer img-fluid" style="height: 15em">
                     <hr>
                 {% filter upper %}
                     <p class="lead">NO UNFINISHED QUIZ or Midsem </p>

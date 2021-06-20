@@ -21,10 +21,8 @@ class GeneralSetting(models.Model):
                                   help_text="How to order your name",
                                   default=NameOrder.FIRSTNAME,
                                   )
-    academic_year1 = models.CharField(max_length=4, default=current_year,
-                                      help_text="Academic year first part. 2020/2021. 2021 is first part")
-    academic_year = models.CharField(max_length=4, default=current_year-1,
-                                     help_text="Academic year second part. 2020/2021. 2021 is second part",
+    academic_year = models.CharField(max_length=11, default=current_year-1,
+                                     help_text="Select the academic year for the semester",
                                      )
     user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
 

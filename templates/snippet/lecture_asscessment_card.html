@@ -1,15 +1,19 @@
-<div class="card shadow-sm">
+<div class="card shadow-sm h-100">
     <div class="card-img-top text-center my-3">
         <img class="img-fluid" alt="{{ alt }}" src="{{ src }}" style="height: 100px">
     </div>
     <div class="card-body">
-        <h5 class="card-text text-center"><a href="{{ link }}" class="card-link">{{ title }}</a></h5>
+        <h5 class="card-text text-center"><a {% if search_name %}href="?{{ search_name }}={{ link }}" {% else %} href="{{ link }}"{% endif %} class="card-link">{{ title }}</a></h5>
     
         <div class="d-flex justify-content-end align-items-center">
             {% if new_link %}
                 <a href="{{ new_link }}" class="btn btn-light">New</a>
             {% endif %}
-            <a href="{{ link }}" class="btn btn-light">View</a>
+            {% if search_name %}
+            <a href="?{{ search_name }}={{ link }}" class="btn btn-light" onclick="spinOnClick(this)">View</a>
+            {% else %}
+                <a href="{{ link }}" class="btn btn-light" onclick="spinOnClick(this)">View</a>
+            {% endif %}
         </div>
     </div>
 

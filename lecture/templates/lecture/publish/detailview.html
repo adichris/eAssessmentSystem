@@ -1,14 +1,53 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="container">
-        <div class="row">
-            <div class="col-md-8 col-lg-6 text-center mx-auto">
-                <h5>PUBLISH ASSESSMENT</h5>
+        <div class="row my-3 my-lg-4">
+            <div class="col-md-auto text-center mx-auto">
+                {% filter upper %}
+                    <h5>PUBLISH {{ object.course }} {{ object.get_title_display }} ASSESSMENT</h5>
+                {% endfilter %}
                 <span>Make scripts accessible to student</span>
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <p>Publish Scripts</p>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td>Scripts Marked</td>
+                                <th>{{ script_mark }}</th>
+                            </tr>
+                            <tr>
+                                <td>Student Who did not do the work</td>
+                                <th>{{ students_null_work }}</th>
+                            </tr>
+                            <tr>
+                                <td>Programme Students</td>
+                                <th>{{ students_count }}</th>
+                            </tr>
+                        </table>
+                        {% url 'lecture:question_group_detail' course_id=object.course_id question_group_pk=object.pk as back_url %}
+                        {% if object.status == "published" %}
+                            <p class="alert alert-primary">
+                                {{ object.get_title_display }} has already been published - {{ object.updated }}
+                            </p>
+                            <a href="{{ back_url }}" class="btn btn-light btn-block" onclick="spinOnClick(this)">back</a>
+                        {% else %}
+                            <span class="alert alert-warning d-block">
+                                This action will make student script available to them (respective student)
+                            </span>
+                            <div class="d-flex justify-content-end">
+                                <a href="{{ back_url }}" class="btn btn-default alert-secondary mr-2" onclick="spinOnClick(this)">back</a>
+                                <a href="?confirm_code={{ confirm_code }}" class="btn btn-primary" onclick="spinOnClick(this)">Publish</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    
     </div>
 {% endblock %}

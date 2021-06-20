@@ -28,3 +28,7 @@ class Programme(models.Model):
 
     def get_update_url(self):
         return reverse("department:programme:update", kwargs={"programName": self.name, "pk": self.pk})
+
+    @property
+    def all_students(self):
+        return self.student_set.all()

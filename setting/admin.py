@@ -4,6 +4,6 @@ from .models import GeneralSetting
 
 @admin.register(GeneralSetting)
 class GeneralSettingModelAdmin(admin.ModelAdmin):
-    list_display = ("semester", "name_order", "academic_year1", "academic_year",)
+    list_display = ("semester", "name_order", "academic_year",)
     readonly_fields = ("user", )
 

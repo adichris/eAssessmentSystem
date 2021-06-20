@@ -15,12 +15,16 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-auto mx-auto">
+            <div class="col-md-8 col-lg-6 mx-auto">
                 <table class="table table-bordered">
                 {% with programme=request.user.student.programme %}
                 <tr>
                     <td>Course</td>
-                    <td>{{ question_group_instance.course }}</td>
+                    <td>{{ question_group_instance.course.name }}</td>
+                </tr>
+                <tr>
+                    <td>Course code</td>
+                    <td>{{ question_group_instance.course.code }}</td>
                 </tr>
                 <tr>
                     <td>Assessment</td>
@@ -49,7 +53,7 @@
                 <div class="card-group">
                     {% include 'snippet/H_label_value_card.html' with label="Questions" value=4 new_line=1 tc=1 %}
                     {% include 'snippet/H_label_value_card.html' with label="Due Date" value=preference.due_date|default:"Any time" new_line=1 tc=1 %}
-                    {% include 'snippet/H_label_value_card.html' with label="Duration" value=preference.duration|default:"Any time" new_line=1 tc=1 %}
+                    {% include 'snippet/H_label_value_card.html' with label="Duration" value=preference.duration|time:"h\h\r\s : i\m\s"|default:"Any time" new_line=1 tc=1 %}
                     {% include 'snippet/H_label_value_card.html' with label="Used Time" value=used_time_str new_line=1 value_id="id_used_time" tc=1 %}
                 </div>
                 {% endwith %}
@@ -78,7 +82,7 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row my-3">
         <div class="col-md-12">
             <div class="btn-group btn-block">
                 <button class="btn btn-outline-info" title="preview" type="submit" name="button" value="preview" onclick="spinOnClick(this)">Preview your script</button>

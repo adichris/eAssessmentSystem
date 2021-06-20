@@ -2,6 +2,7 @@
 {% load  crispy_forms_tags %}
 {% block content %}
     <div class="container">
+    {% if not scheme_view %}
         <div class="row mt-4">
             <div class="col-md-4 mx-auto">
                     <a href="{% url 'department:programme:course:detail' courseName=questiongroup.course.name pk=questiongroup.course_id %}" onclick="appendSpinOnClick(this)" class="btn btn-link"><i class="fa fa-chevron-left mr-2"></i>back</a>
@@ -23,7 +24,7 @@
                     <li class="list-group-item">Level <br> <b>{{ questiongroup.course.level }}</b></li>
                     <li class="list-group-item">Last update:<br> <b>{{ questiongroup.updated }}</b></li>
                     {% if questiongroup.status == "prepared" %}
-                    <li class="list-group-item">  <a href="{% url 'assessment:update_group' title=questiongroup.title pk=questiongroup.pk coursePK=questiongroup.course_id courseName=questiongroup.course.name %}" class="btn btn-outline-secondary btn-block " onclick="spinOnClick(this)">Edit</a></li>
+                    <li class="list-group-item">  <a href="{% url 'assessment:update_group' title=questiongroup.title pk=questiongroup.pk coursePK=questiongroup.course_id courseName=questiongroup.course.name %}" class="btn btn-outline-secondary btn-block " onclick="spinOnClick(this)"><span class="fa fa-edit mr-2"></span> Edit</a></li>
                     {% endif %}
                 </ul>
 
@@ -35,8 +36,8 @@
                     <div class="{% if not questiongroup.preference %} card-body {% endif %}">
                         {% if questiongroup.preference %}
                             <div class="card-group">
-                                {%  include "snippet/H_label_value_card.html" with label="Duration" value=questiongroup.preference.duration|time|default:"No Duration" new_line=1 %}
-                                {%  include "snippet/H_label_value_card.html" with label="Due Date" value=questiongroup.preference.due_date|timeuntil|default:"No Due Date" caption=questiongroup.preference.due_date|default:"" new_line=1 %}
+                                {%  include "snippet/H_label_value_card.html" with label="Duration" value=questiongroup.preference.duration|time:"h\h\r\s\ \:i\m\s"|default:"No Duration" new_line=1 %}
+                                {%  include "snippet/H_label_value_card.html" with label="Due Date" value=questiongroup.preference.due_date|default:"No Due Date" caption=questiongroup.preference.due_date|timeuntil|default:"" new_line=1 %}
                                 {%  include "snippet/H_label_value_card.html" with label="Environment" value=questiongroup.preference.get_environment_display new_line=1 %}
                                 {%  include "snippet/H_label_value_card.html" with label="Shuffle " value=questiongroup.preference.is_question_shuffle|yesno:"ON,OFF" color_bg=1 new_line=1 %}
                             </div>
@@ -44,7 +45,7 @@
                         {% else %}
                             <p class="text-center">Your using no preference</p>
                             <hr class="w-50">
-                            <p class="text-center"><a href="{% url 'assessment:preference' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)">Add a preference</a></p>
+                            <p class="text-center"><a href="{% url 'assessment:preference' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)"><span class="fa fa-plus mr-2"></span> Add a preference</a></p>
                         {% endif %}
                     </div>
                 </div>
@@ -65,62 +66,74 @@
                 {% endif %}
             </div>
         </div>
+{% endif %}
 
     <div class="row">
         <div class="col-12">
             <hr>
+        {% if scheme_view %}
+            <h5 class="text-center">{{ questiongroup.get_title_display }} Marking Scheme</h5>
+        {% else %}
             <h6 class="text-center">{{ questiongroup.get_title_display }} Questions</h6>
+        {% endif %}
         {% if questiongroup.status == "prepared" %}
             <hr>
             <div class="btn-group btn-block mb-3">
                 {% if questiongroup.questions_type == "multichoice" %}
-                    <a href="{% url 'assessment:prepare_MCQ' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)">Add Another Question in {{ questiongroup.get_title_display }} </a>
+                    <a href="{% url 'assessment:prepare_MCQ' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)"><span class="fa fa-plus mr-2"></span> Add Another Question in {{ questiongroup.get_title_display }} </a>
                 {% elif questiongroup.questions_type == "theory" %}
-                    <a href="{% url 'assessment:prepare_theory' QGPK=questiongroup.pk QGT=questiongroup.title %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)">Edit {{ questiongroup.get_title_display }}</a>
+                    <a href="{% url 'assessment:prepare_theory' QGPK=questiongroup.pk QGT=questiongroup.title %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)"><span class="fa fa-edit mr-2"></span> Edit {{ questiongroup.get_title_display }}</a>
                 {% endif %}
-                    <a href="{% url 'assessment:generate_marks' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-warning" title="generate base on the total marks" onclick="appendSpinOnClick(this)">Generate Marks </a>
-                    <a href="{% url 'assessment:delete_question_group' coursePK=questiongroup.course.pk courseName=questiongroup.course.name pk=questiongroup.pk %}" class="btn btn-outline-danger" onclick="appendSpinOnClick(this)">Remove {{ questiongroup.get_title_display }} Questions</a>
+                    <a href="{% url 'assessment:generate_marks' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-outline-warning" title="generate base on the total marks" onclick="appendSpinOnClick(this)"><span class="fa fa-cogs mr-2"></span> Generate Marks </a>
+                    <a href="{% url 'assessment:delete_question_group' coursePK=questiongroup.course.pk courseName=questiongroup.course.name pk=questiongroup.pk %}" class="btn btn-outline-danger" onclick="appendSpinOnClick(this)"><span class="fa fa-archive mr-2"></span> Remove {{ questiongroup.get_title_display }} Questions</a>
             </div>
+        {% else %}
+            <hr>
         {% endif %}
         </div>
     </div>
 
     {% if questiongroup.questions_type == "multichoice" %}
     <div class="row">
-        <div class="table-responsive {% if questiongroup.status == "conduct" %} table-primary {% elif questiongroup.status == "conducted" %} table-secondary {% endif %}">
+        <div class="table-responsive {% if questiongroup.status == "conduct" %} table-primary {% endif %}">
             <table class="table table-bordered table-hover">
                 <tr>
                     <th>#</th>
                     <th>Question</th>
-                    <th class="text-nowrap">Score Mark</th>
-                    <th class="text-nowrap">Options/ Objectives</th>
-                    <th class="text-nowrap">Last Update</th>
+                    <th>Score Mark</th>
+                    <th>Options/ Objectives</th>
+                    <th>Last Update</th>
                     {% if questiongroup.status == "prepared" %}
-                    <th class="text-nowrap">Action</th>
+                    <th>Action</th>
                     {% endif %}
                 </tr>
                 {% for question in questions %}
                     <tr>
                         <th>{{ forloop.counter }}</th>
-                        <td class="w-50">{{ question.question|linebreaks|safe }}</td>
-                        <td class="text-center">{{ question.max_mark|floatformat:2|default_if_none:"---" }}</td>
-                        <td class="w-25">
+                        <td>
+                            <p>{{ question.question|linebreaksbr }}</p>
+                        </td>
+                        <td class="text-center">{{ question.max_mark|floatformat|default_if_none:"---" }}</td>
+                        <td>
 
-                        <table class="w-100">
-                            {% for option in question.multichoicequestion_set.all %}
-                                <tr class=" {% if option.is_answer_option %} table-success {% endif %}">
-                                    <td>{{ forloop.counter }}</td>
-                                    <td>{{ option.option|linebreaks }}</td>
-                                </tr>
-                            {% endfor %}
-                        </table>
+                            <ul class="list-group">
+                                {% for option in question.multichoicequestion_set.all %}
+                                    <li class="{% if option.is_answer_option %}alert alert-success {% else %} alert alert-secondary {% endif %}">
+                                        <div class="d-flex flex-row">
+                                            <span class="mr-2">{{ forloop.counter }}</span>
+                                            <span class="flex-grow-1">{{ option.option|linebreaksbr }}</span>
+                                        </div>
+
+                                    </li>
+                                {% endfor %}
+                            </ul>
 
                         </td>
                         <td>{{ question.updated|date }}</td>
                         {% if questiongroup.status == "prepared" %}
                         <td>
-                            <a href="{%  url 'assessment:update_mcq' group_title=questiongroup.title questionPK=question.pk %}" class="btn btn-outline-secondary btn-block" onclick="spinOnClick(this)">Edit</a>
-                            <a href="" class="btn btn-outline-danger btn-block" onclick="spinOnClick(this)">Remove</a>
+                            <a href="{%  url 'assessment:update_mcq' group_title=questiongroup.title questionPK=question.pk %}" class="btn btn-outline-secondary btn-block" onclick="spinOnClick(this)"><span class="fa fa-edit"></span></a>
+                            <a href="{% url 'assessment:delete_question' pk=question.pk coursePK=questiongroup.course.pk group_title=questiongroup.title %}" class="btn btn-outline-danger btn-block" onclick="spinOnClick(this)"><span class="fa fa-trash"></span></a>
                         </td>
                         {% endif %}
                     </tr>
@@ -143,12 +156,12 @@
         <div class="table-responsive">
             <table class="table table-bordered">
                 <tr>
-                    <th class="text-nowrap">#</th>
-                    <th class="text-nowrap">Question</th>
-                    <th class="text-nowrap">Marks</th>
-                    <th class="text-nowrap">Last Updated</th>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th>Marks</th>
+                    <th>Last Updated</th>
                 {% if not questiongroup.status == "conduct" %}
-                    <th class="text-nowrap">Action</th>
+                    <th>Action</th>
                 {% endif %}
                 </tr>
 
@@ -156,12 +169,12 @@
                         <tr>
                             <th>{{ forloop.counter }}</th>
                             <td>{{ question|linebreaksbr }}</td>
-                            <td class="text-center">{{ question.max_mark|floatformat:2|default_if_none:"---" }}</td>
+                            <td class="text-center">{{ question.max_mark|floatformat|default_if_none:"---" }}</td>
                             <td>{{ question.updated }}</td>
                             {% if not questiongroup.status == "conduct" %}
                             <td>
-                                <a href="{% url 'assessment:update_theory' group_title=question.group.title pk=question.pk %}" class="btn btn-outline-secondary btn-block" onclick="appendSpinOnClick(this)">Edit</a>
-                                <a href="{{ question.get_absolute_delete_url }}" class="btn btn-outline-danger btn-block" onclick="appendSpinOnClick(this)">Remove</a>
+                                <a href="{% url 'assessment:update_theory' group_title=question.group.title pk=question.pk %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)" title="Edit this Question"><span class="fa fa-edit"></span></a>
+                                <a href="{{ question.get_absolute_delete_url }}" class="btn btn-outline-danger" onclick="appendSpinOnClick(this)" title="Delete this Question"><span class="fa fa-trash"></span></a>
                             </td>
                             {% endif %}
                         </tr>
