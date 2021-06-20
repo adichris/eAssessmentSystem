@@ -24,6 +24,12 @@
     user-focus: none;
 }
 
+.no-user-select {
+    pointer-events: visible;
+    user-select: none;
+    user-focus: none;
+}
+
 .active_underline {
     text-decoration-line: underline;
     font-weight: bold;
@@ -31,4 +37,17 @@
 
 .mt-10vh {
     margin: 10vh;
+}
+
+.img_fit_content{
+    height: fit-content;
+    width: fit-content;
+}
+
+@media screen and (max-width: 900px) {
+    .mt-10vh { margin-top: 1em}
+}
+
+.card-hover-shadow:hover {
+    box-shadow: inset #cccccc 0 0 4px 0;
 }

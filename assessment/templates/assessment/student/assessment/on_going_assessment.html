@@ -1,0 +1,97 @@
+{% extends 'assessment/student_assesssment_view.html' %}
+{% load static %}
+{% block page_content %}
+    {% if theory_script or multichoice_script %}
+        <div class="row my-3">
+            {% for script in theory_script %}
+                <div class="col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <table class="table">
+                                <tr>
+                                    <td colspan="2">{{ script.question_group.get_title_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Started Time</td>
+                                    <td>{{ script.timestamp }}</td>
+                                </tr>
+                                {% with preference=script.question.preference %}
+                                    <tr>
+                                        <td>Duration</td>
+                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Deadline</td>
+                                        <td>{{preference.due_date }}</td>
+                                    </tr>
+                                {% endwith %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    
+        <div class="row my-3">
+            {% for script in multichoice_script %}
+                <div class="col-md-6 col-lg-6 my-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td colspan="2"><h5 class="text-center">{{ script.question_group.get_title_display }}</h5></td>
+                                </tr>
+                                <tr>
+                                    <td>Questions</td>
+                                    <td>{{ script.question_group.question_set.count }} and {{ script.studentmultichoiceanswer_set.count }} Solved</td>
+                                </tr>
+                                <tr>
+                                    <td>Type</td>
+                                    <td>{{ script.question_group.get_questions_type_display }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Course</td>
+                                    <td>{{ script.course.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Course Code</td>
+                                    <td>{{ script.course.code }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Started Time</td>
+                                    <td>{{ script.timestamp }}</td>
+                                </tr>
+                                {% with preference=script.question_group.preference %}
+                                    <tr>
+                                        <td>Duration</td>
+                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Deadline</td>
+                                        <td>{{preference.due_date }}</td>
+                                    </tr>
+                                {% endwith %}
+                            </table>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'assessment:MCQ_exam_start' course_code=script.course.code QGPK=script.question_group.pk QGT=script.question_group.title %}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Continue Exam</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    
+    {% else %}
+        <div class="row my-3">
+            <div class="col-md-8 col-lg-6 mx-auto text-center">
+                    <img src="{% static 'icons/empty_box.svg' %}" alt="NO UNFINISHED img" class="no-pointer img-fluid"  style="height: 15em">
+                    <hr>
+                {% filter upper %}
+                    <p class="lead">NO UNFINISHED QUIZ or Midsem </p>
+                {% endfilter %}
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}

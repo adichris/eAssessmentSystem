@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-md-6 mx-auto">
+                <h5 class="text-center">Marking Scheme</h5>
+            </div>
+        </div>
+
+    {% if scheme_instance.solution_set.exists %}
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table">
+                    {% for solution in scheme_instance.solution_set.all %}
+                        <tr>
+                            <th class="text-nowrap">Q{{ solution.question.question_number|default:"uestion" }}</th>
+                            <td>
+                                <div class="d-flex flex-row">
+                                    <p class="flex-grow-1">{{ solution.question.question|linebreaksbr }}</p>
+                                    <span class="ml-3">{{ solution.question.max_mark|floatformat }} marks</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Scheme</td>
+                            <th>
+                                <div class="jumbotron">
+                                    <h6>{{ solution.answer|linebreaksbr }}</h6>
+                                </div>
+                            </th>
+                        </tr>
+                        {% if solution.notes %}
+                            <tr>
+                                <td>
+                                    <div class="jumbotron">
+                                        <h6>{{ solution.notes|linebreaksbr }}</h6>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="row mt-10vh">
+            <div class="col-md-6 mx-auto text-center">
+                <img src="{% static 'icons/empty_box.svg' %}" alt="" class="img-fluid img_fit_content" style="height: fit-content;">
+                <hr>
+                <p class="lead">THIS SCHEME IS EMPTY</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8 col-lg-6 mx-auto text-center">
+            {% filter title %}
+              <h5>ADD SOLUTION FROM {{ scheme_instance.question_group.get_title_display }} QUESTION</h5>
+            {% endfilter %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table">
+                {% for question in scheme_instance.get_unsolved_question %}
+                    <tr>
+                        <td class="card-hover-shadow">
+                            <div class="d-flex">
+                                <span class="p-1"><b>Q{{ solution.question.question_number|default:"uestion" }}</b></span>
+                                <div class="card flex-grow-1">
+                                    <div class="card-body">
+                                        <a href="{% url 'lecture:theory_solution_create' question_id=question.id question_group_id=scheme_instance.question_group_id course_id=scheme_instance.question_group.course_id scheme_pk=scheme_instance.pk %}" class="card-link">{{ question.question|linebreaksbr }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+
+    </div>
+{% endblock %}

@@ -1,20 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'assessment/student_assesssment_view.html' %}
 {% load static %}
-{% block content %}
-<div class="jumbotron" style="background-image: url({% static 'DefaultImg/course.png' %}); background-size: contain; background-repeat: space">
-    <div class="row">
-        <div class="container">
-                <div class="col-auto text-center">
-                    <h4 class="mark">Do Various Courses Quizzes and Midsem in {{ request.user.student.programme }} Here</h4>
-                </div>
-        </div>
-    </div>
-</div>
+{% block page_content %}
 
-<div class="container">
-
-    {% if question_groups %}
-        {% regroup question_groups by course as courses_list %}
+    {% if new_assessment %}
+        {% regroup new_assessment by course as courses_list %}
         {% for cour in courses_list %}
             <div class="row">
                 <div class="col-12">
@@ -22,7 +11,7 @@
                     <hr>
                 </div>
             </div>
-            <div class="row">
+            <div class="row my-3">
                 {% for question_group in cour.list %}
                     <div class="col-md-6 col-lg-4">
                         <div class="card h-100">
@@ -39,7 +28,7 @@
                                     </tr>
                                     <tr>
                                         <td>Duration</td>
-                                        <td>{{ question_group.preference.duration|default_if_none:"No Duration set" }}</td>
+                                        <td>{{ question_group.preference.duration|time:"h\h\r\s \: i\m\s"|default_if_none:"No Duration set" }}</td>
                                     </tr>
                                     <tr>
                                         <td>Due Date</td>
@@ -62,13 +51,18 @@
 
     {% else %}
         <div class="row">
-            <div class="col-md-8 col-lg-6 mx-auto mt-10vh">
-                <h5 class="text-center">Come back later</h5>
+            <div class="col-md-8 col-lg-6 mx-auto mt-10vh text-center">
+                <img src="{% static 'icons/empty_box.svg' %}" alt="NO UNFINISHED img" class="no-pointer img-fluid mb-3"  style="height: 15em">
+                <h5>Come back later</h5>
                 <hr>
-                <p class="text-center">There is no Quizzes or Midsem available.</p>
+                <p>There is no Quizzes or Midsem available.</p>
+                <div class="alert alert-info">
+                    <p>If there is an assigment that you are not seeing try resetting your
+                    academic year and semester to reflect the quiz or midsem one.</p>
+                    <hr>
+                    <p>If the problem persist, Please contact the lecture</p>
+                </div>
             </div>
         </div>
     {% endif %}
-
-</div>
 {% endblock %}

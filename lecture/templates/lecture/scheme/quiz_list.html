@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <div class="row my-3 my-lg-4">
+            <div class="col-md-6 mx-auto">
+                <h5 class="text-center">{{ course }} MARKING SCHEMES</h5>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h5>Please Select the Quiz available to view it Marking Scheme Detail</h5>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            {% for quiz in courses %}
+                <div class="col-md-6 col-lg-4 my-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <p>{{ quiz.get_title_display }}</p>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tr>
+                                        <td>Number of Question</td>
+                                        <td>{{ quiz.question_set.count }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Questions Type</td>
+                                        <td>{{ quiz.get_questions_type_display }}</td>
+                                    </tr>
+                                    {% if quiz.questions_type == "mulitchoice" %}
+                                        <tr>
+                                            <td>Scheme Last Update</td>
+                                            <td>{{ quiz.updated_at }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                <a href="{% url 'assessment:question_grp_detail' pk=quiz.pk courseName=course.name title=quiz.title %}" class="btn btn-outline-primary btn-block">View scheme</a>
+                                            </td>
+                                        </tr>
+                                    {% elif quiz.questions_type == "theory" %}
+                                        <tr>
+                                            <td>Question Solved</td>
+                                            <td>{{ quiz.theorymarkingscheme.solution_set.count }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Scheme Last Update</td>
+                                            <td>{{ quiz.theorymarkingscheme.updated_at }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"><a href="{% url 'lecture:theory_scheme_detail' question_group_pk=quiz.pk course_id=course.id %}" class="btn btn-outline-primary btn-block"></a></td>
+                                        </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    
+    </div>
+{% endblock %}

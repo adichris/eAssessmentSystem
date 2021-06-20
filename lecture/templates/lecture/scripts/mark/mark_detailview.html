@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <div class="row my-3 my-lg-4">
+            <div class="col-md-6 mx-auto">
+                <h4 class="text-center">MARK SCRIPTS {{ object.get_title_display|upper }}</h4>
+            </div>
+        </div>
+
+    {% if question_group.questions_type == "theory" %}
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card-group">
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Scripts</p>
+                            <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td>Script Marked</td>
+                                    <th>{{ marked_count }}</th>
+                                </tr>
+                                <tr>
+                                    <td>Script Unmarked</td>
+                                    <th>{{ unmarked_count }}</th>
+                                </tr>
+                                <tr>
+                                    <td>Total Scripts</td>
+                                    <th>{{ student_scripts.count }}</th>
+                                </tr>
+                            </table>
+                        </div>
+                        </div>
+
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Marking Scheme</p>
+                            <div class="table-responsive">
+                                {% with scheme=question_group.theorymarkingscheme %}
+                                    <table class="table">
+                                        <tr>
+                                            <td>Questions</td>
+                                            <th>{{ scheme.solution_set.count }}</th>
+                                        </tr>
+                                        <tr>
+                                            <td>Course Master</td>
+                                            <th>{{ scheme.lecture }}</th>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Marks</td>
+                                            <td>{{ scheme.question_group.total_marks }}</td>
+                                        </tr>
+                                    </table>
+                                    <div class="d-flex justify-content-end">
+                                    <small class="text-muted">last modified {{ scheme.updated_at }}</small>
+                                    </div>
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="row my-3 mt-lg-4">
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <th>#</th>
+                    <th>Index Number</th>
+                    <th>Name</th>
+                    <th>Score</th>
+                    <th>Script Status</th>
+                    <th>Action</th>
+                </tr>
+                {% for script in student_scripts %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td>{{ script.student.index_number }}</td>
+                        <td>{{ script.student.get_name }}</td>
+                        <td>{{ script.score }}</td>
+                        <td>{{ script.get_status_display }}</td>
+                        <td>
+                            <a href="{% url 'lecture:mark_student_script' question_group_id=script.question_group_id scheme_pk=question_group.theorymarkingscheme.pk student__index_number=script.student.index_number student_script_pk=script.pk %}" class="btn btn-outline-primary btn-block">
+                                <span class="fa fa-marker mr-2"></span>{% if script.status == "marked" %}remark{% else %}mark{% endif %}</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+
+    {% elif question_group.questions_type == "multichoice" %}
+        <div class="row my-3 my-lg-4">
+            <div class="col-md-8 col-lg-6 mx-auto text-center">
+                <img src="{% static 'icons/artificial_intelligence.svg' %}" alt="artificial_intelligence" class="img-fluid" style="height: 10em">
+                <hr>
+                <h5>{{ object.get_title_display }} is {{ question_group.get_questions_type_display }} Questions type</h5>
+                <h5>Its has been marked by the computer</h5>
+                <a href="{% url 'records:lecture_quiz_detail' question_group_pk=question_group.pk question_group_title=question_group.title course_code=question_group.course.code %}" class="btn btn-link">View {{ question_group.get_title_display }} Records</a>
+            </div>
+        </div>
+    {% endif %}
+
+    </div>
+{% endblock %}

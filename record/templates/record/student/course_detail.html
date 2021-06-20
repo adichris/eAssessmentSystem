@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-auto mx-auto">
+                <h5>{{ course }} Records</h5>
+            </div>
+        </div>
+
+        <div class="row d-print-none">
+            <div class="col">
+                <button onclick="window.print()"  class="btn btn-light"><span class="fa fa-print mr-2"></span>print</button>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th>#</th>
+                        <th>Quiz</th>
+                        <th>Quiz type</th>
+                        <th>Number of Questions</th>
+                        <th>Score</th>
+                    </tr>
+                    {% for script in multichoice_script %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ script.question_group.get_title_display }}</td>
+                            <td>{{ script.question_group.get_questions_type_display }}</td>
+                            <td>{{ script.question_group.question_set.count }}</td>
+                            <td>{{ script.score }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% for script in theory_script %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ script.question_group.get_title_display }}</td>
+                            <td>{{ script.question_group.get_questions_type_display }}</td>
+                            <td>{{ script.question_group.question_set.count }}</td>
+                            <td>{{ script.total_score }}</td>
+                        </tr>
+                        {% endfor %}
+
+                    <tr>
+                        <th colspan="4"></th>
+                        <th>Total Score: {{ total_score }}</th>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

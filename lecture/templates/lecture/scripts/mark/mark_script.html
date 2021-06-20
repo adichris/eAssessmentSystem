@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row my-3 my-lg-4">
+            <div class="col-md-8 mx-auto">
+                <h5>Mark {{ student_script }}</h5>
+                <hr>
+            </div>
+        </div>
+
+        <form action="" method="post">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Student Scripts</p>
+                    {{ student_script_form.management_form }}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tr>
+                                <td>
+                                    {% for answer_form in student_script_form.form %}
+                                        {{ answer_form|crispy }}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="table-responsive">
+                        <p>Marking Scheme</p>
+                        <table class="table table-bordered">
+                            {% for solution in lecture_scheme.solution_set.all %}
+                                <tr>
+                                    <th>Q{{ solution.question.question_number }}</th>
+                                    <td>
+                                        <p>{{ solution.question|linebreaksbr }}</p>
+                                        <b class="badge badge-light mt-1">{{ solution.question.max_mark }} marks</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Lecture Solution</th>
+                                    <td><p class="alert alert-primary">{{ solution.answer|linebreaksbr }}</p></td>
+                                </tr>
+                                {% if solution.notes %}
+                                <tr>
+                                    <th>Lecture Note</th>
+                                    <td><p class="alert alert-secondary">{{ solution.notes|linebreaksbr|default:"No Note" }}</p></td>
+                                </tr>
+                                {% endif %}
+                                {% if not forloop.last %}
+                                <tr>
+                                    <td colspan="2"></td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row my-3">
+                <div class="col-lg-8 mx-auto">
+                    <button class="btn btn-primary btn-block">Submit</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+{% endblock %}

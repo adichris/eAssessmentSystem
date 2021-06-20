@@ -17,6 +17,11 @@
                 {% include 'snippet/lecture_asscessment_card.html' with title="ON GOING QUIZ" alt="Quiz img" src=on_going_quiz_img link=on_going_quiz_url %}
             </div>
             <div class="col-md-6 col-lg-4 my-3">
+                {% static 'icons/student_script.png' as student_script %}
+                 {% url 'lecture:scripts_all' as student_script_url %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="STUDENT SCRIPTS" alt="Student Script img" src=student_script link=student_script_url %}
+            </div>
+            <div class="col-md-6 col-lg-4 my-3">
                 {% static 'icons/quiz.png' as quiz_img %}
                 {% url 'lecture:quiz_all' as quiz_url %}
                 {% include 'snippet/lecture_asscessment_card.html' with title="QUIZ" alt="Quiz img" src=quiz_img link=quiz_url %}
@@ -27,16 +32,13 @@
             </div>
              <div class="col-md-6 col-lg-4 my-3">
                 {% static 'icons/marking_schemes.png' as marking_scheme_img %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="MARKING SCHEMES" alt="Makring Scheme img" src=marking_scheme_img %}
+                {% url 'lecture:scheme_home' as scheme_url %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="MARKING SCHEMES" alt="Makring Scheme img" src=marking_scheme_img link=scheme_url %}
             </div>
              <div class="col-md-6 col-lg-4 my-3">
                 {% static 'icons/records.png' as records_img %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="RECORDS" alt="Records img" src=records_img %}
-            </div>
-             <div class="col-md-6 col-lg-4 my-3">
-                {% static 'icons/student_script.png' as student_script %}
-                 {% url 'lecture:scripts_all' as student_script_url %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="STUDENT SCRIPTS" alt="Student Script img" src=student_script link=student_script_url %}
+                {% url 'records:lecture_all'  as records_url %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="RECORDS" alt="Records img" src=records_img link=records_url %}
             </div>
         </div>
 

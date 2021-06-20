@@ -1,0 +1,34 @@
+{% extends 'assessment/student/assessment/view.html' %}
+
+{% block page_content %}
+    <div class="row">
+    {% for course in courses %}
+        <div class="col-md-6 col-lg-4 my-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-center">{{ course.name }}</h5>
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td>Code</td>
+                                <td>{{ course.code }}</td>
+                            </tr>
+                            <tr>
+                                <td>Master</td>
+                                <td>{{ course.lecture }}</td>
+                            </tr>
+                            <tr>
+                                <td>Quizzes</td>
+                                <td>{{ course.question_conduct.count }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="" class="btn btn-primary float-right" onclick="spinOnClick(this)">view</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}
