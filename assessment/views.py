@@ -15,7 +15,8 @@ from .models import (MultiChoiceQuestion, Question, QuestionGroup, AssessmentPre
                      )
 from django.forms import formset_factory, inlineformset_factory
 from eAssessmentSystem.tool_utils import (admin_required_message, is_lecture, get_http_forbidden_response,
-                                          get_time_obj_from, get_status_tips, get_not_allowed_render_response
+                                          get_time_obj_from, get_status_tips, get_not_allowed_render_response,
+                                        general_setting_not_init
                                           )
 import string
 from django.contrib.auth import get_user
@@ -484,11 +485,13 @@ class AssessmentView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         user = get_user(request)
         if is_lecture(user):
-            return render(request, self.template_name, self.get_content_data())
-        elif user:
-            return get_http_forbidden_response()
-        else:
-            return redirect("accounts:loginPage")
+            try:
+                return render(request, self.template_name, self.get_content_data())
+            except ObjectDoesNotExist:
+                return general_setting_not_init(request)
+        elif request.user.is_admin:
+            return get_not_allowed_render_response(request)
+        return get_http_forbidden_response()
 
     def get_content_data(self):
         lecture = self.request.user.lecturemodel
@@ -802,15 +805,7 @@ class StudentAssessmentView(LoginRequiredMixin, TemplateView):
                     if gen_set.exists():
                         pass
                     else:
-                        return render(
-                            request, "assessment/status_not_allowed.html",
-                            {
-                                "reason": "Please your account missing custom preference (settings ⚙).",
-                                "tip": "Goto settings ⚙ and configure one. You only have to create it to much "
-                                       "your academic year and semester.",
-                                "settings_icon": True
-                            }
-                        )
+                        return general_setting_not_init(request)
             except ObjectDoesNotExist:
                 pass
             return get_not_allowed_render_response(request)
@@ -1610,7 +1605,7 @@ class TheoryQuestionsExaminationView(LoginRequiredMixin, View):
         try:
             # Try if user has general_setting object
             return self.request.user.generalsetting.semester == course.semester
-        except Exception:
+        except ObjectDoesNotExist:
             # If Not create new settings for the user and return. Since the semester validate after creation
             general_settings, created = GeneralSetting.objects.get_or_create(user=self.request.user)
             if created:
@@ -1655,11 +1650,11 @@ class TheoryQuestionsExaminationView(LoginRequiredMixin, View):
             if self.is_semester_eq_course_semester() and \
                     self.question_group_instance.status == QuestionGroupStatus.CONDUCT and \
                     self.script_instance.is_completed is False and \
-                    self.script_instance.status == ScriptStatus.ASSESSING and \
-                    preference.due_date and preference.due_date > timezone.now():
-                ctx = self.get_content_data()
-                return render(request, self.template, ctx)
-            elif preference.due_date and preference.due_date <= timezone.now():
+                    self.script_instance.status == ScriptStatus.ASSESSING:
+                if preference.due_date is None or (preference.due_date > timezone.now()):
+                    ctx = self.get_content_data()
+                    return render(request, self.template, ctx)
+            if preference.due_date and preference.due_date <= timezone.now():
                 return get_question_deadline_ended_render(self.question_group_instance, request=request,
                                                           script=self.script_instance)
             # If Question is not set to Conduct return a decent view
@@ -1717,9 +1712,9 @@ class TheoryQuestionsExaminationView(LoginRequiredMixin, View):
             preference = self.question_group_instance.preference
             if self.question_group_instance.status == QuestionGroupStatus.CONDUCT \
                     and self.script_instance.is_completed is False and \
-                    self.script_instance.status == ScriptStatus.ASSESSING and preference.due_date and preference.due_date > timezone.now():
+                    self.script_instance.status == ScriptStatus.ASSESSING and self.is_semester_eq_course_semester():
 
-                if self.is_semester_eq_course_semester():
+                if preference.due_date is None or preference.due_date > timezone.now():
                     ctx = self.get_content_data()
                     btn_clicked = self.request.POST.get("button")
                     if not btn_clicked == "home":

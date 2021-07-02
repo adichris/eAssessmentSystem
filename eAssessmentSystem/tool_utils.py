@@ -122,3 +122,14 @@ def get_status_tips(question_group_instance, question_status):
         return "In marked state student can see their score but can not review the scripts. " +\
                quiz_scheme_disallowed_edit
 
+
+def general_setting_not_init(request):
+    return render(
+        request, "assessment/status_not_allowed.html",
+        {
+            "reason": "Please setup your semester and academic year to continue",
+            "tip": "Goto general settings ⚙ and configure one. You only have to create it to much "
+                   "your academic year and semester.",
+            "settings_icon": True
+        }
+    )

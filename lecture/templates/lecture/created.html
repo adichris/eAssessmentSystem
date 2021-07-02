@@ -5,7 +5,7 @@
     <div class="container">
         <div class="row">
             <div class="col-auto mx-auto">
-                <p class="lead">{{ request.user.first_name|title }}, you have success added lecture {{ lecture }} to {{ lecture.programme }} Programme</p>
+                <p class="lead">{{ request.user.first_name|title }}, you have success added lecture {{ lecture }} to {{ lecture.department }} Department</p>
                 <div class="d-flex">
                     <a href="{% url 'lecture:add' %}" class="btn btn-link">Add another lecture</a>
                     <a href="{{ lecture.get_absolute_url }}" class="btn btn-link">Continue to lecture detail</a>

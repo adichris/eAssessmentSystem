@@ -63,3 +63,45 @@ class Student(models.Model):
 
     def get_absolute_url(self):
         return reverse("student:detail", kwargs={"pk": self.pk})
+
+    def get_quiz_script_score(self, question_group_pk: int, q_title: str, quiz_type):
+        try:
+            score = 0
+            if quiz_type == "multichoice":
+                score = self.multichoicescripts_set.get(
+                    question_group_id=question_group_pk,
+                    question_group__title=q_title,
+                ).score
+            elif quiz_type == "theory":
+                score = self.studenttheoryscript_set.get(
+                    question_group_id=question_group_pk,
+                    question_group__title=q_title,
+                ).total_score
+        except models.ObjectDoesNotExist:
+            return "---"
+
+        else:
+            try:
+                return round(score, 2)
+            except TypeError:
+                return "Not marked - %s question" % quiz_type
+
+    def get_course_total_score(self, course_code, course_semester):
+        theory = self.studenttheoryscript_set.filter(question_group__course__code=course_code,
+                                                       question_group__course__semester=course_semester
+                                                       ).aggregate(total_score=models.Sum("total_score")).get("total_score")
+
+        multichoice = self.multichoicescripts_set.filter(
+            course__code=course_code,
+            course__semester=course_semester
+        ).aggregate(total_score=models.Sum("score")).get("total_score")
+
+        if theory and multichoice:
+            return round(theory + multichoice, 2)
+        elif theory is not None:
+            return round(theory, 2)
+        elif multichoice is not None:
+            return round(multichoice, 2)
+        else:
+            return "---"
+

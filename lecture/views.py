@@ -14,7 +14,7 @@ from assessment.models import (QuestionGroup, QuestionGroupStatus, CourseModel, 
                                )
 from assessment.form import LectureQuestionSolutionForm
 from django.utils.html import format_html
-from django.shortcuts import resolve_url
+from django.db.models import ObjectDoesNotExist
 
 
 class LectureCreateView(LoginRequiredMixin, View):
@@ -51,7 +51,9 @@ class LectureCreateView(LoginRequiredMixin, View):
             ctx = {
                 "lecture_form": lecture_form,
                 "profile_form": profile_form,
-                "pageTitle": "Add Lecture"
+                "pageTitle": "Add Lecture",
+                "number_has_error": profile_form.has_error("phone_number"),
+                "number_error": profile_form.errors.get("phone_number"),
             }
             return render(request, self.template_name, ctx)
 
@@ -183,8 +185,8 @@ class OnGoingQuizTemplateView(LoginRequiredMixin, TemplateView):
             return get_http_forbidden_response()
 
 
-class MarkingSchemeCreateView(LoginRequiredMixin, View):
-    pass
+# class MarkingSchemeCreateView(LoginRequiredMixin, View):
+#     pass
 
 
 class QuestionGroupDetailView(LoginRequiredMixin, DetailView):
@@ -202,8 +204,11 @@ class QuestionGroupDetailView(LoginRequiredMixin, DetailView):
         if self.question_group_instance.questions_type == QuestionTypeChoice.MULTICHOICE:
             self.question_solve = None
         elif self.question_group_instance.questions_type == QuestionTypeChoice.THEORY:
-            scheme = self.question_group_instance.theorymarkingscheme
-            self.question_solve = scheme.solution_set.count()
+            try:
+                scheme = self.question_group_instance.theorymarkingscheme
+                self.question_solve = scheme.solution_set.count()
+            except ObjectDoesNotExist:
+                self.question_solve = None
         self.question_number = self.question_group_instance.question_set.count()
 
     def get_context_data(self, **kwargs):
@@ -267,6 +272,7 @@ class QuestionGroupDetailView(LoginRequiredMixin, DetailView):
                     "lecture_details": True,
                     "tip": get_status_tips(self.question_group_instance, QuestionGroupStatus)
                 })
+
         else:
             return get_http_forbidden_response()
 

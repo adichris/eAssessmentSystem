@@ -3,7 +3,7 @@ from django.views.generic import TemplateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user
 from eAssessmentSystem.tool_utils import (admin_required_message, get_http_forbidden_response,
-                                          get_not_allowed_render_response,
+                                          get_not_allowed_render_response,general_setting_not_init
                                           )
 from student.models import Student
 from django.utils.text import slugify
@@ -41,7 +41,10 @@ class StudentRecordTemplateView(LoginRequiredMixin, TemplateView):
         student = self.get_student()
 
         if student and student.programme:
-            return super(StudentRecordTemplateView, self).get(request, *args, **kwargs)
+            try:
+                return super(StudentRecordTemplateView, self).get(request, *args, **kwargs)
+            except ObjectDoesNotExist as err:
+                return general_setting_not_init(request)
         elif student:
             return get_http_forbidden_response()
 
@@ -63,15 +66,41 @@ class StudentRecordTemplateView(LoginRequiredMixin, TemplateView):
 class LectureRecordsTemplateView(LoginRequiredMixin, TemplateView):
     template_name = "record/lecture/all_records_view.html"
     filter_form_class = LectureFilterForm
+    LIST_VIEW = "list"
+    GRID_VIEW = "grid"
+    COURSE_SORT = "course"
+    QUIZ_SORT = "quiz"
+    SORT_NAME = "sort"
+    VIEW_NAME = "view"
 
     def get_context_data(self, **kwargs):
         ctx = super(LectureRecordsTemplateView, self).get_context_data(**kwargs)
-        ctx["all_course_scripts"] = self.get_all_lecture_records()
-        ctx["filter_form"] = self.filter_class
+        if self.is_course_sort:
+            ctx["courses"] = self.get_courses()
+        else:
+            ctx["all_course_scripts"] = self.get_all_lecture_records()
+            ctx["filter_form"] = self.filter_class
+        ctx["title"] = "Records"
+        ctx["is_course_sort"] = self.is_course_sort
+        ctx["is_list_view"] = self.is_list_view
+        ctx["list_view"] = self.LIST_VIEW
+        ctx["grid_view"] = self.GRID_VIEW
+        ctx["course_sort"] = self.COURSE_SORT
+        ctx["quiz_sort"] = self.QUIZ_SORT
+        ctx["view_name"] = self.VIEW_NAME
+        ctx["sort_name"] = self.SORT_NAME
         return ctx
+
+    def get_courses(self):
+        return CourseModel.objects.filter(
+            lecture=self.request.user.lecturemodel,
+            semester=self.request.user.generalsetting.semester
+        )
 
     def get(self, request, *args, **kwargs):
         if request.user.is_lecture:
+            self.is_course_sort = self.request.GET.get(self.SORT_NAME) == self.COURSE_SORT
+            self.is_list_view = self.request.GET.get(self.VIEW_NAME) == self.LIST_VIEW
             return super(LectureRecordsTemplateView, self).get(request, *args, **kwargs)
         elif self.request.user:
             return render(request, "assessment/status_not_allowed.html", {
@@ -88,22 +117,24 @@ class LectureRecordsTemplateView(LoginRequiredMixin, TemplateView):
             academic_year=lecture_profile.generalsetting.academic_year,
             status__in=(QuestionGroupStatus.CONDUCTED, QuestionGroupStatus.PUBLISHED, QuestionGroupStatus.MARKED)
         )
-        self.filter_class = self.filter_form_class(data=self.request.GET, lecture=lecture_profile.lecturemodel)
-        self.filter_class.is_valid()
-        # Check if the filter tag is not None
-        question_group_title = self.filter_class.cleaned_data.get("question_group_title")
-        course_id = self.filter_class.cleaned_data.get("course")
-        course__level = self.filter_class.cleaned_data.get("level")
-        course__programme_id = self.filter_class.cleaned_data.get("programme")
+        is_reset_btn_clicked = self.request.GET.get("reset") == "reset"
+        self.filter_class = self.filter_form_class(data=self.request.GET if not is_reset_btn_clicked else None,
+                                                   lecture=lecture_profile.lecturemodel)
+        if self.filter_class.is_valid():
+            # Check if the filter tags are not None
+            question_group_title = self.filter_class.cleaned_data.get("question_group_title")
+            course_id = self.filter_class.cleaned_data.get("course")
+            course__level = self.filter_class.cleaned_data.get("level")
+            course__programme_id = self.filter_class.cleaned_data.get("programme")
 
-        if question_group_title:
-            queryset = queryset.filter(title=question_group_title)
-        if course_id:
-            queryset = queryset.filter(course_id=course_id)
-        if course__programme_id:
-            queryset = queryset.filter(course__programme_id=course__programme_id)
-        if course__level:
-            queryset = queryset.filter(course__level=course__level)
+            if question_group_title:
+                queryset = queryset.filter(title=question_group_title)
+            if course_id:
+                queryset = queryset.filter(course_id=course_id)
+            if course__programme_id:
+                queryset = queryset.filter(course__programme_id=course__programme_id)
+            if course__level:
+                queryset = queryset.filter(course__level=course__level)
         return queryset.order_by("course__code", "course__level")
 
 
@@ -131,6 +162,57 @@ class LectureQuizRecordDetailView(LoginRequiredMixin, DetailView):
 
         else:
             return get_http_forbidden_response()
+
+
+class LectureCourseRecords(LoginRequiredMixin, DetailView):
+    model = CourseModel
+    template_name = "record/lecture/course_records.html"
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_lecture:
+            self.init_instances()
+            return super(LectureCourseRecords, self).get(request, *args, **kwargs)
+        elif self.request.user.is_admin:
+            return get_not_allowed_render_response(request)
+        else:
+            return get_http_forbidden_response()
+
+    def get_students(self):
+        return Student.objects.filter(
+            programme__coursemodel=self.course_instance,
+            level=self.course_instance.level,
+        )
+
+    def init_instances(self):
+        self.course_instance = get_object_or_404(
+            self.model,
+            lecture=self.request.user.lecturemodel,
+            semester=self.request.user.generalsetting.semester,
+            pk=self.kwargs.get("course_pk"),
+            code=self.kwargs.get("course_code"),
+        )
+
+    def get_object(self, queryset=None):
+        return self.course_instance
+
+    def get_context_data(self, **kwargs):
+        ctx = super(LectureCourseRecords, self).get_context_data(**kwargs)
+        ctx["is_course_sort"] = self.request.GET.get("sort") == "course"
+        ctx["title"] = f"{self.get_object().name} - records"
+        ctx["students"] = self.get_students()
+        ctx["question_groups"] = self.get_questions()
+        ctx["conduct_status"] = QuestionGroupStatus.CONDUCT
+        ctx["conducted_status"] = QuestionGroupStatus.CONDUCTED
+        ctx["theory_type"] = QuestionTypeChoice.THEORY
+        return ctx
+
+    def get_questions(self):
+        return self.course_instance.questiongroup_set.filter(status__in=(
+            QuestionGroupStatus.CONDUCT,
+            QuestionGroupStatus.CONDUCTED,
+            QuestionGroupStatus.MARKED,
+            QuestionGroupStatus.PUBLISHED,
+        ))
 
 
 class PublishRecordsDetailView(LoginRequiredMixin, DetailView):

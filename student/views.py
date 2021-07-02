@@ -57,15 +57,13 @@ class StudentCreateView(View):
 
             login(self.request, user=profile)
             return redirect("landing-page")
-
         ctx = {
             "HeaderTitle": "Student Registration",
             "student_form": student_form,
             "profile_form": profile_form,
             "pwd_form": pwd_form,
+            "number_has_error": profile_form.has_error("phone_number")
         }
-        print(student_form.errors)
-        print(student_form.non_field_errors())
         return render(self.request, self.template_name, context=ctx)
 
     def get_initial(self):

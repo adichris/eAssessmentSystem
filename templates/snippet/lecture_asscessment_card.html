@@ -1,20 +1,30 @@
-<div class="card shadow-sm h-100">
+<div class="card card-hover-shadow h-100">
     <div class="card-img-top text-center my-3">
         <img class="img-fluid" alt="{{ alt }}" src="{{ src }}" style="height: 100px">
     </div>
     <div class="card-body">
-        <h5 class="card-text text-center"><a {% if search_name %}href="?{{ search_name }}={{ link }}" {% else %} href="{{ link }}"{% endif %} class="card-link">{{ title }}</a></h5>
-    
-        <div class="d-flex justify-content-end align-items-center">
-            {% if new_link %}
-                <a href="{{ new_link }}" class="btn btn-light">New</a>
-            {% endif %}
-            {% if search_name %}
-            <a href="?{{ search_name }}={{ link }}" class="btn btn-light" onclick="spinOnClick(this)">View</a>
-            {% else %}
-                <a href="{{ link }}" class="btn btn-light" onclick="spinOnClick(this)">View</a>
-            {% endif %}
-        </div>
+        <h5 class="card-text text-center"><a {% if search_name %}href="?{{ search_name }}={{ link }}" {% elif search_name1 %} href="{{ link }}?{{ search_name1 }}={{ search_para1 }}" {% else %}href="{{ link }}"{% endif %} class="card-link">{{ title }}</a></h5>
+        {% if not caption_text %}
+            <div class="d-flex justify-content-end align-items-center">
+                {% if new_link %}
+                    <a href="{{ new_link }}?" class="btn btn-light">New</a>
+                {% endif %}
+                {% if search_name %}
+                <a href="?{{ search_name }}={{ link }}" class="btn btn-light" onclick="spinOnClick(this)">View</a>
+                {% else %}
+                    <a href="{{ link }}" class="btn btn-light" onclick="spinOnClick(this)">View</a>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
+
+   {% if caption_text %}
+       <footer class="card-footer">
+               <div class="d-flex justify-content-between align-items-center">
+                  <a href="{{ link }}?{{ search_name1 }}={{ search_para1 }}" class="btn btn-secondary btn-sm" onclick="spinOnClick(this)">View</a>
+                   <small title="{{ caption_title }}">{{ caption_text }}</small>
+               </div>
+       </footer>
+   {% endif %}
 
 </div>

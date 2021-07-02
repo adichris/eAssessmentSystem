@@ -20,3 +20,16 @@
             </form>
     </div>
 {% endblock %}
+
+{% block afterScripts %}
+    <script>
+    let phoneElm = document.getElementById("{{ profile_form.phone_number.id_for_label }}")
+        {% if number_has_error %}
+            let error_tag = `<p id="error_{{ profile_form.phone_number.id_for_label }}" class="invalid-feedback"><strong>{{ number_error.as_text }}</strong></p> `
+            phoneElm.classList.add("is-invalid")
+            document.getElementById("id_phone_number_1").classList.add("is-invalid")
+            {#phoneElm.parentElement.insertAdjacentHTML("beforeend", error_tag)#}
+        {% endif %}
+    phoneElm.parentElement.classList.add("input-group")
+    </script>
+{% endblock %}

@@ -65,12 +65,23 @@
     <script>
 
     $("#id_profile_form-phone_number_0").parent().addClass("input-group");
-    var programme = {{ programme_default|default_if_none:"-1" }}
-    var programme_select = document.getElementById("id_programme");
+    var programme = {{ programme_default|default:"-1" }}
+    var programme_select = document.getElementById("{{ student_form.programme.id_for_label }}");
         if (programme == programme_select.selectedOptions[0].value){
             programme_select.setAttribute("readOnly", true);
             programme_select.classList.add("no-pointer");
         }
+
+
+    let phoneElm = document.getElementById("{{ profile_form.phone_number.id_for_label }}")
+        {% if number_has_error %}
+              $("#id_profile_form-phone_number_0").parent().removeClass("input-group");
+              $("#id_profile_form-phone_number_0").addClass("mb-2");
+            let error_tag = `<p id="error_{{ profile_form.phone_number.id_for_label }}" class="invalid-feedback"><strong>{{ number_error.as_text }}</strong></p> `
+            phoneElm.classList.add("is-invalid")
+            document.getElementById("id_profile_form-phone_number_1").classList.add("is-invalid")
+            {#phoneElm.parentElement.insertAdjacentHTML("beforeend", error_tag)#}
+        {% endif %}
     </script>
 </body>
 </html>

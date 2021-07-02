@@ -2,9 +2,10 @@ from .forms import ProgrammeCreateForm, Programme
 from django.views.generic import CreateView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, get_object_or_404
-from eAssessmentSystem.tool_utils import admin_required_message, request_level_check
+from eAssessmentSystem.tool_utils import admin_required_message, request_level_check, general_setting_not_init
 from department.models import Department
 from course.form import CourseModel
+from django.db.models import ObjectDoesNotExist
 
 
 class ProgrammeCreateView(LoginRequiredMixin, CreateView):
@@ -72,7 +73,10 @@ class ProgrammeDetailView(LoginRequiredMixin, DetailView):
 
     def get(self, *args, **kwargs):
         if self.request.user.is_active and (self.request.user.is_staff or self.request.user.is_lecture):
-            return super(ProgrammeDetailView, self).get(*args, **kwargs)
+            try:
+                return super(ProgrammeDetailView, self).get(*args, **kwargs)
+            except ObjectDoesNotExist as err:
+                return general_setting_not_init(self.request)
         else:
             self.request.session["admin_required"] = admin_required_message(self.request.user)
             return redirect("accounts:staff-login-page")

@@ -9,34 +9,72 @@
             </div>
         </div>
 
-
-        <div class="row mb-2">
-            <div class="col-md-12">
-                <hr>
-                <form method="get">
-                    <div class="d-flex justify-content-around">
-                       {{ filter_form|crispy }}
-                    </div>
-                    <button type="submit" class="btn btn-light btn-block" onclick="spinOnClick(this)" ><i class="fa fa-filter mr-2"></i> filter</button>
-                    <hr>
-                </form>
-            </div>
-        </div>
-
         <div class="row">
-            <div class="col-md-8 col-lg-6 mx-auto">
+            <div class="col-auto ml-auto">
+                <div class="btn-group btn-block">
+                    <a href="?{{ sort_name }}={{ quiz_sort }}" class="btn btn-outline-secondary {% if not is_course_sort %} active {% endif %}" >Quiz</a>
+                    <a href="?{{ sort_name }}={{ course_sort }}" class="btn btn-outline-secondary {% if is_course_sort %} active {% endif %}" >Course</a>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="btn-group btn-block ">
+                    <a href="?{{ view_name }}={{ list_view }}" class="btn btn-outline-secondary {% if is_list_view %} active {% endif %}" title="List view"><span class="fa fa-list"></span></a>
+                    <a href="?{{ view_name }}={{ grid_view }}" class="btn btn-outline-secondary {% if not is_list_view %} active {% endif %}" title="Grid view"><span class="fa fa-th-large"></span></a>
+                </div>
             </div>
         </div>
-        {% if all_course_scripts and all_course_scripts.exists %}
+
+        {% if is_course_sort %}
+
+            <div class="row">
+                <div class="col-12">
+                    <hr>
+                </div>
+                <div class="col-auto">
+                    <p>Please click <span class="bg-secondary p-1 text-white rounded">view</span> button,  on one of your courses to view it records</p>
+                </div>
+            </div>
+
+            <div class="row">
+                {% for course in courses %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        {% static 'icons/records.png' as img_src %}
+                        {% url 'records:course_detail' course_code=course.code course_pk=course.pk as detail_url %}
+                        {% include 'snippet/lecture_asscessment_card.html' with title=course link=detail_url caption_text=course.programme src=img_src caption_title="Course Programme; click on view" search_para1="course" search_name1="sort" %}
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <hr>
+                    <form method="get">
+                        <div class="d-flex justify-content-around flex-column flex-md-row flex-lg-row">
+                           {{ filter_form|crispy }}
+                        </div>
+                        <div class="d-flex flex-row justify-content-between align-items-center">
+                            <button type="submit" name="reset" value="reset" class="btn btn-light flex-grow-1 mr-2" onclick="spinOnClick(this)" ><i class="fa fa-recycle mr-2"></i> Reset</button>
+                            <button type="submit" class="btn btn-light flex-grow-1" onclick="spinOnClick(this)" ><i class="fa fa-filter mr-2"></i> filter</button>
+                        </div>
+                        <hr>
+                    </form>
+                </div>
+            </div>
+
+            {% if all_course_scripts and all_course_scripts.exists %}
             {% regroup all_course_scripts by course as all_course_scripts_list  %}
             {% for all_course in all_course_scripts_list %}
                 <div class="row my-3 my-md-4">
                     <div class="col-12">
-                        <a href="{% url 'records:lecture_all' %}?course={{ all_course.grouper.id }}&question_group_title=&level={{ all_course.grouper.level_id }}&programme={{ all_course.grouper.programme_id }}" class="btn btn-outline-secondary btn-block" title="click to view {{ all_course.grouper.code }} specific details">Course - <b>{{ all_course.grouper }} - {{ all_course.grouper.level }}</b></a>
+                        {% with course_instance=all_course.grouper %}
+                            <a href="{% url 'records:course_detail' course_code=course_instance.code course_pk=course_instance.pk %}" class="btn btn-outline-secondary btn-block text-left" >Course - <b>{{ course_instance }} - {{ course_instance.level }}</b></a>
+                        {% endwith %}
                         <hr>
                     </div>
                     {% for course_quiz in all_course.list %}
-                        <div class="jumbotron mx-auto w-100">
+                        <div class="jumbotron mb-2 p-0 mx-auto w-100">
                             <div class="col-12 my-2">
                                 <div class="card-group">
 
@@ -44,7 +82,7 @@
                                         {% url 'records:lecture_quiz_detail' course_code=all_course.grouper.code question_group_pk=course_quiz.pk question_group_title=course_quiz.title as quiz_records_url %}
                                         <a href="{{ quiz_records_url }}" class="btn btn-outline-light text-left">
                                     <div class="card-body">
-                                        <p class="text-dark">{{ course_quiz.get_title_display }}</p>
+                                        <p class="text-dark">{{ course_quiz.course.name }} - {{ course_quiz.get_title_display }} - record</p>
                                         <table class="table table-borderless">
                                             <tr>
                                                 <td>Questions Type</td>
@@ -118,6 +156,9 @@
                 </div>
             </div>
         {% endif %}
+        {% endif %}
+
+
     </div>
 {% endblock content %}
 {% block afterScripts %}

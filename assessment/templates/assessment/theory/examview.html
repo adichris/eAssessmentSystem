@@ -66,14 +66,16 @@
 
         <div class="row my-3 my-lg-4">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table">
 
                     {% for question_instance in question_group_instance.question_set.all %}
-                        <tr>
+                        {% url 'assessment:theory_exam_answer' question_group_id=question_group_instance.id question_group_title=question_group_instance.title script_pk=script_pk question_pk=question_instance.pk as solve_link %}
+
+                        <tr class="hover-inset">
                             <th>{{ forloop.counter }}</th>
-                            <td>{{ question_instance.question|linebreaksbr }}</td>
-                            <td>{{ question_instance.max_mark|floatformat }} Marks</td>
-                            <td><a href="{% url 'assessment:theory_exam_answer' question_group_id=question_group_instance.id question_group_title=question_group_instance.title script_pk=script_pk question_pk=question_instance.pk  %}" class="btn btn-outline-primary btn-block btn-lg" onclick="spinOnClick(this)" title="Write your solution / view your solution">Solve </a></td>
+                            <td><a href="{{ solve_link }}" class="text-decoration-none text-dark">{{ question_instance.question|linebreaksbr }}</a></td>
+                            <td class="text-center text-nowrap">{{ question_instance.max_mark|floatformat }} Marks</td>
+                            <td><a href="{{ solve_link }}" class="btn btn-outline-primary btn-block btn-lg" onclick="spinOnClick(this)" title="Write your solution / view your solution">Solve </a></td>
                         </tr>
 
                     {% endfor %}

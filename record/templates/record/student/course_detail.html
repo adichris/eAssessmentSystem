@@ -25,7 +25,7 @@
                             <th>Score</th>
                         </tr>
                         {% for script in multichoice_script %}
-                            <tr>
+                            <tr class="hover-inset">
                                 <td>{{ forloop.counter }}</td>
                                 <td>{{ script.question_group.get_title_display }}</td>
                                 <td>{{ script.question_group.get_questions_type_display }}</td>
@@ -34,7 +34,7 @@
                             </tr>
                         {% endfor %}
                         {% for script in theory_script %}
-                            <tr>
+                            <tr class="hover-inset">
                                 <td>{{ forloop.counter }}</td>
                                 <td>{{ script.question_group.get_title_display }}</td>
                                 <td>{{ script.question_group.get_questions_type_display }}</td>
@@ -43,7 +43,7 @@
                             </tr>
                             {% endfor %}
 
-                        <tr>
+                        <tr class="bg-light">
                             <th colspan="4"></th>
                             <th>Total Score: {{ total_score }}</th>
                         </tr>

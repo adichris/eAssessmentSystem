@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (RecordsView, StudentRecordTemplateView,
                     LectureRecordsTemplateView, LectureQuizRecordDetailView, PublishRecordsDetailView,
-                    StudentRecordsTemplateView
+                    StudentRecordsTemplateView, LectureCourseRecords
                     )
 
 
@@ -15,6 +15,7 @@ urlpatterns = [
          LectureQuizRecordDetailView.as_view(), name="lecture_quiz_detail"),
     path("publish/<str:question_group_title>/<int:question_group_pk>/<str:course_code>/",
          PublishRecordsDetailView.as_view(), name="publish"),
-    path("records/<str:course_code>/<int:course_id>", StudentRecordsTemplateView.as_view(), name="student_course_records")
+    path("student/<str:course_code>/<int:course_id>", StudentRecordsTemplateView.as_view(), name="student_course_records"),
+    path("lecture/course_detail/<int:course_pk>/<str:course_code>/", LectureCourseRecords.as_view(), name="course_detail")
 ]
 

@@ -23,7 +23,6 @@ class StaffCreateView(CreateView):
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
-    login_url = "login-page"
 
     def get_template_names(self):
         # if self.request.user.is_staff and self.request.user.is_authenticated:

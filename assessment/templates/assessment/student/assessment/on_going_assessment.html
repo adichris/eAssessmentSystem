@@ -5,11 +5,11 @@
         <div class="row my-3">
             {% for script in theory_script %}
                 <div class="col-md-6 my-3">
-                    <div class="card">
+                    <div class="card card-hover-shadow ">
                         <div class="card-body">
-                            <table class="table">
+                            <table class="table table-borderless">
                                 <tr>
-                                    <td colspan="2">{{ script.question_group.get_title_display }}</td>
+                                    <th colspan="2" class="text-center">{{ script.question_group.get_title_display }}</th>
                                 </tr>
                                 <tr>
                                     <td>Started Time</td>
@@ -18,14 +18,17 @@
                                 {% with preference=script.question.preference %}
                                     <tr>
                                         <td>Duration</td>
-                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s" }}</td>
+                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s"|default:"No Duration" }}</td>
                                     </tr>
                                     <tr>
                                         <td>Deadline</td>
-                                        <td>{{preference.due_date }}</td>
+                                        <td>{{preference.due_date|default:"No Dead line or Due Date" }}</td>
                                     </tr>
                                 {% endwith %}
                             </table>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'assessment:theory_exam_start' question_group_id=script.question_group.id question_group_title=script.question_group.title semester=request.user.generalsetting.semester %}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Continue Exam</a>
                         </div>
                     </div>
                 </div>
@@ -35,7 +38,7 @@
         <div class="row my-3">
             {% for script in multichoice_script %}
                 <div class="col-md-6 col-lg-6 my-3">
-                    <div class="card shadow-sm">
+                    <div class="card card-hover-shadow">
                         <div class="card-body">
                             <table class="table table-borderless">
                                 <tr>
