@@ -11,7 +11,14 @@
                         <li class="list-group-item list-group-item-secondary">Duration</li>
                         <li class="list-group-item list-group-item-secondary"><b>{{ duration }}</b></li>
                         <li class="list-group-item list-group-item-primary">Used Time</li>
-                        <li class="list-group-item list-group-item-primary" id="id_used_time"><b>{{ used_time_str }}</b></li>
+                        
+                        {% if is_duration %}
+                             <li class="list-group-item list-group-item-primary" id="id_used_time"><b>{{ used_time_str }}</b></li>
+                        {% else %}
+                            <li class="list-group-item list-group-item-primary" id="id_used_time"><b>-- -- --</b></li>
+                        {% endif %}
+                            
+                        
                     </ul>
                 </div>
             </div>
@@ -27,7 +34,7 @@
 
         <div class="row mt-3 mt-lg-4">
             <div class="col-md-12 mx-auto">
-                <h5>Question</h5>
+                <h5>Question {{ question_instance.question_number }}</h5>
                 <p>{{ question_instance.question|linebreaksbr }}</p>
             </div>
         </div>
@@ -39,7 +46,7 @@
                     {{ answer_form|crispy }}
                     <div class="btn-group btn-block">
                         <button type="submit" class="btn btn-outline-secondary" onclick="spinOnClick(this)" name="button" value="submit">Save and submit script</button>
-                        <button type="submit" class="btn btn-outline-primary" onclick="spinOnClick(this)" name="button" value="save" title="Save answer more / review some answers">Save</button>
+                        <button type="submit" class="btn btn-primary" onclick="spinOnClick(this)" name="button" value="save" title="Save answer more / review some answers">Save</button>
                     </div>
                 </form>
             </div>
@@ -52,7 +59,7 @@
                     <i class="fa fa-info-circle mr-2"></i>
                     Once you click on save. Your answer will be saved to your script.
                     <br>
-                    {% if duration %}
+                    {% if is_duration %}
                         Your script will be automatically submitted on the due time {{ duration }}.
                     {% else %}
                         To Submit your script click on save and click on submit in the next page
@@ -67,19 +74,20 @@
 {% block afterScripts %}
     <script src="{% static 'utils/moment.min.js' %}"></script>
     <script>
-        var usedTime_moment = moment(`${moment().year()}-${moment().month()}-${moment().day()} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
-        setInterval(function (){
-            usedTime_moment.add(1 ,"seconds")
-            document.getElementById("id_used_time").innerHTML = `<b>${usedTime_moment.hours()}:${usedTime_moment.minutes()}:${usedTime_moment.second()} </b>`
-            document.getElementById("id_now").innerHTML = moment().format("LLLL")
-        }, 1000);
+        {% if is_duration %}
+            var usedTime_moment = moment(`${moment().year()}-${moment().month()}-${moment().day()} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
+            setInterval(function (){
+                usedTime_moment.add(1 ,"seconds")
+                document.getElementById("id_used_time").innerHTML = `<b>${usedTime_moment.hours()}:${usedTime_moment.minutes()}:${usedTime_moment.second()} </b>`
+                document.getElementById("id_now").innerHTML = moment().format("LLLL")
+            }, 1000);
+        {% endif %}
 
 
         function on_back(thTag) {
             data = thTag.innerHTML
             appendSpinOnClick(thTag)
             var student_pre_ans = document.getElementById("id_answer")
-            console.log(student_pre_ans.value)
             {% with question_group=question_instance.group  %}
                 var back_to = `{% url 'assessment:theory_exam_start' question_group_title=question_group.title question_group_id=question_group.id semester=question_group.course.semester %}`
             {% endwith %}

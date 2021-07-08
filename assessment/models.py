@@ -150,7 +150,7 @@ class Question(models.Model):
         return str(self.question)
 
     class Meta:
-        ordering = ("id", "question_number", "updated")
+        ordering = ("question_number", "id",  "updated")
 
     def get_absolute_delete_url(self):
         return reverse("assessment:delete_question",
@@ -259,6 +259,16 @@ class StudentTheoryScript(models.Model):
 
     def get_wrong_answers_count(self):
         return self.studenttheoryanswer_set.filter(score=0).count()
+    
+    @property
+    def get_total_answered(self):
+        """IGNORE NONE COUNT"""
+        return self.studenttheoryanswer_set.filter(answer__isnull=False)
+
+
+class TheoryAnswerManager(models.Manager):
+    def is_question_answered(self, question_id, script_id):
+        return self.filter(question_id=question_id, script_id=script_id, answer__isnull=False).exists()
 
 
 class StudentTheoryAnswer(models.Model):
@@ -267,6 +277,19 @@ class StudentTheoryAnswer(models.Model):
     script = models.ForeignKey(StudentTheoryScript, on_delete=models.CASCADE)
     score = models.FloatField(null=True, blank=True)
     lecture_comment = models.TextField(null=True, blank=True, help_text="Lectures comment on answer")
+    objects = TheoryAnswerManager()
+
+    class Meta:
+        ordering = ("question", "id")
+
+    def get_absolute_solve_url(self):
+        question_group = self.script.question_group
+        return reverse("assessment:theory_exam_answer", kwargs={
+            "question_group_title":question_group.title,
+            "question_group_id":question_group.id,
+            "script_pk":self.script.pk,
+            "question_pk":self.question.pk
+        })
 
 
 class TheoryMarkingSchemeManager(models.Manager):

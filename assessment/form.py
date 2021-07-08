@@ -14,8 +14,8 @@ class AssessmentPreferenceCreateForm(forms.ModelForm):
         fields = ("duration", "due_date", "environment", "is_question_shuffle")
 
         widgets = {
-            "due_date": forms.SplitDateTimeWidget(date_attrs={"type": "date", "class": "form-control"},
-                                                  time_attrs={"type": "time", "class": "form-control"}),
+            "due_date": forms.SplitDateTimeWidget(date_attrs={"type": "date", "class": "form-control", "title":"Date"},
+                                                  time_attrs={"type": "time", "class": "form-control", "title":"Time"}),
             "duration": forms.TimeInput(attrs={"type": "time"}),
         }
         field_classes = {

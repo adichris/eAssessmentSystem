@@ -6,32 +6,46 @@
         <div class="row mt-4">
             <div class="col-md-6 mx-auto">
                 <div class="card">
-                    {% with question_group_instance=script_instance.question_group  %}
-                        {% if dead_line_ended %}
-                            <div class="card-img-top text-center">
-                                <img src="{% static 'icons/baby_calendar.svg' %}" alt="clock" style="max-height: 305px">
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text text-center alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
-                                    {{ question_group_instance.course }} {{ question_group_instance.get_title_display }} <br>
-                                    <i class="fa fa-calendar-day mr-1"></i><b>Date is Due -: {{ question_group_instance.preference.due_date }}</b>
-                                </p>
-                                <a href="{{ script_result_url }}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Continue</a>
-                            </div>
-                            {% else %}
-                                <div class="card-img-top text-center">
-                                    <img src="{% static 'icons/expired.svg' %}" alt="clock" class="img-fluid " style="max-height: 305px">
-                                </div>
-                                <div class="card-body">
-
-                                    <p class="card-text text-center alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
-                                        {{ question_group_instance.course }} {{ question_group_instance.get_title_display }} <br>
-                                        <i class="fa fa-clock fa-spin mr-1"></i><b>TIME IS UP</b>
-                                    </p>
-                                    <a href="{{ script_result_url }}" class="btn btn-info btn-block" title="click to see your result" onclick="spinOnClick(this)">I Agree.</a>
-                                </div>
+                    <div class="card-body">
+                    {% if dead_line_ended %}
+                        <div class="card-img-top text-center">
+                            <img src="{% static 'icons/baby_calendar.svg' %}" alt="clock" style="max-height: 305px">
+                        </div>
+                        
+                            <p class="alert text-center alert-danger">
+                                {{ question_group_instance.course }} {{ question_group_instance.get_title_display }} <br>
+                                <i class="fa fa-calendar-day mr-1"></i><b>Date is Due -: {{ question_group_instance.preference.due_date }}</b>
+                            </p>
+                            {% if script_result_url %}
+                            <a href="{{ script_result_url }}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Continue</a>
                             {% endif %}
-                        {% endwith %}
+                    
+                        {% else %}
+                            <div class="card-img-top text-center">
+                                <img src="{% static 'icons/expired.svg' %}" alt="clock" class="img-fluid " style="max-height: 305px">
+                            </div>
+                                <p class="alert text-center alert-danger">
+                                    {{ question_group_instance.course }} {{ question_group_instance.get_title_display }} <br>
+                                    <i class="fa fa-clock fa-spin mr-1"></i><b>TIME IS UP</b>
+                                </p>
+                                <a href="{{ script_result_url }}" class="btn btn-info btn-block" title="click to see your result" onclick="spinOnClick(this)">I Agree.</a>
+                        {% endif %}
+                        <div class="alert alert-primary">
+                            <span>This assessment due date is up or the dead line for this assessment is up.</span>
+                            {% if request.user.is_lecture %}      
+                                    <span>Please</span>                             
+                                    {% with preference=question_group_instance.preference %}
+                                        <a href="{% url 'assessment:preference_update' question_group_title=question_group_instance.title question_group_pk=question_group_instance.pk environment=preference.environment pk=preference.pk %}?next={{ request.path }}" class="alert-link" onclick="appendSpinOnClick(this)">change the assessment preference</a>
+                                    {% endwith %}
+                                    <span>in other to conduct this assessmen.t</span> 
+                            {% endif %}
+                        </div>
+                        <p class="alert alert-info">This assessment ended {{ question_group_instance.preference.due_date|timesince }} ago.<br> Today is {% now "jS F Y H:i" %}</p>
+
+                        {% if request.user.is_lecture %}  
+                            <a href="{% url 'assessment:question_grp_detail' courseName=question_group_instance.course.name pk=question_group_instance.pk title=question_group_instance.title %}" onclick="spinOnClick(this)" class="btn btn-outline-secondary"><span class="fa fa-chevron-left mr-2"></span> back</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

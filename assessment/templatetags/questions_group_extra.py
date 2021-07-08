@@ -1,5 +1,5 @@
 from django import template
-from assessment.models import Question
+from assessment.models import Question, StudentTheoryAnswer
 from django.utils.html import format_html, linebreaks
 register = template.Library()
 
@@ -15,3 +15,9 @@ def get_question(question_tag):
                            )
     except (Question.DoesNotExist, ValueError):
         return
+
+
+@register.filter(name="is_answered")
+def is_solved_by_student(question_id, script_id):
+    return StudentTheoryAnswer.objects.is_question_answered(question_id, script_id)
+    

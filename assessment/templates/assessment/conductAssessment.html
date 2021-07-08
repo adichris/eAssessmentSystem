@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
+
+{% if is_due_date_less_duration %}
+    {% include 'snippet/alert_warning_beginStart.html' with alert_message=due_date_less_duration_msg %}
+{% endif %}
+    
     {% if not has_conducted %}
         <div class="container">
             <div class="row">
@@ -21,7 +26,11 @@
                         </tr>
                         <tr>
                             <td>Number Of Students</td>
-                            <td><a href="{% url 'student:listLectureStudent' %}">{{ total_student }} </a></td>
+                            <td>
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'student:listLectureStudent' %}">{{ total_student }} </a> <a href="{% url 'student:listLectureStudent' %}" class="btn btn-outline-secondary btn-sm">view students </a>
+                                </div>
+                            </td>
                         </tr>
                         <tr>
                             <td>Level</td>
@@ -30,7 +39,7 @@
                     {% if question_group.preference %}
                         <tr>
                             <td>Due Date</td>
-                            <td>{{ question_group.preference.due_date|date|default:"---" }}</td>
+                            <td>{{ question_group.preference.due_date|default:"---" }}</td>
                         </tr>
                         <tr>
                             <td>Duration</td>
@@ -41,17 +50,18 @@
                             <td>{{ question_group.preference.get_environment_display|default:"---" }}</td>
                         </tr>
                     {% else %}
+                    {% url 'assessment:preference' question_group_title=question_group.title question_group_pk=question_group.pk as preference_create %}
                         <tr>
                             <td>Due Date</td>
-                            <td>--- <a href="{% url 'assessment:preference' question_group_title=question_group.title question_group_pk=question_group.pk %}" class="">(set due date)</a></td>
+                            <td>--- <a href="{{ preference_create }}?next={{ request.path }}">(set due date)</a></td>
                         </tr>
                         <tr>
                             <td>Duration</td>
-                            <td>--- <a href="{% url 'assessment:preference' question_group_title=question_group.title question_group_pk=question_group.pk %}" class="">set duration</a></td>
+                            <td>--- <a href="{{ preference_create }}?next={{ request.path }}">set duration</a></td>
                         </tr>
                           <tr>
                             <td>Environment</td>
-                            <td>--- <a href="{% url 'assessment:preference'  question_group_title=question_group.title question_group_pk=question_group.pk %}">set environment</a></td>
+                            <td>--- <a href="{{ preference_create }}?next={{ request.path }}">set environment</a></td>
                         </tr>
                     {% endif %}
                         <tr>
@@ -60,14 +70,20 @@
                         </tr>
                         <tr>
                             <td>Number of Questions</td>
-                            <td><a href="{{ question_group.get_absolute_url }}" >{{ question_group.question_set.count }}</a></td>
+                            <td><a href="{{ question_group.get_absolute_url }}?next={{ request.path }}" >{{ question_group.question_set.count }}</a> <a href="{{ question_group.get_absolute_url }}?next={{ request.path }}" class="btn btn-outline-secondary float-right btn-sm" onclick="spinOnClick(this)" title="Preview assessment questions">preview</a></td>
                         </tr>
                     {% if question_group.preference %}
+                    {% url 'assessment:preference_update' environment=question_group.preference.environment pk=question_group.preference_id question_group_pk=question_group.pk question_group_title=question_group.title as preference_change_url %}
                         <tr>
                               {% if question_group.preference.is_question_shuffle %}
-                                <td COLSPAN="2" class="bg-light"><a href="{% url 'assessment:preference_update' environment=question_group.preference.environment pk=question_group.preference_id question_group_pk=question_group.pk question_group_title=question_group.title %}" title="change">The questions are on shuffle</a></td>
+                                <td COLSPAN="2" class="bg-light">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{{ preference_change_url }}?next={{ request.path }}" title="change" onclick="appendSpinOnClick(this)">The questions are on shuffle</a>
+                                        <a href="{{ preference_change_url }}?next={{ request.path }}" title="change" onclick="appendSpinOnClick(this)">change preference</a>
+                                    </div>
+                                </td>
                               {% else %}
-                                  <td COLSPAN="2"><a href="{% url 'assessment:preference_update' environment=question_group.preference.environment pk=question_group.preference_id question_group_pk=question_group.pk question_group_title=question_group.title %}" title="change">The questions are in ordered form</a></td>
+                                  <td COLSPAN="2"><a href="{{ preference_change_url }}?next={{ request.path }}" title="change">The questions are in ordered form</a></td>
                               {% endif %}
                         </tr>
                     {% endif %}

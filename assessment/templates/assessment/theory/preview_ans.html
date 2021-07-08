@@ -80,18 +80,29 @@
                     {% for answers in script.studenttheoryanswer_set.all %}
                         <tr>
                             <td>
-                                <b>Question</b>
+                                <b>Question {{ answers.question.question_number }}</b>
                                 <p>{{ answers.question|linebreaksbr }}</p>
                                 <b>Answer</b>
-                                <p class="jumbotron">
-                                    {{ answers.answer|linebreaksbr }}
+                                <div class="jumbotron">
+                                    {% if answers.answer %}
+                                        <p>{{ answers.answer|linebreaksbr }}</p>
+                                    {% else %}
+                                    <div class="text-center">
+                                        <p >Not Answered</p>    
+                                        <hr>    
+                                        {% with question_group_instance=answers.question.group  %}
+                                            
+                                            <a href="{{ answers.get_absolute_solve_url }}" class="btn btn-outline-primary">Click to answer {{ solve_link }}</a>
+                                        {% endwith %}
+                                    </div>
+                                    {% endif %}
                                 </p>
                         <p></p>
                         </tr>
                     {% endfor %}
 
                 </table>
-                <p class="text-muted">You have answered {{ script.studenttheoryanswer_set.count }} questions</p>
+                <p class="text-muted">You have answered {{ script.get_total_answered.count }} questions</p>
             </div>
         </div>
     </div>

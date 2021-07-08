@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
+
 {% load  crispy_forms_tags %}
 {% block content %}
+    
+    {% if is_assessment_to_conduct_past %}
+        {% include 'snippet/alert_danger_beginStart.html' with alert_message=assessment_to_conduct_past_msg %}
+    {% endif %}
+        
+    
     <div class="container">
     {% if not scheme_view %}
         <div class="row mt-4">
@@ -31,7 +38,8 @@
             </div>
             
             <div class="col-md-8 col-lg-9">
-                <p class="lead">{{ questiongroup.get_title_display }} Activity {% if questiongroup.status == "prepared" and questiongroup.preference %}<a href="{% url 'assessment:preference_update' question_group_title=questiongroup.title question_group_pk=questiongroup.pk environment=questiongroup.preference.environment pk=questiongroup.preference_id %}"> | change preference</a> {% endif %}</p>
+                {% url 'assessment:preference_update' question_group_title=questiongroup.title question_group_pk=questiongroup.pk environment=questiongroup.preference.environment pk=questiongroup.preference_id  as preference_update_url %}
+                <p class="lead">{{ questiongroup.get_title_display }} Activity {% if questiongroup.status == "prepared" and questiongroup.preference %}<a href="{{ preference_update_url }}"> | change preference</a> {% endif %}</p>
                 <div class="{% if not questiongroup.preference %} card {% endif %} my-2">
                     <div class="{% if not questiongroup.preference %} card-body {% endif %}">
                         {% if questiongroup.preference %}
@@ -50,17 +58,25 @@
                     </div>
                 </div>
                 {%  if  questiongroup.status == "conduct" %}
-                    <div class="card my-2 text-center">
+                    <div class="card my-2 text-center alert-info">
                         <div class="card-body">
                             <a href="{% url 'assessment:conducting' course_name=questiongroup.course.name course_pk=questiongroup.course_id question_group_pk=questiongroup.pk %}" class="btn btn-link btn-lg" onclick="appendSpinOnClick(this)">This Assessment is set to conduct</a>
                         </div>
                     </div>
-                {% elif questiongroup.status == "prepared" %}
-                    <div class="card">
+                {% elif questiongroup.status == "prepared" and not is_assessment_to_conduct_past %}
+                    <div class="card alert-primary">
                         <div class="card-body">
-                            <p class="lead text-center">{{ questiongroup.get_title_display }} Records are empty</p>
+                            <p class="lead text-center">{{ questiongroup.get_title_display }} is not conducted</p>
                              <hr class="w-50">
                             <p class="text-center"><a href="{% url 'assessment:conduct' question_group_pk=questiongroup.pk question_group_title=questiongroup.title %}" class="btn btn-outline-secondary">Conduct this {{ questiongroup.get_title_display }} Assessment</a></p>
+                        </div>
+                    </div>
+                {% elif is_assessment_to_conduct_past %}
+                    <div class="card alert-danger">
+                        <div class="card-body">
+                            <p class="lead text-center ">{{ questiongroup.get_title_display }} assessment is not conducted yet but due date(dateline) is in the past</p>
+                            <hr class="w-50">
+                            <p class="text-center"><a class="btn btn-outline-primary" href="{{ preference_update_url }}">change assessment due date </a></p>
                         </div>
                     </div>
                 {% endif %}

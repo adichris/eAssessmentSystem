@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect, reverse, resol
 from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView, \
     RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from django.utils.http import is_safe_url
 from .form import (MultiChoiceQuestionCreateForm, QuestionCreateForm, QuestionGroupCreateForm,
                    BaseOptionsFormSet, BaseOptionsInlineFormSet, AssessmentPreferenceCreateForm,
                    StudentMultiChoiceAnswerForm, StudentTheoryAnswerUpdateForm
@@ -31,17 +31,18 @@ import random
 from django.core.exceptions import ObjectDoesNotExist
 
 
-def get_question_deadline_ended_render(question_group_instance, request, script):
-    if question_group_instance.preference.due_date <= timezone.now():
-        if question_group_instance.status == QuestionGroupStatus.CONDUCT:
-            question_group_instance.status = QuestionGroupStatus.CONDUCTED
-            question_group_instance.save()
-            script.status = ScriptStatus.SUBMITTED
-            script.save()
-        return render(request, "assessment/time_up_view.html", context={
-            "question_group_instance": question_group_instance,
-            "dead_line_ended": True,
-        })
+def get_question_deadline_ended_render(question_group_instance, request, script=None):
+    # if question_group_instance.preference.due_date <= timezone.now():
+    if question_group_instance.status == QuestionGroupStatus.CONDUCT and script:
+        question_group_instance.status = QuestionGroupStatus.CONDUCTED
+        question_group_instance.save()
+    if script is not None:
+        script.status = ScriptStatus.SUBMITTED
+        script.save()
+    return render(request, "assessment/time_up_view.html", {
+        "question_group_instance": question_group_instance,
+        "dead_line_ended": True,
+    })
 
 
 def get_status_not_allowed_reason(question_group):
@@ -192,8 +193,7 @@ class CreateTheoryQuestion(LoginRequiredMixin, View):
             question_group_instance = self.get_question_group_instance()
             question_form_set_instance = self.question_formset(data=request.POST, instance=question_group_instance)
             if question_form_set_instance.is_valid():
-                for question_form in question_form_set_instance:
-                    question_form.save(True)
+                question_form_ins = question_form_set_instance.save(True)
                 return redirect("assessment:question_grp_detail", courseName=question_group_instance.course,
                                 title=question_group_instance.title, pk=question_group_instance.pk)
             else:
@@ -297,12 +297,22 @@ class AssessmentQuestionGroupDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super(AssessmentQuestionGroupDetailView, self).get_context_data(**kwargs)
         ctx["questions"] = self.object.question_set.all()
+        due_date = self.get_due_date()
+        if due_date is not None:
+            ctx["is_assessment_to_conduct_past"] = due_date < timezone.now()
         try:
             ctx["scheme_view"] = int(self.request.GET.get("scheme_view")) == 1
         except (ValueError, TypeError):
             pass
+        ctx["assessment_to_conduct_past_msg"] = "Assessment due date(dead line) is in the past now please update the assessment preference."
         ctx["title"] = "%s - %s" % (self.object.get_title_display(), self.object.course)
         return ctx
+    
+    def get_due_date(self):
+        try:
+            return self.object.preference.due_date
+        except (AttributeError, ObjectDoesNotExist):
+            return None
 
 
 class EditTheoryQuestion(LoginRequiredMixin, UpdateView):
@@ -594,7 +604,9 @@ class DeleteQuestionGroup(LoginRequiredMixin, DeleteView):
 
 
 class ConductAssessment(LoginRequiredMixin, TemplateView):
+    """Check if the assessement meet some requirement before proceeding to conducting the assessment"""
     template_name = "assessment/conductAssessment.html"
+    MINIMUM_MINUTES = 10 # unit in minutes
 
     def is_lecture_course_master(self):
         self.question_group = get_object_or_404(QuestionGroup, pk=self.kwargs.get("question_group_pk"),
@@ -603,20 +615,28 @@ class ConductAssessment(LoginRequiredMixin, TemplateView):
                                                 course__semester=self.request.user.generalsetting.semester,
                                                 )
         return self.question_group.course.lecture.profile == self.request.user
+    
+    def is_assessment_due(self):
+        due_date = self.get_due_date()
+        if due_date:
+            return due_date < timezone.now()
+        else:
+            True
 
     def get(self, request, *args, **kwargs):
         user = get_user(request)
-        if user.is_lecture and self.is_lecture_course_master() and self.question_group.status == QuestionGroupStatus.PREPARED:
+        is_lecture_course_master = self.is_lecture_course_master()
+        is_assessment_due = self.is_assessment_due()
+        if user.is_lecture and is_lecture_course_master and self.question_group.status == QuestionGroupStatus.PREPARED and not is_assessment_due:
             if self.question_group.is_share_total_marks or self.question_group.questions_type == QuestionTypeChoice.MULTICHOICE:
                 self.question_group.generate_marks()
             return super(ConductAssessment, self).get(request, *args, **kwargs)
-        elif self.is_lecture_course_master():
-            return get_http_forbidden_response(message="We can not help you with that. this time")
-        elif user.is_lecture:
-            return get_http_forbidden_response()
+        elif is_assessment_due:
+            return get_question_deadline_ended_render(question_group_instance=self.question_group, request=request)
+        elif user.is_staff:
+            return get_not_allowed_render_response()
         else:
-            request.session["admin_required"] = admin_required_message(user)
-            return redirect("accounts:staff-login-page")
+            return get_http_forbidden_response()
 
     def get_context_data(self, **kwargs):
         ctx = super(ConductAssessment, self).get_context_data(**kwargs)
@@ -626,10 +646,32 @@ class ConductAssessment(LoginRequiredMixin, TemplateView):
             ctx["calculated_total_marks"] = sum([q.max_mark or 0 for q in self.question_group.question_set.all()])
             ctx["student_level"] = self.question_group.course.level
             ctx["course"] = self.question_group.course
+            due_date = self.question_group.preference.due_date
+            if due_date:
+                duration = self.question_group.preference.duration
+                if duration:
+                    time_rem = due_date - timezone.now()
+                    ctx["is_due_date_less_duration"] = time_rem < timezone.timedelta(hours=duration.hour, minutes=duration.minute, seconds=duration.second)
+                    ctx["due_date_less_duration_msg"] = f"""Please the due date ({str(due_date)}) for this quiz is less than the actual duration({duration.hour}hrs :{duration.minute}mins :{duration.second}secs) set for the assessment.
+                    Which makes the duration impossible to happen. If you would like to change it do so in the 'change preference' link.
+                    Time remaining is {str(time_rem)}
+                    """
+                 
         else:
             ctx["has_conducted"] = True
         ctx["question_group"] = self.question_group
         return ctx
+    
+    def is_assessement_pass_minimum_minutes(self):
+        # message:
+        # "Please the time duration remaining for the due date is almost up. if you would like to change it do so in the 'change preference' link"
+        return (timezone.now() - self.get_due_date()) > timezone.timedelta(minutes=self.MINIMUM_MINUTES)
+    
+    def get_due_date(self):
+        try:
+            return self.question_group.preference.due_date
+        except ObjectDoesNotExist:
+            return None
 
     def get_ready_student(self, course):
         return Student.objects.filter(programme__coursemodel=course, level=course.level).count()
@@ -639,6 +681,7 @@ class AssessmentPreferenceCreateView(LoginRequiredMixin, CreateView):
     model = AssessmentPreference
     form_class = AssessmentPreferenceCreateForm
     template_name = "assessment/assessment_preference.html"
+    is_due_date_error = False
 
     def is_lecture_course_master(self):
         self.question_group = get_object_or_404(QuestionGroup, title=self.kwargs.get("question_group_title"),
@@ -688,10 +731,17 @@ class AssessmentPreferenceCreateView(LoginRequiredMixin, CreateView):
         ctx = super(AssessmentPreferenceCreateView, self).get_context_data(**kwargs)
         ctx["cardHeader"] = "%s %s Assessment Preference" % (
             self.question_group.course, self.question_group.get_title_display())
+        ctx["title"] = ctx["cardHeader"]
+        ctx["is_due_date_error"] = 1 if self.is_due_date_error else 0
         return ctx
 
     def get_success_url(self):
         return self.question_group.get_absolute_url()
+    
+    def form_invalid(self, form):
+        if form.has_error("due_date"):
+            self.is_due_date_error = True
+        return super().form_invalid(form)
 
 
 class ConductingAssessment(LoginRequiredMixin, TemplateView):
@@ -994,6 +1044,7 @@ class AssessmentPreferenceUpdateView(LoginRequiredMixin, UpdateView):
     model = AssessmentPreference
     form_class = AssessmentPreferenceCreateForm
     template_name = "assessment/assessment_preference.html"
+    is_due_date_error = False
 
     def is_lecture_course_master(self):
         self.question_group = get_object_or_404(QuestionGroup, title=self.kwargs.get("question_group_title"),
@@ -1040,12 +1091,22 @@ class AssessmentPreferenceUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(AssessmentPreferenceUpdateView, self).get_context_data(**kwargs)
-        ctx["cardHeader"] = "%s %s Assessment Preference" % (
+        ctx["cardHeader"] = "%s %s Assessment Preference Update" % (
             self.question_group.course, self.question_group.get_title_display())
+        ctx["is_due_date_error"] = 1 if self.is_due_date_error else 0
+        ctx["title"] = ctx["cardHeader"]
         return ctx
 
     def get_success_url(self):
+        next_url = self.request.GET.get("next")
+        if next_url and is_safe_url(next_url, self.request.get_host()):
+            return next_url
         return self.question_group.get_absolute_url()
+    
+    def form_invalid(self, form):
+        if form.has_error("due_date"):
+            self.is_due_date_error = True
+        return super().form_invalid(form)
 
 
 class StudentAssessingTemplateView(LoginRequiredMixin, TemplateView):
@@ -1743,7 +1804,8 @@ class TheoryQuestionsExaminationView(LoginRequiredMixin, View):
     def get_submission_urls(self):
         ctx = {
             "script": self.script_instance,
-            "title": f"{self.student.get_name()} - {self.script_instance.question_group.get_title_display()}"
+            "title": f"{self.student.get_name()} - {self.script_instance.question_group.get_title_display()}",
+            "script_pk":self.script_instance.pk,
         }
         return {
             "preview": render(self.request, "assessment/theory/preview_ans.html", ctx),
@@ -1789,8 +1851,10 @@ class TheoryQuestionAnswerView(LoginRequiredMixin, View):
         duration = self.script.question_group.preference.duration
         if duration:
             duration = duration.strftime("%H:%M:%S")
+            is_duration= True
         else:
             duration = "Any time"
+            is_duration= None
 
         used_time = get_time_obj_from(timezone.now() - self.script.timestamp)
         return {
@@ -1798,6 +1862,7 @@ class TheoryQuestionAnswerView(LoginRequiredMixin, View):
             "answer_saved": self.request.session.get("answer_saved"),
             "answer_saved_datetime": self.request.session.get("answer_saved_datetime"),
             "duration": duration,
+            "is_ duration": is_duration,
             "used_time": used_time,
             "used_time_str": used_time.strftime("%H:%M:%S"),
             "title": f"{str(self.script.question_group.course)} {self.question_instance.group.get_title_display()} assessing"

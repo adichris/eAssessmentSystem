@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="jumbotron rounded-0" style="background-image: url({% static 'DefaultImg/bgs/gh_sch_bg.svg' %}); background-size: cover;background-attachment: fixed;background-repeat: no-repeat">
+<div class="jumbotron rounded-0" style="background-image: url({% static 'DefaultImg/bg computer.jpeg' %}); background-size: cover;background-attachment: fixed;background-repeat: no-repeat">
     <div class="container">
         <div class="row">
-                <div class="col-auto mx-auto">
+                <div class="col-auto mx-auto mark">
                     {% if home_page %}
                     <h4>Do Various Courses Quizzes and Midsem in {{ request.user.student.programme }}</h4>
                     <h4>View your Records and Results</h4>

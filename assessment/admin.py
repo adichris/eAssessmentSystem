@@ -36,7 +36,7 @@ class QuestionModelAdmin(admin.ModelAdmin):
     readonly_fields = ("group", )
 
     def type_(self, obj:Question):
-        return "Multi Choice Question" if obj.multichoicequestion_set.exists() else "Theoretical"
+        return "Multi Choice Question" if obj.multichoicequestion_set.exists() else "Theory Question"
 
     def question_title(self, question):
         if len(str(question)) > 100:

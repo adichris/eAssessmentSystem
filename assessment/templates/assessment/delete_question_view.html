@@ -4,7 +4,7 @@
         <div class="container">
             {% if question.group.status == "prepared" %}
                 <div class="row">
-                    <div class="col-12 mx-auto">
+                    <div class="col-12 mx-auto text-center mb-2">
                         <h3 style="color: darkred"><i class="fa fa-trash mr-2"></i>Delete {{ question.group.get_title_display }} Question {{ question.question_number|default:"" }}</h3>
                     </div>
                 </div>
@@ -15,7 +15,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h6>Question:</h6>
-                                    <p>{{ question.question }}</p>
+                                    <p>{{ question.question|linebreaksbr }}</p>
                                 </div>
                             </div>
                             <div class="card">
@@ -53,7 +53,7 @@
                         <div class="col-md-8 col-lg-6 mx-auto">
 
                             {% for option in question.multichoicequestion_set.all %}
-                                <p class="alert alert-secondary">{{ option.option }}      </p>
+                                <p class="alert alert-secondary">{{ option.option|linebreaksbr }}  </p>
                             {% endfor %}
 
                         </div>
@@ -84,7 +84,7 @@
                                 {% for quest in questiongroup.question_set.all %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td>{{ quest.question }}</td>
+                                        <td>{{ quest.question|linebreaksbr }}</td>
                                         <td>{{ quest.max_mark }}</td>
                                     </tr>
                                 {% endfor %}
@@ -101,11 +101,11 @@
                                 {% for quest in questiongroup.question_set.all %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td>{{ quest.question }}</td>
+                                        <td>{{ quest.question|linebreaksbr }}</td>
                                         <td>
                                         <ul class="list-group">
                                             {% for option in quest.multichoicequestion_set.all %}
-                                                <li class="list-group-item bg-transparent">{{ option.option }}</li>
+                                                <li class="list-group-item bg-transparent">{{ option.option|linebreaksbr }}</li>
                                             {% endfor %}
                                         </ul>
                                         </td>

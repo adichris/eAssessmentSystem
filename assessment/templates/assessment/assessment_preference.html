@@ -16,7 +16,7 @@
                         <form action="" method="post">
                             {% csrf_token %}
                             {{ form|crispy }}
-                            <button type="submit" value="submit" class="btn btn-primary btn-block" onclick="addAnotherQuestion(this)">Submit</button>
+                            <button type="submit" value="submit" class="btn btn-primary btn-block " onclick="appendSpinOnClick(this)">Submit</button>
                         </form>
                     </div>
                 </div>
@@ -25,3 +25,18 @@
         </div>
     </div>
 {% endblock %}
+
+
+{% block afterScripts %}
+    <script>
+        $("#{{ form.due_date.id_for_label }}").parent().addClass("d-flex flex-column");
+        $("#{{ form.due_date.id_for_label }}").addClass("mb-2");
+
+        var is_due_date_error = {{ is_due_date_error|default:"0" }};
+        if ( is_due_date_error ){
+            document.getElementById("{{ form.due_date.id_for_label }}").classList.add("is-invalid")
+            document.getElementById("id_due_date_1").classList.add("is-invalid")
+        }
+    </script>
+{% endblock afterScripts %}
+    

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load questions_group_extra %}
 {% load static %}
 {% block content %}
     {% if answer_saved %}
@@ -51,7 +52,7 @@
                 <hr>
                 {% with preference=question_group_instance.preference %}
                 <div class="card-group">
-                    {% include 'snippet/H_label_value_card.html' with label="Questions" value=4 new_line=1 tc=1 %}
+                    {% include 'snippet/H_label_value_card.html' with label="Total Questions" value=4 new_line=1 tc=1 %}
                     {% include 'snippet/H_label_value_card.html' with label="Due Date" value=preference.due_date|default:"Any time" new_line=1 tc=1 %}
                     {% include 'snippet/H_label_value_card.html' with label="Duration" value=preference.duration|time:"h\h\r\s : i\m\s"|default:"Any time" new_line=1 tc=1 %}
                     {% include 'snippet/H_label_value_card.html' with label="Used Time" value=used_time_str new_line=1 value_id="id_used_time" tc=1 %}
@@ -63,7 +64,8 @@
 
         <form action="" method="post">
             {% csrf_token %}
-
+        
+            {% if runsomething %}
         <div class="row my-3 my-lg-4">
             <div class="table-responsive">
                 <table class="table">
@@ -83,6 +85,37 @@
                 </table>
             </div>
         </div>
+        {% else  %}
+        <div class="row my-3 my-lg-5">
+            <div class="col d-flex flex-column">
+                
+                {% for question_instance in question_group_instance.question_set.all %}
+                {% url 'assessment:theory_exam_answer' question_group_id=question_group_instance.id question_group_title=question_group_instance.title script_pk=script_pk question_pk=question_instance.pk as solve_link %}
+                <div class="card card-hover-shadow my-2">
+                    <div class="card-body">
+                        <p class="justify-content-between">
+                            <strong>Question {{ question_instance.question_number }} </strong>
+                            <span class="float-right">{{ question_instance.max_mark }} marks</span>
+                        </p>
+                        <p>
+                            <a href="{{ solve_link }}" class="text-decoration-none text-dark">{{ question_instance.question|linebreaksbr }}</a>
+                        </p>
+                        <div class="float-right">
+                            
+                            {% if question_instance.pk|is_answered:script_pk %}
+                            <a href="{{ solve_link }}" class="btn btn-success " onclick="spinOnClick(this)" title="Write your solution / view your solution">Solved</a>
+                            {% else %}
+                                <a href="{{ solve_link }}" class="btn btn-outline-primary " onclick="spinOnClick(this)" title="Write your solution / view your solution">Solve</a>
+                            {% endif %}
+                                                           
+                        </div>
+                        
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif  %}
 
         <div class="row my-3">
         <div class="col-md-12">
@@ -102,16 +135,21 @@
     <script src="{% static 'utils/moment.min.js' %}"></script>
     <script>
         var usedTime_tag = document.getElementById("id_used_time");
-        var usedTime_moment = moment(`${moment().year()}-${moment().month()}-${moment().day()} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
+        {% if is_duration %}
+            var usedTime_moment = moment(`${moment().year()}-${moment().month()}-${moment().day()} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
 
-        setInterval(function () {
-            MomemtUsed = usedTime_moment.add(1, "second")
-            usedTime_tag.innerHTML = `${usedTime_moment.hours()}:${usedTime_moment.minutes()}:${usedTime_moment.second()} `
-        }, 1000)
+            setInterval(function () {
+                MomemtUsed = usedTime_moment.add(1, "second")
+                usedTime_tag.innerHTML = `${usedTime_moment.hours()}:${usedTime_moment.minutes()}:${usedTime_moment.second()} `
+            }, 1000)
 
-        var alrt_saved = $("#id_alert_saved");
-        setTimeout(function () {
-            alrt_saved.hide("fade")
-        }, 10000)
+            var alrt_saved = $("#id_alert_saved");
+            setTimeout(function () {
+                alrt_saved.hide("fade")
+            }, 10000)
+
+        {% else %}
+            usedTime_tag.innerHTML = "-- -- --"
+        {% endif %}
     </script>
 {% endblock %}

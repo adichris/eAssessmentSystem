@@ -323,7 +323,11 @@ class StudentRecordsTemplateView(LoginRequiredMixin, TemplateView):
             status=ScriptStatus.PUBLISHED
         )
 
-        total_score_sum = self.theory_scripts.aggregate(total_score_sum=Sum("total_score")).get("total_score_sum", 0)
-        score_sum = self.multichoice_script.aggregate(score_sum=Sum("score")).get("score_sum", 0)
-        self.total_score = total_score_sum + score_sum
+        thoery_total_score_sum = self.theory_scripts.aggregate(total_score_sum=Sum("total_score")).get("total_score_sum")
+        multichoice_score_sum = self.multichoice_script.aggregate(score_sum=Sum("score")).get("score_sum")
+        self.total_score = 0
+        if thoery_total_score_sum is not None:
+            self.total_score = thoery_total_score_sum
+        if multichoice_score_sum is not None:
+            self.total_score += multichoice_score_sum
 
