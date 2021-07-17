@@ -70,7 +70,7 @@ class MultiChoiceQuestionModelAdmin(admin.ModelAdmin):
 
 @admin.register(AssessmentPreference)
 class AssessmentPreferenceModelAdmin(admin.ModelAdmin):
-    list_display = ("duration", "due_date", "environment", "is_question_shuffle")
+    list_display = ("__str__", "duration", "due_date", "environment", "is_question_shuffle")
 
 
 @admin.register(StudentMultiChoiceAnswer)

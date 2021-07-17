@@ -58,7 +58,10 @@ class AssessmentPreference(models.Model):
     start_time = models.TimeField(null=True, blank=True, help_text="Assessment start time")
 
     def __str__(self):
-        return f"{self.environment} ({self.pk})"
+        return f"{str(self.questiongroup.course.name)} ({self.questiongroup.course.level}) {self.questiongroup.get_title_display()}"
+    
+    class Meta:
+        ordering = ("id", )
 
 
 class QuestionGroup(models.Model):
@@ -69,7 +72,7 @@ class QuestionGroup(models.Model):
     questions_type = models.CharField(max_length=20, choices=QuestionTypeChoice.choices,
                                       default=QuestionTypeChoice.MULTICHOICE)
     status = models.CharField(max_length=25, choices=QuestionGroupStatus.choices, default=QuestionGroupStatus.PREPARED)
-    preference = models.ForeignKey(to=AssessmentPreference, on_delete=models.CASCADE, null=True, blank=True)
+    preference = models.OneToOneField(to=AssessmentPreference, on_delete=models.CASCADE, null=True, blank=True, unique=True)
     is_share_total_marks = models.BooleanField(default=False, help_text="This will force share total mark on each question mark.")
     academic_year = models.CharField(max_length=20, default=f"{timezone.now().year - 1} / {timezone.now().year}")
 
