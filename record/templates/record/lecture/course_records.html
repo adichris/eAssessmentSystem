@@ -12,7 +12,7 @@
         <div class="row mb-3 mb-md-4">
             <div class="col">
                 <div class="d-flex justify-content-between">
-                    <a href="{% url 'records:lecture_all' %}?sort={% if is_course_sort %}course{% endif %}" class="btn btn-link btn-sm d-print-none" onclick="onBackSpin(this)"><span class="fa fa-chevron-left mr-2"></span>back</a>
+                    <a href="{% if is_back %} {{ is_back }} {% else %} {% url 'records:lecture_all' %}?sort={% if is_course_sort %}course{% endif %} {% endif %}" class="btn btn-link btn-sm d-print-none" onclick="onBackSpin(this)"><span class="fa fa-chevron-left mr-2"></span>back</a>
                     <a href="" class="btn btn-outline-secondary btn-sm d-print-none" onclick="window.print()"><span class="fa fa-print mr-2"></span>Print</a>
                 </div>
             </div>
@@ -25,11 +25,11 @@
             <div class="col">
                 {% for question_group in question_groups %}
                     {% if question_group.status == conduct_status %}
-                        <p class="alert alert-warning alert-dismissable">{{ question_group.get_title_display }} status is in {{ question_group.get_status_display }} state - Some students are still working
+                        <p class="alert alert-warning alert-dismissable">{{ question_group.get_title_display }} status is still in {{ question_group.get_status_display }} state - Some students are still working
                             <span class="fa fa-times-circle float-right" onclick="dismissQuzStatusPopUp()"></span>
                         </p>
                     {% elif question_group.status == conducted_status and question_group.questions_type == theory_type %}
-                        <p class="alert alert-warning alert-dismissable">{{ question_group.get_title_display }} status is in {{ question_group.get_status_display }} state - The Questions are not completely marked
+                        <p class="alert alert-warning alert-dismissable">{{ question_group.get_title_display }} status is still in {{ question_group.get_status_display }} state - The Questions are not completely marked
                             <span class="fa fa-times-circle float-right" onclick="dismissQuzStatusPopUp()"></span>
                         </p>
                     {% endif %}

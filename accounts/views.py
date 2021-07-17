@@ -49,13 +49,6 @@ class UserUpdateView(LoginRequiredMixin ,UpdateView):
     model = User
     template_name = "accounts/create/superuser_createview.html"
     form_class = UserUpdateForm
-
-    def form_valid(self, form):
-        valid_ = super(UserUpdateView, self).form_valid(form)
-        login(self.request, self.object)
-        self.object.is_admin = True
-        self.object.save()
-        return valid_
     
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -64,10 +57,16 @@ class UserUpdateView(LoginRequiredMixin ,UpdateView):
         return ctx 
 
     def get(self, request, *args: str, **kwargs):
-        if self.request.user.is_active and self.request.user.is_admin:
+        if self.request.user.is_staff:
             return super().get(request, *args, **kwargs)
         else:
             return get_not_allowed_render_response(request)
+    
+    def get_success_url(self) -> str:
+        next_url = self.request.GET.get("next")
+        if is_safe_url(next_url, self.request.get_host()):
+            return next_url
+        return super().get_success_url()
     
 
 

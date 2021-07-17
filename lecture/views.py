@@ -75,6 +75,21 @@ class LectureDetailView(LoginRequiredMixin, DetailView):
     model = LectureModel
     template_name = "lecture/detail.html"
 
+    def get(self, request, *args, **kwargs):
+        user = self.request.user
+        is_lecturer = self.get_object() == user
+        if (user.is_staff and user.is_admin) or (is_lecturer and user.is_active):
+            return super().get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+        
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "%s Detail" % self.object
+        ctx["profile"] = self.object.profile
+        ctx["courses_ctn"] = self.object.coursemodel_set.count()
+        ctx["courses"] = self.object.coursemodel_set.all()
+        return ctx
 
 class LectureListView(LoginRequiredMixin, ListView):
     model = LectureModel

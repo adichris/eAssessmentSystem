@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="container">
+    <div class="container  d-print-none">
         <div class="row">
             <div class="col-12 mx-auto mt-3">
                 <h5 class="text-center">All Registered Student</h5>
@@ -18,32 +18,33 @@
             </div>
         </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            {% if query %}
-                {% if student_list.count > 1 %}
-                    <p>"{{ query }}" matches {{ student_list.count }} students group by programme</p>
+        <div class="row">
+            <div class="col-md-12">
+                {% if query %}
+                    {% if student_list.count > 1 %}
+                        <p>"{{ query }}" matches {{ student_list.count }} students group by programme</p>
+                    {% else %}
+                        <p>"{{ query }}" matches {{ student_list.count }} students group by programme</p>
+                    {% endif %}
                 {% else %}
-                    <p>"{{ query }}" matches {{ student_list.count }} students group by programme</p>
+                    <p>Showing total of <b>{{ student_list.count }}</b> registered student group by programme</p>
                 {% endif %}
-            {% else %}
-                <p>Showing total of <b>{{ student_list.count }}</b> registered student group by programme</p>
-            {% endif %}
-            <hr>
+                <hr>
+            </div>
         </div>
     </div>
-</div>
 
     {% regroup student_list by programme as student_list_group %}
-    {% for student_group in student_list_group %}
     <div class="container">
-        <div class="jumbotron bg-light">
+    {% for student_group in student_list_group %}
+        <div class="">
 
                 <div class="row">
                     <div class="table-responsive">
-                    <p>{{ student_group.grouper }} Students</p>
-                        <hr>
-                        <table class="table table-bordered table-info">
+                        <table class="table table-bordered">
+                            <tr>
+                                <td colspan="5" class="text-center">{{ student_group.grouper }} Students</td>
+                            </tr>
                             <tr>
                                 <th>#</th>
                                 <th>Name</th>
@@ -64,7 +65,7 @@
                     </div>
                 </div>
             </div>
-    </div>
-    {% endfor %}
+        {% endfor %}
+        </div>
 
 {% endblock %}

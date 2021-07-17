@@ -1,3 +1,4 @@
+from lecture.models import LectureModel
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.generic import TemplateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -169,13 +170,21 @@ class LectureCourseRecords(LoginRequiredMixin, DetailView):
     template_name = "record/lecture/course_records.html"
 
     def get(self, request, *args, **kwargs):
-        if self.request.user.is_lecture:
+        if self.request.user.is_lecture or (self.request.user.is_staff and self.request.user.is_admin):
             self.init_instances()
             return super(LectureCourseRecords, self).get(request, *args, **kwargs)
-        elif self.request.user.is_admin:
-            return get_not_allowed_render_response(request)
-        else:
-            return get_http_forbidden_response()
+        
+        return get_not_allowed_render_response(request)
+    
+    def get_lecture(self):
+        if self.request.user.is_lecture:
+            return self.request.user.lecturemodel
+        lecture_id = self.kwargs.get("lecture_id")
+        if self.request.user.is_admin and lecture_id:
+            try:
+                return LectureModel.objects.get(id=lecture_id)
+            except LectureModel.DoesNotExist:
+                pass
 
     def get_students(self):
         return Student.objects.filter(
@@ -186,7 +195,7 @@ class LectureCourseRecords(LoginRequiredMixin, DetailView):
     def init_instances(self):
         self.course_instance = get_object_or_404(
             self.model,
-            lecture=self.request.user.lecturemodel,
+            lecture=self.get_lecture(),
             semester=self.request.user.generalsetting.semester,
             pk=self.kwargs.get("course_pk"),
             code=self.kwargs.get("course_code"),
@@ -204,6 +213,7 @@ class LectureCourseRecords(LoginRequiredMixin, DetailView):
         ctx["conduct_status"] = QuestionGroupStatus.CONDUCT
         ctx["conducted_status"] = QuestionGroupStatus.CONDUCTED
         ctx["theory_type"] = QuestionTypeChoice.THEORY
+        ctx["is_back"] = self.request.GET.get("back")
         return ctx
 
     def get_questions(self):

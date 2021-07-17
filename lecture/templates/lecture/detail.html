@@ -4,14 +4,123 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6 mx-auto mt-3 mt-md-4 mt-lg-5">
-                <h6>Lecture {{ lecturemodel }} detail</h6>
+                <h4 class="text-center">Lecture {{ lecturemodel }} Detail</h6>
                 <hr>
-                <p>page under construction</p>
-                <ul class="list-group">
-                    <li class="list-group-item" style="background: #e1f5fe;">{{ lecturemodel }}</li>
-                    <li class="list-group-item" style="background: #e1edfe;">{{ lecturemodel.department }} Department</li>
-                    <li class="list-group-item" style="background: #e1f5fe;">{{ lecturemodel.profile.phone_number }}</li>
-                </ul>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col">
+                <div class="card-deck">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <p class="text-center">Lecture Personal Information</p>
+                                <table class="table">
+                                    <tr>
+                                        <td>First Name</td>
+                                        <td>{{ profile.first_name|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last Name</td>
+                                        <td>{{ profile.last_name|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phone number</td>
+                                        <td>{{ profile.phone_number|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email address</td>
+                                        <td>{{ profile.email|default:"---------" }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="text-center">Lecture School Infomation</p>
+                            <p class="text-center"></p>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tr>
+                                        <td>Department</td>
+                                        <td>{{ object.department }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Permission status</td>
+                                        <td>
+                                            <span class = "badge badge-pill p-2 {% if profile.is_active %} alert-success {% else %} alert-danger {% endif %}" title="Is user active?">Active {{ profile.is_active|yesno|title }}</span>
+                                            <span class = "badge badge-pill p-2 {% if profile.is_lecture %} alert-success {% else %} alert-danger {% endif %}" title="Is user lecture?">Lecturer {{ profile.is_lecture|yesno|title }}</span>
+                                        
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Courses</td>
+                                        <td>{{ courses_ctn }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date Joined</td>
+                                        <td>{{ profile.timestamp }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if request.user.is_admin %}
+        <div class="row my-2">
+            <div class="col d-flex justify-content-end">
+                <a href="{% url 'accounts:profile_edit' slug=profile.slug pk=profile.pk %}?next={{ request.path }}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)"><span class="fa fa-edit mr-2"></span> Edit Lecture Profile</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row my-3">
+            <div class="col-12">
+                <div class="card-group">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="text-center">Courses</p>
+                            <div class="table-responsive">
+                                
+                                {% if courses %}
+                                    <table class="table">
+                                        <tr>
+                                            <th>Course Name</th>
+                                            <th>Course Code</th>
+                                            <th>Course Semester</th>
+                                            <th>Course Programme</th>
+                                            <th>Level</th>
+                                            <th>Assessment</th>
+                                        </tr>
+                                        {% for course in courses %}
+                                            <tr class="hover-inset">
+                                                <td>{{ course.name|title }}</td>
+                                                <td>{{ course.code|upper }}</td>
+                                                <td>{{ course.get_semester_display }}</td>
+                                                <td>{{ course.programme|title }}</td>
+                                                <td>{{ course.level|title }}</td>
+                                                <td><a href="{% url 'records:admin_view_lecture_course_detail' course_pk=course.pk course_code=course.code lecture_id=object.id %}?back={{ request.path }}" class="card-link" onclick="appendSpinOnClick(this)">View</a></td>
+                                            </tr>
+                                        {% endfor %}
+                                            
+                                    </table>
+                                {% else %}
+                                    <p class="alert alert-warning">
+                                        This lecture has no course registered with.
+                                    </p>
+                                {% endif %}
+                                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

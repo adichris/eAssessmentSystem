@@ -155,7 +155,7 @@ class User(AbstractBaseUser):
 
     @property
     def is_staff(self):
-        return self.is_admin and self.is_active
+        return (self.is_superuser or self.is_admin) and self.is_active
 
 
 @receiver(models.signals.pre_save, sender=User)

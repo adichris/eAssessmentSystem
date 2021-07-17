@@ -2,7 +2,7 @@
 {% block content %}
     <div class="container">
     {% if has_student %}
-        <div class="row">
+        <div class="row d-print-none">
             <div class="col-12 mx-auto mt-3">
                 <h5 class="text-center">All Registered Student</h5>
                 <hr>
@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row d-print-none">
             <div class="col-md-12">
                 {% if query %}
                     {% if student_list.count > 1 %}
@@ -42,7 +42,7 @@
                     <hr>
                     {% regroup student_programme.list by level as student_progs_by_lvl %}
                     {% for std_lst in student_progs_by_lvl %}
-                        <table class="table table-bordered ">
+                        <table class="table table-bordered">
                             <tr>
                                 <th colspan="5">{{ std_lst.grouper }}</th>
                             </tr>

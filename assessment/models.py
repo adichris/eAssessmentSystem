@@ -13,7 +13,7 @@ class QuestionGroupChoice(models.TextChoices):
     QUIZ2 = "quiz2", "Quiz 2"
     QUIZ3 = "quiz3", "Quiz 3"
     QUIZ4 = "quiz4", "Quiz 4"
-    MIDSEM = "midsem", "Mid Semester"
+    MIDSEM = "midsem", "Mid Semester Quiz"
     __empty__ = '--------'
 
 
