@@ -25,10 +25,7 @@ class Department(models.Model):
     objects = DepartmentManager()
 
     def __str__(self):
-        if self.short_name:
-            return "%s (%s)" % (self.name, self.short_name)
-        else:
-            return self.name
+        return self.name.title()
 
     def get_absolute_url(self):
         return reverse("department:detail", kwargs={"name": self.name, "pk": self.pk})

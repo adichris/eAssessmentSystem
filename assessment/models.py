@@ -238,6 +238,9 @@ class StudentMultiChoiceAnswer(models.Model):
     def is_correct_answer(self):
         if self.selected_option:
             return self.selected_option.is_answer_option
+    
+    def __str__(self) -> str:
+        return "Student MultiChoice Answer %s" % self.id
 
 
 class StudentTheoryScript(models.Model):
@@ -335,3 +338,5 @@ class Solution(models.Model):
     notes = models.TextField(blank=True, null=True, help_text="Notes on solution")
     scheme = models.ForeignKey(TheoryMarkingScheme, on_delete=models.CASCADE)
 
+    def __str__(self) -> str:
+        return "Solution %s" % self.id

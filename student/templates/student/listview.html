@@ -36,12 +36,12 @@
 
     {% regroup student_list by programme as student_list_group %}
     {% for student_group in student_list_group %}
+    <div class="container">
         <div class="jumbotron bg-light">
-            <div class="container">
 
                 <div class="row">
                     <div class="table-responsive">
-                    <p>{{ student_group.grouper }}</p>
+                    <p>{{ student_group.grouper }} Students</p>
                         <hr>
                         <table class="table table-bordered table-info">
                             <tr>

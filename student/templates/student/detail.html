@@ -2,17 +2,154 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-md-6 mx-auto mt-3">
-                <p class="display-4 text-center">Student Detail</p>
+            <div class="col-auto mx-auto mt-3">
+                <p class="display-4 text-center">{{ profile }} Detail</p>
             </div>
         </div>
 
-    <div class="row">
-        <div class="col-12 mx-auto" style="margin-top: 20vh;">
-           <p class="text-center"> student index number {{ student }}</p>
-            <hr>
-            <p class="text-muted lead text-center">Under Development</p>
-        </div>
+        
+        {% if generalsetting_error %}
+            <div class="row">
+                <div class="col">
+                    <div class="alert alert-warning">
+                        <p>This student has not setup his or her semester and academic year. <br>
+                            <span>This means he or she has not done anything after registeration or has not attend any assessment yet.</span><br>
+                        </p>
+                        <a href="{% url 'setting:createForOther' user_id=profile.id user_slug=profile.slug %}?next={{ request.path }}" class="btn btn-primary" onclick="appendSpinOnClick(this)"><span class="fa fa-cog"></span> Configure this student settings</a>
+
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+            
     </div>
+
+
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col">
+                  <div class="card-group">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <p class="text-center">Student Profile</p>
+                                <table class="table">
+                                    <tr>
+                                        <td>First Name</td>
+                                        <td>{{ profile.first_name|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last Name</td>
+                                        <td>{{ profile.last_name|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phone number</td>
+                                        <td>{{ profile.phone_number|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email address</td>
+                                        <td>{{ profile.email|default:"---------" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date Joined</td>
+                                        <td>{{ profile.timestamp }}</td>
+                                    </tr>
+                                    </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="text-center">Student Information</p>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tr>
+                                        <td>Index Number</td>
+                                        <td>{{ student.index_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Level</td>
+                                        <td>{{ student.level }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Department</td>
+                                        <td>{{ student.programme.department }} </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Programme</td>
+                                        <td>{{ student.programme }}</td>
+                                    </tr>
+                                <tr>
+                                    <td>Permission status</td>
+                                    <td>
+                                        <span class = "badge badge-pill p-2 {% if profile.is_active %} alert-success {% else %} alert-danger {% endif %}" title="Is user active?">Active {{ profile.is_active|yesno|title }}</span>
+                                        <span class = "badge badge-pill p-2 {% if profile.student %} alert-success {% else %} alert-danger {% endif %}" title="Is user student?">Student {{ profile.student|yesno|title }}</span>
+                                    
+                                    </td>
+                                </tr>                                    
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+            </div>
+        </div>
+
+        
+        <div class="row my-3">
+            
+
+            <div class="col">
+                <div class="card-group">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="text-center">Student Semester Course</h5>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Code</th>
+                                        <th>Lecture</th>
+                                    </tr>
+                                    
+                                    {% if courses %}
+                                        {% for course in courses %}
+                                            <tr class="hover-inset">
+                                                <td>{{ course.name }}</td>
+                                                <td>{{ course.code }}</td>
+                                                <td>{{ course.lecture }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="3">
+                                                <div class="alert alert-secondary">
+                                                    <p class="text-center">
+                                                        <span class="badge badge-pill badge-info p-1">{{ student.programme }}</span> 
+                                                        <span class="badge badge-pill badge-info p-1">{{ student.level }}</span>
+                                                        <span class="badge badge-pill badge-info p-1">{{ student.profile.generalsetting.get_semester_display }}</span>   has no courses registered</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                    
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+     
+
     </div>
 {% endblock %}

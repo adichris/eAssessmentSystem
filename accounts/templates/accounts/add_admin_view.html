@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="jumbotron alert alert-warning">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <p>This action will open a form to register the Administrator.</p>
+                    <p>The Administrator can:</p>
+                    <ul>
+                        <li>Delete, Change, and Add Users</li>
+                        <li>Delete, Change, and Add Lectur</li>
+                        <li>Delete, Change, and Add Student</li>
+                        <li>Delete, and Change Assessment properties</li>
+                        <li>Delete, Change, and Add  Department</li>
+                        <li>Delete, Change, and Add  Courses</li>
+                        <li>Delete, Change, and Add  Programme</li>
+                                             
+                    </ul>
+                    
+                    {% if request.is_admin and not request.user.is_superuser %}
+                        <p>The new admin will have the same privileges as you.</p>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-lg-end">
+                        <a href="{% url 'accounts:admin-add' %}" class="btn btn-warning" onclick="appendSpinOnClick(this)"><span class="fa fa-user-plus mr-1"></span> Continue to Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+    

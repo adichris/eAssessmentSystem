@@ -54,11 +54,18 @@
                           <a href="" class="dropdown-item"><span class="fa fa-sticky-note mr-2"></span>Messages</a>
                           <div class="dropdown-divider"></div>
                           <a href="{% url 'setting:redirect' %}" class="dropdown-item"><span class="fa fa-cog mr-2"></span>General Setting</a>
-                          <div class="dropdown-divider"></div>
+                          <hr class="dropdown-divider">
+                          
+                          {% if request.user.is_superuser %}  
+                            <a href="{% url 'accounts:add_admin_view' %}" class="dropdown-item">Register Administrator</a>
+                            <hr class="dropdown-divider">
+                          {% endif %}
+                              
                           <a href="{% url 'accounts:logout' %}" class="dropdown-item"><span class="fa fa-power-off mr-2"></span>Logout</a>
                       </div>
                   </li>
               </ul>
+              
           </div>
       </div>
   </nav>

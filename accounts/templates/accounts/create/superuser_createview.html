@@ -4,19 +4,31 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <p class="display-4 text-center">Staff Create Form</p>
+                <p class="display-4 text-center">
+                {% if title %}
+                    {{ title }}
+                {% else %}
+                Staff Register Form
+                {% endif %}
+                    </p>
+                    <hr>
             </div>
         </div>
+    </div>
+
+<div class="container">
+    <div class="jumbotron">
         <div class="row">
-            <div class="col-6 mx-auto mb-3">
+            <div class="col-md-6 mx-auto mb-3">
                 <form method="post">
                     {% csrf_token %}
                     {{ form|crispy }}
-                    <button class="btn btn-primary float-md-right">Add Staff</button>
+                    <button class="btn btn-primary float-md-right btn-block" onclick="appendSpinOnClick(this)">Submit</button>
                 </form>
             </div>
 
         </div>
     </div>
+</div>
 
 {% endblock content %}

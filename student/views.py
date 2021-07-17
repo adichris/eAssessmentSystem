@@ -1,3 +1,4 @@
+from course.models import CourseModel
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import View, TemplateView, ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -5,8 +6,9 @@ from .form import StudentRegisterForm, PasswordSetForm
 from accounts.forms import StudentProfileCreateForm
 from .models import Student
 from programme.models import Programme
-from eAssessmentSystem.tool_utils import admin_required_message, request_level_check
+from eAssessmentSystem.tool_utils import admin_required_message, get_not_allowed_render_response, request_level_check
 from django.contrib.auth import login
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class StudentCreateView(View):
@@ -110,7 +112,7 @@ class StudentListView(LoginRequiredMixin, ListView):
         if query:
             return self.model.objects.search(query)
         else:
-            return super(StudentListView, self).get_queryset()
+            return self.model.objects.all()
 
     def get_context_data(self, object_list=None, **kwargs):
         ctx = super(StudentListView, self).get_context_data(object_list=object_list, **kwargs)
@@ -124,6 +126,29 @@ class StudentListView(LoginRequiredMixin, ListView):
 class StudentDetailView(LoginRequiredMixin, DetailView):
     model = Student
     template_name = "student/detail.html"
+
+    def get_student(self):
+        try:
+            return self.request.user.student
+        except ObjectDoesNotExist:
+            return None
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        is_student = self.get_student() == self.get_object()
+        if user.is_active and (is_student or user.is_lecture  or user.is_admin  or user.is_superuser):
+            return super().get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+    
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["profile"] = self.object.profile
+        try:
+            ctx["courses"] = CourseModel.objects.filter(programme=self.object.programme, level=self.object.level, semester=self.object.profile.generalsetting.semester)
+        except ObjectDoesNotExist:
+            ctx["generalsetting_error"] = True
+        return ctx
 
 
 class LectureStudentsListView(LoginRequiredMixin, ListView):

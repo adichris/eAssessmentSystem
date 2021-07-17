@@ -28,6 +28,9 @@ class CourseLevel(models.Model):
 
     def __str__(self):
         return "%s %s" % (self.name.title(), self.number)
+    
+    def get_students(self):
+        return self.student_set.count()
 
 
 class CourseSemester(models.TextChoices):

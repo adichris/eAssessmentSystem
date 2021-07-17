@@ -25,7 +25,7 @@ SECRET_KEY = '4&+#i#kum3q%#xo%8h20p!4&==-lx0-$1h2nl(cb@bx)r*kne2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
 PHONENUMBER_DEFAULT_REGION = "GH"
 
 # custom user model
@@ -145,4 +145,5 @@ MEDIA_URL = 'media/'
 # Frontend - crispy  form
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

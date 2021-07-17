@@ -117,6 +117,18 @@ class User(AbstractBaseUser):
         except AttributeError:
             return self.first_name
 
+    def get_name_abr(self):
+        try:
+            f_abr = "".join([list(n)[0] for n in self.first_name.split(" ")]).upper()
+            l_abr = "".join([list(n)[0] for n in self.last_name.split(" ")]).upper()
+           
+            if self.generalsetting.name_order == "f":
+                return f_abr+l_abr
+            else:
+                return l_abr+f_abr
+        except AttributeError:
+            return self.first_name
+
     def get_absolute_url(self):
         """Return absolute url for User."""
         from django.urls import reverse

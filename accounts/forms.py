@@ -78,6 +78,39 @@ class UserCreateForm(forms.ModelForm):
         return clean_dob(self)
 
 
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "phone_number", "email", "dob",)
+        widgets = {
+            "dob": forms.DateInput(attrs={"type": "date"}),
+            "phone_number": PhoneNumberPrefixWidget(attrs={"class":"form-control", "type": "tel"})
+        }
+
+        error_messages = {
+            "first_name": {
+                "null": "first name is required",
+                "max_length": "Staff first name length is too much",
+            },
+            "last_name": {
+                "null": "your last name is required",
+            },
+            
+            "phone_number": {
+                "null": "phone number is required",
+                "unique": "this phone number already exists",
+            },
+            "email": {
+                "null": "email is required",
+                "unique": "this email already exists",
+            },
+
+        }
+
+    def clean_dob(self):
+        return clean_dob(self)
+
+
 class StudentProfileCreateForm(forms.ModelForm):
     class Meta:
         model = User

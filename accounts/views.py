@@ -1,24 +1,74 @@
-from django.views.generic import CreateView, DetailView
-from .forms import UserCreateForm, StudentLoginForm, User
+from lecture.models import LectureModel
+from student.models import Student, Programme
+from department.models import Department
+from course.models import CourseModel, CourseLevel
+from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
+from .forms import UserCreateForm, StudentLoginForm, User, UserUpdateForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.shortcuts import resolve_url, redirect, reverse, render
 from django.utils.http import is_safe_url
-# from eAssessmentSystem.tool_utils import get_http_forbidden_response
+from eAssessmentSystem.tool_utils import get_not_allowed_render_response
 
 
-class StaffCreateView(CreateView):
+class AddAdminView(LoginRequiredMixin, TemplateView):
+    template_name = "accounts/add_admin_view.html"
+
+class AdminCreateView(LoginRequiredMixin ,CreateView):
     model = User
     template_name = "accounts/create/superuser_createview.html"
     form_class = UserCreateForm
 
     def form_valid(self, form):
-        valid_ = super(StaffCreateView, self).form_valid(form)
+        valid_ = super(AdminCreateView, self).form_valid(form)
         login(self.request, self.object)
         self.object.is_admin = True
         self.object.save()
         return valid_
+    
+    
+    def get_context_data(self, **kwargs):
+        ctx = super(AdminCreateView, self).get_context_data(**kwargs)
+        ctx["title"] = "Administrator Registeration"
+        return ctx
+    
+    def get(self, request, *args: str, **kwargs):
+        if request.user.is_admin:
+            msg = "Please you must also have an superuser priviliges to add administrators like you."
+        else:
+            msg = None
+        if self.request.user.is_active and self.request.user.is_admin:
+            return super().get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request, message=msg)
+    
+
+
+class UserUpdateView(LoginRequiredMixin ,UpdateView):
+    model = User
+    template_name = "accounts/create/superuser_createview.html"
+    form_class = UserUpdateForm
+
+    def form_valid(self, form):
+        valid_ = super(UserUpdateView, self).form_valid(form)
+        login(self.request, self.object)
+        self.object.is_admin = True
+        self.object.save()
+        return valid_
+    
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        is_me = self.request.user == self.object
+        ctx["title"] = "Edit %s Profile" %  "Your" if is_me else self.object
+        return ctx 
+
+    def get(self, request, *args: str, **kwargs):
+        if self.request.user.is_active and self.request.user.is_admin:
+            return super().get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+    
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -36,7 +86,16 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         ctx = super(UserDetailView, self).get_context_data(**kwargs)
-
+        if self.request.user.is_admin:
+            ctx["departments"] = Department.objects.count()
+            ctx["students"] = Student.objects.count()
+            ctx["lectures"] = LectureModel.objects.count()
+            ctx["programmes"] = Programme.objects.count()
+            ctx["lectures"] = LectureModel.objects.count()
+            ctx["admins"] = User.objects.filter(is_admin=True).count()
+            ctx["courses"] = CourseModel.objects.count()
+            ctx["Stulevels"] = CourseLevel.objects.all()
+            ctx["students"] = Student.objects.count()
         # if user_object in kwargs == request.user return completed detail template
         return ctx
 

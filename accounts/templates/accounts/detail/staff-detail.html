@@ -2,11 +2,191 @@
 
 {% block content %}
     <div class="container">
-        <div class="row">
-            <div class="col mx-auto text-center">
-                <p class="display-2">{{ object.get_full_name }}</p>
-
+        <div class="row mt-2 mt-md-4">
+            <div class="col-auto mx-auto text-center">
+                <div class="alert shadow-sm mb-1 alert-primary rounded-pill" title="{{ object.get_full_name|title }}">
+                     <span class="display-1 font-weight-normal text-center">{{ object.get_name_abr }}</span>
+                </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col">
+
+                <div class="card-group">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <p class="text-center">Personal Information</p>
+                                <table class="table">
+                                    <tr>
+                                        <td>First Name</td>
+                                        <td>{{ object.first_name|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last Name</td>
+                                        <td>{{ object.last_name|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phone number</td>
+                                        <td>{{ object.phone_number|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email address</td>
+                                        <td>{{ object.email|default:"---------" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date of birth</td>
+                                        <td>{{ object.dob }}</td>
+                                    </tr>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="text-center">Roles</p>
+                            <div class="table-responsive">
+                                <table class="table">
+                                <tr>
+                                    <td>Permission status</td>
+                                    <td class="">
+                                        
+                                        {% if request.user.is_admin or request.user.is_superuser %}
+                                            <span class = "badge badge-pill p-2 {% if object.is_superuser %} alert-success {% else %} alert-danger {% endif %}" title="Is user Super User?">SuperUser {{ object.is_superuser|yesno|title }}</span>
+                                            <span class = "badge badge-pill p-2 {% if object.is_admin %} alert-success {% else %} alert-danger {% endif %}" title="Is user admin?">Admin {{ object.is_admin|yesno|title }}</span>
+                                        {% endif %}
+                                            
+                                        
+                                        {% if request.user.is_lecture or request.user.is_superuser %}
+                                            
+                                        <span class = "badge badge-pill p-2 {% if object.is_lecture %} alert-success {% else %} alert-danger {% endif %}" title="Is user Lecture?">Lecture {{ object.is_lecture|yesno|title }}</span>
+                                        {% endif %}
+                                        
+                                        <span class = "badge badge-pill p-2 {% if object.is_active %} alert-success {% else %} alert-danger {% endif %}" title="Is user active?">Active {{ object.is_active|yesno|title }}</span>
+                                        <span class = "badge badge-pill p-2 {% if object.student %} alert-success {% else %} alert-danger {% endif %}" title="Is user student?">Student {{ object.student|yesno|title }}</span>
+                                        
+                                    </td>
+                                </tr>
+                                    
+                                    <tr>
+                                        <td>Date Join</td>
+                                        <td>{{ object.timestamp }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                  {% if not request.user.is_admin %}                          
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="text-center">School</p>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tr>
+                                        <td>Department</td>
+                                        <td>{% firstof object.lecturemodel.department object.student.programme.department %}</td>
+                                    </tr>
+                                    
+                                    {% if object.student %}
+                                        <tr>
+                                            <td>Programme</td>
+                                            <td>{{ object.student.programme }}</td>
+                                        </tr>
+                                    {% endif %}
+                                        
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% if request.user.is_admin %}  
+        <div class="row my-2">
+            <div class="col d-flex  justify-content-end">
+                <a href="{% url 'accounts:profile_edit' slug=object.slug pk=object.pk %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)"><span class="fa fa-edit mr-2"></span> Edit</a>
+            </div>
+        </div>
+
+        <div class="row my-3">
+
+                 
+                <div class="col-12">
+                    <h5 class="text-center">School Info Summary</h5>
+                </div>
+
+                <div class="col">
+                    <div class="card-group">
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="text-center">Department</p>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tr title="All departments">
+                                            <td>Department</td>
+                                            <td>{{ departments }}</td>
+                                        </tr>
+                                        <tr title="All programmes">
+                                            <td>Programmes</td>
+                                            <td>{{ programmes }}</td>
+                                        </tr>
+                                        <tr title="All courses">
+                                            <td>Courses</td>
+                                            <td>{{ courses }}</td>
+                                        </tr>
+    
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="text-center">Staff</p>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tr title="All lectures">
+                                            <td>Lectures</td>
+                                            <td>{{ lectures }}</td>
+                                        </tr>
+                                        <tr title="all administrators">
+                                            <td>Administrators</td>
+                                            <td>{{ admins }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="text-center">Students</p>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        
+                                        {% for level_obj in Stulevels %}
+                                            <tr>
+                                                <td>{{ level_obj }}</td>
+                                                <td>{{ level_obj.get_students }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        <tr class="table-active">
+                                            <td>All Students</td>
+                                            <td>{{ students }}</td>
+                                        </tr>
+                                            
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+
     </div>
 {% endblock %}
