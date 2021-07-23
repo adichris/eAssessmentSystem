@@ -84,6 +84,12 @@
                             <p class="text-center">School</p>
                             <div class="table-responsive">
                                 <table class="table">
+                                    {% if object.student %}
+                                        <tr>
+                                            <td>Index Number</td>
+                                            <td>{{ object.student.index_number }}</td>
+                                        </tr>
+                                    {% endif %}
                                     <tr>
                                         <td>Department</td>
                                         <td>{% firstof object.lecturemodel.department object.student.programme.department %}</td>

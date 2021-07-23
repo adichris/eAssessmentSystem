@@ -17,7 +17,7 @@
 
 </head>
 <body>
-{% if request.user.is_admin   %}
+{% if request.user.is_staff  %}
         {% include 'snippet/admin-navbar.html' %}
     {% elif request.user.is_lecture  %}
         {% include 'snippet/staff_navbar.html' %}

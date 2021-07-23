@@ -3,6 +3,7 @@
 {% url 'student:listLectureStudent' as lecture_student %}
 {% url 'assessment:all' as assessment %}
 {% load static %}
+{% url 'chat:home' as chat_url %}
 
 <nav  class="navbar navbar-expand-lg navbar-primary sticky-top shadow-sm transparentBlur bg-white50" >
       <div class="container">
@@ -41,7 +42,7 @@
                       <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown"><span class="caret">{{ request.user|title }}</span></a>
                       <div class="dropdown-menu dropdown-menu-left transparentBlur bg-white50">
                           <a href="{{ request.user.get_absolute_url }}" class="dropdown-item"><span class="fa fa-id-card mr-2"></span>Profile</a>
-                          <a href="" class="dropdown-item"><span class="fa fa-sticky-note mr-2"></span>Messages</a>
+                          <a href="{{ chat_url }}" class="dropdown-item"><span class="fa fa-comment-dots mr-2"></span>Messages</a>
                           <a href="{% url 'setting:redirect' %}" class="dropdown-item"><span class="fa fa-cog mr-2"></span> General Setting</a>
                           <div class="dropdown-divider"></div>
                           <a href="{% url 'accounts:logout' %}" class="dropdown-item"><span class="fa fa-power-off mr-2"></span>Logout</a>

@@ -1,3 +1,4 @@
+from django.core.checks import messages
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, UserManager as DefaultUserManager
 from phonenumber_field.modelfields import PhoneNumberField
@@ -64,6 +65,13 @@ class UserManager(DefaultUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
+    
+    def get_staffs(self):
+        return self.filter(
+            is_admin=True,
+            is_active=True,
+            is_lecture=False
+        )
 
 
 class User(AbstractBaseUser):
@@ -152,7 +160,6 @@ class User(AbstractBaseUser):
             return True
         if self.is_staff:
             return True
-
     @property
     def is_staff(self):
         return (self.is_superuser or self.is_admin) and self.is_active

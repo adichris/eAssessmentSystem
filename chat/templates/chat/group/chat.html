@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-auto mx-auto rounded p-2 shadow-sm">
+                <h5 class="text-center">Chats <span class="fa fa-comments fa-1x"></span> all Groups</h5>
+                <p class="text-center">Send messages to <span class="badge badge-secondary">students in a department or programme</span>, <span class="badge badge-primary">all lectures</span> at button press</p>
+            </div>
+        </div>
+        <div class="row my-3">
+            <aside class="col-md-4 col-lg-3  rounded card-hover-shadow pb-1" style="overflow-y: auto; max-height: 100vh;">
+                <div class="table-responsive">
+                    <span class="lead">Send To:</span>
+                    <hr>
+                    <ul class="list-group">
+                        {% if request.user.is_staff %}
+                        <li class="list-group-item  list-group-item-action">Staff and Administrators</li>
+                        {% endif %}
+                        <li class="list-group-item  list-group-item-action">Lecturers</li>
+                        <li class="list-group-item  list-group-item-action" title="{% if request.user.is_lecture %} Student in your department or select programme, and level {% endif %} ">Students</li>
+                    </ul>                 
+                   
+                </div>
+            </aside>
+
+            <main class="col-md-8 col-9 rounded shadow-sm py-2" style="overflow-y: auto; max-height: 100vh;">
+                <div class="d-flex flex-column justify-content-center align-items-center">
+                    <span class="fa fa-comments fa-5x text-muted"></span>
+                    <span>Select Group to See more</span>       
+                </div>   
+            </main>
+        </div>
+    </div>
+{% endblock content %}
+    

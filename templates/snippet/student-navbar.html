@@ -1,9 +1,11 @@
 {% load static %}
+{% url 'chat:home' as chat_url %}
+
 <div class="navbar navbar-expand-lg navbar-default sticky-top transparentBlur bg-white50">
     <div class="container">
         <a class="navbar-brand" href="{%  url 'landing-page' %}"><img src="{% static 'DefaultImg/class_logo.png' %}" alt="Assessment logo" class="img-fluid" style="height: 1.5em;"></a>
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#studentNavbar" aria-controls="studentNavbar" aria-expanded="false" aria-label="toggle Navigation bar">
-             <img src="{% static 'icons/menu_1.svg' %}" alt="Menu" style="height: 1.5em">
+            <img src="{% static 'icons/menu_1.svg' %}" alt="Menu" style="height: 1.5em">
         </button>
 
         <div class="collapse navbar-collapse" id="studentNavbar">
@@ -32,7 +34,7 @@
                         <a class="dropdown-item-text text-muted text-monospace" title="Your Index Number">{{ request.user.username }}</a>
                         <div class="dropdown-divider"></div>
                         <a href="{{ request.user.get_absolute_url }}" class="dropdown-item"><i class="fa fa-id-card mr-2"></i>Profile</a>
-                        <a href="" class="dropdown-item"><i class="fa fa-envelope mr-2"></i>Message</a>
+                        <a href="{{ chat_url }}" class="dropdown-item"><i class="fa fa-comment-dots mr-2"></i>Message</a>
                         <a href="{% url 'setting:redirect' %}" class="dropdown-item"><i class="fa fa-cog mr-2"></i>Setting</a>
                         <div class="dropdown-divider"></div>
                         <a href="{% url 'accounts:logout' %}" class="dropdown-item"><span class="fa fa-power-off mr-2"></span>Logout</a>

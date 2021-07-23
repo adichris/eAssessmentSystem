@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-auto mx-auto">
+                <p class="display-3">Chats <span class="fa fa-comments"></span></p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 mb-2">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card-deck">
+                    <div class="card card-hover-shadow">
+                        <a href="{% url 'chat:individual_chats' %}" class="card-link">
+                            <div class="card-body">
+                            <p class="monospace text-center"><span class="fa fa-comment-dots fa-5x"></span><br> Chat Individual</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="card card-hover-shadow">
+                        <a href="{% url 'chat:group_chats' %}" class="card-link">
+                            <div class="card-body">
+                            <p class="monospace text-center"><span class="fa fa-comments fa-5x" ></span><br> Chat Group</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row my-3 my-lg-4">
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <td colspan="4" class="text-center">New Massages</td>
+                    </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>Message</th>
+                        <th>From</th>
+                        <th>Time</th>
+                    </tr>                        
+                    {% if messages %}
+                        
+                        {% for msg in messages %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ msg|truncatewords:10 }}</td>
+                                <td>{{ msg.from_user }}</td>
+                                <td title="{{ msg.timestamp }}">{{ msg.timestamp|timesince }} ago</td>
+                            </tr>
+                        {% endfor %}
+                            
+                    {% else %}
+                        <tr>
+                            <td colspan="4">
+                                <p class="lead text-center">NO NEW MASSAGES</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+    

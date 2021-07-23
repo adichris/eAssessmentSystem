@@ -29,7 +29,7 @@ ALLOWED_HOSTS = []
 PHONENUMBER_DEFAULT_REGION = "GH"
 
 # custom user model
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = "accounts.User"
 
 # Application definition
 
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'assessment',
     'record',
     'setting',
+    'chat',
 ]
 
 

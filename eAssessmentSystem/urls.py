@@ -30,6 +30,7 @@ urlpatterns = [
     path("assessment/", include("assessment.urls")),
     path("records/", include("record.urls")),
     path("settings/", include("setting.urls")),
+    path("chat/", include("chat.urls")),
 
 ]
 
