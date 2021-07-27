@@ -3,7 +3,7 @@ from random import choice
 from django.utils.text import slugify
 import datetime
 from django.shortcuts import redirect, render
-from django.http.response import HttpResponseForbidden
+from django.http.response import HttpResponseForbidden, HttpResponse
 
 
 def random_string_gen(size=5, characters=ascii_letters + digits):
@@ -64,17 +64,17 @@ def is_lecture(current_user):
     return current_user.is_lecture and current_user.is_active
 
 
-def get_http_forbidden_response(message="Your not allowed to access this page because of your profile"):
+def get_http_forbidden_response(message="Your not allowed to access this page because of your profile") -> HttpResponseForbidden:
     return HttpResponseForbidden(bytes(message, encoding="utf8", errors="ignore"))
 
 
-def get_not_allowed_render_response(request, message="Your not allowed to access this page because of your profile"):
+def get_not_allowed_render_response(request, message="Your not allowed to access this page because of your profile") -> HttpResponse:
     return render(request, "assessment/status_not_allowed.html", {
         "reason": message
     })
 
 
-def get_time_obj_from(timedelta):
+def get_time_obj_from(timedelta) -> datetime.time:
     try:
         if not timedelta:
             return 0
@@ -127,9 +127,7 @@ def general_setting_not_init(request):
     return render(
         request, "assessment/status_not_allowed.html",
         {
-            "reason": "Please setup your semester and academic year to continue",
-            "tip": "Goto general settings ⚙ and configure one. You only have to create it to much "
-                   "your academic year and semester.",
+            "tip": "Please setup your semester and academic year 📅 to continue",
             "settings_icon": True
         }
     )

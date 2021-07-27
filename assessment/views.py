@@ -31,6 +31,14 @@ import random
 from django.core.exceptions import ObjectDoesNotExist
 
 
+def check_view(view):
+    if not view:
+        return
+    view = str(view)
+    if len(view) == 1 and view == "1":
+        return True
+
+
 def get_question_deadline_ended_render(question_group_instance, request, script=None):
     # if question_group_instance.preference.due_date <= timezone.now():
     if question_group_instance.status == QuestionGroupStatus.CONDUCT and script:
@@ -243,6 +251,7 @@ class CreateMultipleChoiceQuestion(LoginRequiredMixin, View):
             "question_group": self.question_group,
             "is_new": True,
             "question_number": self.question_group.question_set.count(),
+            "table_view": check_view(self.request.GET.get("view"))
         }
 
     def post(self, request, *args, **kwargs):
@@ -309,10 +318,12 @@ class AssessmentQuestionGroupDetailView(LoginRequiredMixin, DetailView):
         return ctx
     
     def get_due_date(self):
-        try:
-            return self.object.preference.due_date
-        except (AttributeError, ObjectDoesNotExist):
-            return None
+        if self.object.status in (QuestionGroupStatus.PREPARED, QuestionGroupStatus.CONDUCT):
+            try:
+                return self.object.preference.due_date
+            except (AttributeError, ObjectDoesNotExist):
+                return None
+        return
 
 
 class EditTheoryQuestion(LoginRequiredMixin, UpdateView):
@@ -425,7 +436,7 @@ class MultiChoiceQuestionEdit(LoginRequiredMixin, View):
                                                form=MultiChoiceQuestionCreateForm,
                                                min_num=2, can_delete=True, validate_min=True,
                                                formset=BaseOptionsInlineFormSet,
-                                               extra=2,
+                                               extra=0,
                                                )
     question_form_class = QuestionCreateForm
     template_name = "assessment/prepareMCQ.html"
@@ -441,6 +452,7 @@ class MultiChoiceQuestionEdit(LoginRequiredMixin, View):
             "title": "Edit %s %s " % (self.course, self.question_instance.group.get_title_display()),
             "question_group": self.question_instance.group,
             "question_number": self.kwargs.get("question_number"),
+            "table_view": check_view(self.request.GET.get("view"))
         }
 
     def get(self, request, *args, **kwargs):

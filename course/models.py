@@ -43,7 +43,7 @@ class CourseSemester(models.TextChoices):
 
 class CourseModel(models.Model):
     name = models.CharField(max_length=250)
-    code = models.CharField(max_length=100, unique=True, verbose_name="code code")
+    code = models.CharField(max_length=100, unique=True, verbose_name="Course code")
     level = models.ForeignKey(CourseLevel, on_delete=models.CASCADE)
     semester = models.CharField(max_length=10, choices=CourseSemester.choices)
     programme = models.ForeignKey(Programme, on_delete=models.CASCADE)

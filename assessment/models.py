@@ -8,11 +8,11 @@ from django.utils import timezone
 
 
 class QuestionGroupChoice(models.TextChoices):
-    QUIZ = "quiz", "Quiz"
     QUIZ1 = "quiz1", "Quiz 1"
     QUIZ2 = "quiz2", "Quiz 2"
     QUIZ3 = "quiz3", "Quiz 3"
     QUIZ4 = "quiz4", "Quiz 4"
+    QUIZ = "quiz5", "Quiz 5"
     MIDSEM = "midsem", "Mid Semester Quiz"
     __empty__ = '--------'
 

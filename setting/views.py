@@ -37,8 +37,6 @@ class GeneralSettingCreateView(LoginRequiredMixin, CreateView):
         user = self.get_user()
         name = "Your" if self.request.user == user else str(user.get_short_name()) + "'s"
         ctx["title"] = "%s General Settings" % name
-
-
         return ctx
 
     def form_valid(self, form):
@@ -80,3 +78,4 @@ class SettingRedirectView(LoginRequiredMixin, RedirectView):
                             user_id=self.request.user.generalsetting.user_id))
         except AttributeError:
             return reverse("setting:create")
+

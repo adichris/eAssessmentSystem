@@ -1,107 +1,184 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
  {% block content %}
+
      <div class="container">
-        <div class="row mt-4">
+         <div class="row mt-4">
             <div class="col-12">
-                <h5 class="text-center"> {{ question_group.course }} course</h5>
+                <h5 class="text-center"> {{ question_group.course }} course </h5>
                 <hr>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
                     <a href="{{ question_group.get_absolute_url }}"><i class="fa fa-chevron-left mr-1"></i>Back to {{ question_group.get_title_display }}</a>
                     <p class="text-center">{% if is_new %} Prepare {% else %} Update {% endif %} Multi Choice Question</p>
                     {% if question_number %}
                         <p>Number of Questions <b>{{ question_number }} </b></p>
                     {% endif %}
+                    <div class="btn-group">
+                        <a href="?view=0" class="btn btn{% if not table_view %}{% else %}-outline{% endif %}-secondary" title="list display"><span class="fa fa-list"></span></a>
+                        <a href="?view=1" class="btn btn{% if table_view %}{% else %}-outline{% endif %}-secondary" title="table display"><span class="fa fa-table"></span></a>
+                    </div>
                 </div>
                 <hr>
             </div>
         </div>
 
-     {% if question_group.status == "prepared" or is_new %}
-     
-     <form action="" method="post">
-         <div class="row">
-             <div class="col-12">
-                  {% csrf_token %}
-                 <p><span class="bg-light">Type in the questions and their respective options</span> click on <a href="" class="btn btn-primary no-pointer btn-sm m-1">save and add another</a> to add more question; when ur done click on
-                        <a href="" class="btn btn-primary no-pointer btn-sm">save</a>.
-                 </p>
+        <div class="row">
+            <div class="col-12">
+                      {% csrf_token %}
+                     <p><span class="bg-light">Type in the questions and their respective options</span> click on <a href="" class="btn btn-primary no-pointer btn-sm m-1">save and add another</a> to add more question; when ur done click on
+                            <a href="" class="btn btn-primary no-pointer btn-sm">save</a>.
+                     </p>
 
-                 <hr>
-                 {% if multiChoiceQFormset.non_form_errors %}
-                     <div class="alert alert-danger">
-                         <ul class="list-group list-group-flush">
-                             {% for non_form_error in multiChoiceQFormset.non_form_errors %}
-                                <li class="list-group-item bg-transparent" >{{ non_form_error }}</li>
-                             {% endfor %}
-                         </ul>
+                     <hr>
+                     {% if multiChoiceQFormset.non_form_errors %}
+                         <div class="alert alert-danger">
+                             <ul class="list-group list-group-flush">
+                                 {% for non_form_error in multiChoiceQFormset.non_form_errors %}
+                                    <li class="list-group-item bg-transparent" >{{ non_form_error }}</li>
+                                 {% endfor %}
+                             </ul>
+                         </div>
+                     {% endif %}
+                 </div>
+        </div>
+     </div>
+
+     {% if table_view %}
+{#         TABLE VIEW #}
+         <div class="container">
+
+         {% if question_group.status == "prepared" or is_new %}
+
+         <form action="" method="post">
+             <div class="row">
+
+                 <div class="table-responsive">
+                     {{ multiChoiceQFormset.management_form }}
+                     <table class="table table-bordered">
+                         <tr>
+                             <th>#</th>
+                             <th>Question</th>
+                             <th>Options/ Objectives</th>
+                         </tr>
+                            <tr>
+                             <th> {{ question_number|add:"1" }}</th>
+                             <td>{{ questionForm|crispy }}</td>
+                             <td>
+    {#                             <table class="table" id="id_optionsTable">#}
+    {#                                 {% for multiChoiceQForm in multiChoiceQFormset %}#}
+    {#                                    <tr>#}
+    {#                                        <td>{{ forloop.counter }}</td>#}
+    {#                                        <td>{{ multiChoiceQForm|crispy }}</td>#}
+    {#                                    </tr>#}
+    {#                                 {% endfor %}#}
+    {##}
+    {#                             </table>#}
+                                 <ul id="id_optionsList">
+                                     {% for multiChoiceQForm in multiChoiceQFormset %}
+                                        <li style="list-style: upper-alpha" class="jumbotron p-2">{{ multiChoiceQForm|crispy }}</li>
+
+                                     {% endfor %}
+
+                                 </ul>
+                                 <hr>
+                                 <button type="button" class="btn btn-light btn-block" onclick="addAnotherOption()">Add next Option</button>
+                             </td>
+                            </tr>
+                     </table>
+                 </div>
+
+                    <div class="col-md-12 mx-auto mb-4">
+                        <div class="d-flex flex-column flex-md-row">
+                            <button type="submit" class="btn btn-outline-primary flex-grow-1 {% if is_new %} mb-2 mb-md-0 mr-md-2 {% endif %}" onclick="addAnotherOption(this)">Save</button>
+                            {% if is_new %}
+                                <button type="submit" class="btn btn-outline-primary flex-grow-1 {% if is_new %} {% endif %}" name="add_save_and_another" value="1" onclick="addAnotherOption(this)">Save and add Question {{ question_number|add:"2" }}</button>
+                            {% endif %}
+                        </div>
+                    </div>
+             </div>
+         </form>
+             {% else %}
+         <div class="row">
+             <div class="row">
+                 <div class="col-md-6 mb-1">
+                     <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="addAnotherOption(this)">Save</button>
+                 </div>
+                 {% if is_new %}
+                     <div class="col-md-6 mt-1">
+                         <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="addAnotherOption(this)">Save and add Question {{ question_number|add:"2" }}</button>
                      </div>
                  {% endif %}
              </div>
-
-             <div class="table-responsive">
-                 {{ multiChoiceQFormset.management_form }}
-                 <table class="table table-bordered">
-                     <tr>
-                         <th>#</th>
-                         <th>Question</th>
-                         <th>Options/ Objectives</th>
-                     </tr>
-                        <tr>
-                         <th> {{ question_number|add:"1" }}</th>
-                         <td>{{ questionForm|crispy }}</td>
-                         <td>
-                             <table class="table" id="id_optionsTable">
-                                 {% for multiChoiceQForm in multiChoiceQFormset %}
-                                    <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <td>{{ multiChoiceQForm|crispy }}</td>
-                                    </tr>
-                                 {% endfor %}
-
-                             </table>
-                             <hr>
-                             <button type="button" class="btn btn-light btn-block" onclick="addAnotherOption()">Add another Option</button>
-                         </td>
-                        </tr>
-                 </table>
-             </div>
-
-                <div class="col-md-12 mx-auto mb-4">
-                    <div class="btn-group btn-block">
-                        <button type="submit" class="btn btn-primary" onclick="addAnotherOption(this)">Save</button>
-                        <button type="submit" class="btn btn-primary" name="add_save_and_another" value="1" onclick="addAnotherOption(this)">Save and add Question {{ question_number|add:"2" }}</button>
-                    </div>
-                </div>
          </div>
-     </form>
-         
+         {% endif %}
+     </div>
+
          {% else %}
-     <div class="row">
-        <div class="col-md-6 mt-10vh text-center mx-auto">
-            <p class="lead">Sorry {{ request.user }}, you can not modify {{ question_group.get_title_display }} anymore</p>
-            <hr>
-            <p>{{ question_group.get_title_display }} status is {{ question_group.get_status_display }}</p>
+{#         LIST VIEW #}
+
+     <div class="container">
+        <div class="row my-3">
+            <div class="col-md-10 col-lg-8 mx-auto">
+                <form method="post">
+                    <div class="d-none">
+                        {% csrf_token %}
+                        {{ multiChoiceQFormset.management_form }}
+                    </div>
+                    <div class="d-flex flex-column">
+                        <div class="card shadow-sm mb-2">
+                            <div class="card-body">
+                                {{ questionForm|crispy }}
+                            </div>
+                        </div>
+                        <ul id="id_optionsList" class="list-group">
+                            {% for multiChoiceQForm in multiChoiceQFormset %}
+                                <li style="list-style: upper-alpha" class="bg-light my-1 rounded p-2 shadow-sm">{{ multiChoiceQForm|crispy }}</li>
+                            {% endfor %}
+                        </ul>
+                        <hr>
+                        <button type="button" class="btn btn-outline-secondary btn-block " onclick="addAnotherOption()">Add next Option</button>
+                    </div>
+
+                    <div class="well my-3">
+                        <div class="row">
+                            <div class="col{% if is_new %}-md-6{% endif %} mb-1 mb-md-0">
+                                <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="addAnotherOption(this)">Save</button>
+                            </div>
+                            {% if is_new %}
+                                <div class="col-md-6 mt-1 mt-md-0">
+                                    <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="addAnotherOption(this)">Save and Add Question {{ question_number|add:"2" }}</button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
      </div>
-     {% endif %} 
-     </div>
+     {% endif %}
  {% endblock %}
 
 {% block afterScripts %}
     <script >
+        var multichoiceTOTAL_FORMS = document.getElementById("id_multichoicequestion_set-TOTAL_FORMS");
+        {#function addAnotherOption() {#}
+        {#    var objTable = document.getElementById("id_optionsTable");#}
+        {#    var newRow = objTable.insertRow();#}
+        {#    var  rowNumber = newRow.insertCell();#}
+        {#    rowNumber.innerText = objTable.rows.length;#}
+        {#    var optionCellForm = newRow.insertCell();#}
+        {#    multichoiceTOTAL_FORMS.value = objTable.rows.length;#}
+        {#    optionCellForm.innerHTML = `{{ multiChoiceQFormset.empty_form|crispy }}`;#}
+        {##}
+        {# } #}
 
-        function addAnotherOption() {
-            var objTable = document.getElementById("id_optionsTable");
-            var newRow = objTable.insertRow();
-            var  rowNumber = newRow.insertCell()
-            rowNumber.innerText = objTable.rows.length
-            var optionCellForm = newRow.insertCell();
-            var multichoiceTOTAL_FORMS = document.getElementById("id_multichoicequestion_set-TOTAL_FORMS");
-            multichoiceTOTAL_FORMS.value = objTable.rows.length;
-            optionCellForm.innerHTML = `{{ multiChoiceQFormset.empty_form|crispy }}`;
-
-        }
+    function addAnotherOption() {
+        var objLists = document.getElementById("id_optionsList");
+        var newElm =`<li style="list-style: upper-alpha" class="{% if list_view %}bg-light my-1 rounded p-2 shadow-sm {% else %} jumbotron p-2 {% endif %}"> {{ multiChoiceQFormset.empty_form|crispy }} </li>`;
+        objLists.insertAdjacentHTML("beforeend", newElm);
+        var newVal = parseInt(multichoiceTOTAL_FORMS.value) ;
+        multichoiceTOTAL_FORMS.value = newVal + 1;
+    }
 
     </script>
 {% endblock %}
