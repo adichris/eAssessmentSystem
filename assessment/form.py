@@ -72,6 +72,44 @@ class QuestionGroupCreateForm(forms.ModelForm):
         }
 
 
+class QuestionGroupUpdateForm(forms.ModelForm):
+    class Meta:
+        model = QuestionGroup
+        fields = ("title", "questions_type", "total_marks", "is_share_total_marks")
+        labels = {
+            "title": "Select Assessment title",
+            "questions_type": "Assessment Type"
+        }
+        widgets = {
+            "questions_type": forms.Select(attrs={"class": "no-pointer"})
+        }
+        error_messages = {
+            NON_FIELD_ERRORS: {
+                "unique_together": "Course with this type of assessment already exists"
+            }
+        }
+
+    def clean_title(self):
+        title = self.cleaned_data.get("title")
+        try:
+            quiz = QuestionGroup.objects.get(title=title, course=self.instance.course)
+        except QuestionGroup.DoesNotExist as err:
+            return title
+        else:
+            last = title[-1]
+            try:
+                new_title = title[:len(title) - 1] + str( int(last) + 1)
+            except TypeError as err:
+                print(err)
+                new_title = ""
+            if self.instance.title == title:
+                return title
+            raise forms.ValidationError(f"{str(quiz.course)} already has ({quiz.get_title_display()}) assessment. Please try {new_title}.")
+
+    def clean_questions_type(self):
+        return self.initial["questions_type"]
+
+
 def clean(self):
     """ Checks that no two or more optional is checked as correct answer in the same question."""
 

@@ -27,7 +27,10 @@
                         </div>
                         {% elif question_group.questions_type == "theory" %}
                             {{ form|crispy }}
-                            <button type="submit" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Save</button>
+                            <div class="d-flex flex-column flex-md-row">
+                                <a href="{{ question_group.get_absolute_url }}" class="btn btn-outline-secondary flex-grow-1 mr-md-1 mb-2 mb-md-0"><span class="fa fa-chevron-left mr-2"></span>Discard</a>
+                                <button type="submit" class="btn btn-primary flex-grow-1 ml-md-1" onclick="spinOnClick(this)">Save</button>
+                            </div>
                     {% endif %}
                     </form>
             </div>

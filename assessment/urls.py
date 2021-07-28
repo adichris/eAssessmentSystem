@@ -7,7 +7,8 @@ from .views import (AssessmentQuestionGroupDetailView, CreateMultipleChoiceQuest
                     QuestionGroupUpdateView, GenerateQMarksRedirectQGroupRV, AssessmentPreferenceUpdateView,
                     StudentAssessingTemplateView, MultiChoiceQuestionsExaminationView, QuestionResultTemplateView,
                     QuestionsPreviewTemplateView, QuestionResultDetailTemplateView, TheoryQuestionsExaminationView,
-                    TheoryQuestionAnswerView, TheoryScriptStatusTemplateView, StopAllWorkTemplateView
+                    TheoryQuestionAnswerView, TheoryScriptStatusTemplateView, StopAllWorkTemplateView,
+                    AddOneMoreTheoryQuestion,
                     )
 
 
@@ -18,6 +19,7 @@ urlpatterns = [
     path("updateQuestionGroup/<str:courseName>/<int:coursePK>/<str:title>/<int:pk>", QuestionGroupUpdateView.as_view(),
          name="update_group"),
     path("prepareTheory/<str:QGT>/<int:QGPK>/", CreateTheoryQuestion.as_view(), name="prepare_theory"),
+    path("preparetheoryplusonemore/<int:question_group_pk>/<str:question_group_title>/<str:questions_type>/", AddOneMoreTheoryQuestion.as_view(), name="add1theory"),
     path("prepareMultichoiceQuestion/<str:QGT>/<int:QGPK>/", CreateMultipleChoiceQuestion.as_view(),
          name="prepare_MCQ"),
     path("questiongroupdetails_detail/<str:courseName>/<str:title>/<int:pk>/",
@@ -44,7 +46,6 @@ urlpatterns = [
          LectureStudentScriptTemplateView.as_view(), name="lecture_student_script"),
     path("generateMarks/<str:QGT>/<int:QGPK>/", GenerateQMarksRedirectQGroupRV.as_view(), name="generate_marks"),
     path("student/HALL/<str:QGT>/<int:QGPK>/", StudentAssessingTemplateView.as_view(), name="student_assessing"),
-
     # Exam
     path("scripts/multichoice/start/<str:course_code>/<str:QGT>/<int:QGPK>/",
          MultiChoiceQuestionsExaminationView.as_view(), name="MCQ_exam_start"),

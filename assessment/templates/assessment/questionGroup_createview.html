@@ -4,13 +4,19 @@
     <div class="container">
         <div class="row mt-3">
             <div class="col-md-8 col-lg-6 mx-auto">
-                <form action="" method="POST" class="form-group">
-                <p class="text-center">{{ course }} Assessment</p>
-                <hr>
-                <h6 class="text-capitalize">Start by providing question information</h6>
+                <h4 class="text-center">{{ course }} Assessment</h4>
+                <p class="text-center">Start by providing question information</p>
+                <form action="" method="POST" class="card card-body">
                     {% csrf_token %}
                    {{ form|crispy }}
+                    {% if questiongroup.get_absolute_url %}
+                        <div class="d-flex flex-column flex-md-row justify-content-center">
+                            <a href="{{ questiongroup.get_absolute_url }}" class="btn btn-outline-secondary flex-grow-1 mb-2 mb-md-0 mr-md-1"><span class="fa fa-chevron-left mr-2"></span>Discard</a>
+                        <button type="submit" class="btn btn-primary flex-grow-1 ml-md-1" value="Submit" onclick="appendSpinOnClick(this)"><span class="fa fa-save mr-2"></span> Save</button>
+                        </div>
+                    {% else %}
                     <button type="submit" class="btn btn-primary btn-block" value="Submit" onclick="appendSpinOnClick(this)">Submit</button>
+                    {% endif %}
                 </form>
             </div>
         </div>

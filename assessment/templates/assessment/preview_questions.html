@@ -2,33 +2,44 @@
 {% block content %}
     <div class="container">
         <div class="row mt-3 mt-lg-4">
-            <div class="col-auto mx-auto">
-                <table class="table table-borderless">
+            <div class="col-md-6 mx-auto">
+                <table class="table table-bordered shadow-sm">
                     <tr>
                         <td>Programme</td>
-                        <td><h5>{{ question_group.course.programme }}</h5></td>
+                        <td><h5>{{ question_group.course.programme }} - {{ question_group.course.level }}</h5></td>
                     </tr>
                     <tr>
                         <td>Course</td>
                         <td><h5>{{ question_group.course }}</h5></td>
                     </tr>
-                    <tr>
-                        <td>Level</td>
-                        <td><h5>{{ question_group.course.level }}</h5></td>
-                    </tr>
+
+                </table>
+            </div>
+            <div class="col-md-6 mx-auto">
+                <table class="table table-bordered shadow-sm">
                     <tr>
                         <td>Total Marks</td>
                         <td><h5>{{ question_group.total_marks }}</h5></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="text-center"><h5>{{ question_group.get_title_display }}</h5></td>
+                        <td>Assessment</td>
+                        <td><h5>{{ question_group.get_title_display }}</h5></td>
                     </tr>
                 </table>
             </div>
         </div>
+
+    <div class="row">
+        <div class="col">
+            <h4 class="text-center bg-light rounded p-2">QUESTIONS</h4>
+            <hr>
+        </div>
+    </div>
+
     
         {% if question_group.questions_type == "multichoice" %}
         <div class="row">
+        {% if table_view %}
             <div class="table-responsive">
                 <table class="table">
                     <tr>
@@ -55,39 +66,54 @@
                     
                 </table>
             </div>
+        {% else %}
+            <div class="row">
+                {% for question in all_questions %}
+                    <div class="col-md-6 mb-2">
+                        <div class="card h-100 card-hover-shadow">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <p>Question {{ question.question_number }}</p>
+                                    <p>{{ question.max_mark|floatformat }} marks</p>
+                                </div>
+                                <p>{{ question|linebreaksbr }}</p>
+                                <ul>
+                                    {% for option in question.multichoicequestion_set.all %}
+                                        <li style="list-style: upper-alpha">
+                                            <p class="alert border bg-light">{{ option|linebreaksbr }}</p>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+                    {% if forloop.counter0|divisibleby:2 == 0 %}
+                        <div class="col-12">
+                            <hr>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
         </div>
 
         {% elif question_group.questions_type == "theory" %}
             {% for question in all_questions %}
-                <div class="row my-3">
+                <div class="row">
                     <div class="col-12">
-                        <div class="d-flex flex-lg-row flex-column ">
-                            <div class="card m-1 flex-shrink-0">
-                                <div class="card-body d-flex align-items-center">
-                                    <span>Q{{ question.question_number|default:forloop.counter }}</span>
-                                </div>
-                            </div>
-                            <div class="card flex-grow-1 mx-1">
-                                <div class="card-body">
-                                    <p>{{ question|linebreaksbr }}</p>
-                                </div>
-                            </div>
-                             <div class="card m-1 flex-shrink-0">
-                                <div class="card-body d-flex align-items-center">
+                        <div class="card card-hover-shadow">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <span>Question {{ question.question_number }}</span>
                                     <p class="text-center">{{ question.max_mark|floatformat }} marks</p>
                                 </div>
+                                <p>{{ question|linebreaksbr }}</p>
                             </div>
                         </div>
+                        <hr>
                     </div>
                 </div>
-
-                {% if not forloop.last %}
-                    <div class="row">
-                        <div class="col-12">
-                            <hr>
-                        </div>
-                    </div>
-                {% endif %}
 
             {% endfor %}
         {% endif %}

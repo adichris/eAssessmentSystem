@@ -54,12 +54,12 @@
 
                  <div class="table-responsive">
                      {{ multiChoiceQFormset.management_form }}
-                     <table class="table table-bordered">
-                         <tr>
-                             <th>#</th>
-                             <th>Question</th>
-                             <th>Options/ Objectives</th>
-                         </tr>
+                     <table class="table">
+{#                         <tr>#}
+{#                             <th>#</th>#}
+{#                             <th>Question</th>#}
+{#                             <th>Options/ Objectives</th>#}
+{#                         </tr>#}
                             <tr>
                              <th> {{ question_number|add:"1" }}</th>
                              <td>{{ questionForm|crispy }}</td>
@@ -76,12 +76,10 @@
                                  <ul id="id_optionsList">
                                      {% for multiChoiceQForm in multiChoiceQFormset %}
                                         <li style="list-style: upper-alpha" class="jumbotron p-2">{{ multiChoiceQForm|crispy }}</li>
-
                                      {% endfor %}
-
                                  </ul>
                                  <hr>
-                                 <button type="button" class="btn btn-light btn-block" onclick="addAnotherOption()">Add next Option</button>
+                                 <button type="button" class="btn btn-light btn-block" onclick="addAnotherOption()"><span class="fa fa-plus"></span> Add next Option</button>
                              </td>
                             </tr>
                      </table>
@@ -89,9 +87,9 @@
 
                     <div class="col-md-12 mx-auto mb-4">
                         <div class="d-flex flex-column flex-md-row">
-                            <button type="submit" class="btn btn-outline-primary flex-grow-1 {% if is_new %} mb-2 mb-md-0 mr-md-2 {% endif %}" onclick="addAnotherOption(this)">Save</button>
+                            <button type="submit" class="btn btn-outline-primary flex-grow-1 {% if is_new %} mb-2 mb-md-0 mr-md-2 {% endif %}" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span>Save</button>
                             {% if is_new %}
-                                <button type="submit" class="btn btn-outline-primary flex-grow-1 {% if is_new %} {% endif %}" name="add_save_and_another" value="1" onclick="addAnotherOption(this)">Save and add Question {{ question_number|add:"2" }}</button>
+                                <button type="submit" class="btn btn-outline-primary flex-grow-1 {% if is_new %} {% endif %}" name="add_save_and_another" value="1" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span>Save and add Question {{ question_number|add:"2" }} <span class="fa fa-plus-circle"></span></button>
                             {% endif %}
                         </div>
                     </div>
@@ -101,11 +99,11 @@
          <div class="row">
              <div class="row">
                  <div class="col-md-6 mb-1">
-                     <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="addAnotherOption(this)">Save</button>
+                     <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="addAnotherOption(this)"><span class="fa fa-save mr-2"></span> Save</button>
                  </div>
                  {% if is_new %}
                      <div class="col-md-6 mt-1">
-                         <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="addAnotherOption(this)">Save and add Question {{ question_number|add:"2" }}</button>
+                         <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span>Save and add Question <span class="fa fa-plus-circle"></span> {{ question_number|add:"2" }}</button>
                      </div>
                  {% endif %}
              </div>
@@ -136,17 +134,17 @@
                             {% endfor %}
                         </ul>
                         <hr>
-                        <button type="button" class="btn btn-outline-secondary btn-block " onclick="addAnotherOption()">Add next Option</button>
+                        <button type="button" class="btn btn-outline-secondary btn-block " onclick="addAnotherOption()"><span class="fa fa-plus"></span> Add next Option</button>
                     </div>
 
                     <div class="well my-3">
                         <div class="row">
                             <div class="col{% if is_new %}-md-6{% endif %} mb-1 mb-md-0">
-                                <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="addAnotherOption(this)">Save</button>
+                                <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span> Save</button>
                             </div>
                             {% if is_new %}
                                 <div class="col-md-6 mt-1 mt-md-0">
-                                    <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="addAnotherOption(this)">Save and Add Question {{ question_number|add:"2" }}</button>
+                                    <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span>Save and Add Question {{ question_number|add:"2" }} <span class="fa fa-plus-circle"></span> </button>
                                 </div>
                             {% endif %}
                         </div>

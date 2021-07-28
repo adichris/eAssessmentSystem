@@ -106,7 +106,6 @@ class QuestionGroup(models.Model):
         returns = super(QuestionGroup, self).save(force_insert=force_insert, force_update=force_update,
                                                   using=using, update_fields=update_fields)
         self.generate_marks()
-        self.generate_question_numbers()
         return returns
 
     def get_completed_script(self):
@@ -121,12 +120,12 @@ class QuestionGroup(models.Model):
         elif self.questions_type == QuestionTypeChoice.THEORY:
             return self.studenttheoryscript_set.aggregate(average_score=models.Avg("total_score")).get("average_score")
 
-    def generate_question_numbers(self):
-        num = 0
-        for question in self.question_set.all():
-            num += 1
-            question.question_number = num
-            question.save()
+    # def generate_question_numbers(self):
+    #     num = 0
+    #     for question in self.question_set.all():
+    #         num += 1
+    #         question.question_number = num
+    #         question.save()
 
 
 class QuestionManager(models.Manager):
@@ -158,6 +157,14 @@ class Question(models.Model):
     def get_absolute_delete_url(self):
         return reverse("assessment:delete_question",
                        kwargs={"group_title": self.group.title, "pk": self.pk, "coursePK": self.group.course.pk})
+
+
+def automate_question_number(instance, **kwargs):
+    if instance.group.questions_type == QuestionTypeChoice.THEORY and not instance.question_number:
+        instance.question_number = instance.group.question_set.count()
+
+
+models.signals.pre_save.connect(automate_question_number, sender=Question)
 
 
 class MultiChoiceQuestion(models.Model):

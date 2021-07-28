@@ -5,7 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.http import is_safe_url
 from .form import (MultiChoiceQuestionCreateForm, QuestionCreateForm, QuestionGroupCreateForm,
                    BaseOptionsFormSet, BaseOptionsInlineFormSet, AssessmentPreferenceCreateForm,
-                   StudentMultiChoiceAnswerForm, StudentTheoryAnswerUpdateForm
+                   StudentMultiChoiceAnswerForm, StudentTheoryAnswerUpdateForm,
+                    QuestionGroupUpdateForm,
                    )
 from course.models import CourseModel
 from .models import (MultiChoiceQuestion, Question, QuestionGroup, AssessmentPreference,
@@ -31,9 +32,14 @@ import random
 from django.core.exceptions import ObjectDoesNotExist
 
 
-def check_view(view):
+def check_view(view) -> bool:
+    """
+    Switch view from tabular to list display
+    :param view: A string value of 0 or 1
+    :return: True if view is 1 else False
+    """
     if not view:
-        return
+        return False
     view = str(view)
     if len(view) == 1 and view == "1":
         return True
@@ -120,8 +126,9 @@ class QuestionGroupCreateView(LoginRequiredMixin, CreateView):
 
 class QuestionGroupUpdateView(LoginRequiredMixin, UpdateView):
     model = QuestionGroup
-    fields = ("title", "total_marks", "questions_type", "is_share_total_marks")
+    # fields = ("title", "total_marks", "questions_type", "is_share_total_marks")
     template_name = "assessment/questionGroup_createview.html"
+    form_class = QuestionGroupUpdateForm
 
     def is_lecture_course_master(self):
         course = get_object_or_404(CourseModel,
@@ -131,6 +138,9 @@ class QuestionGroupUpdateView(LoginRequiredMixin, UpdateView):
                                    lecture=self.request.user.lecturemodel
                                    )
         return bool(course)
+
+    def form_invalid(self, form):
+        return super(QuestionGroupUpdateView, self).form_invalid(form)
 
     def get(self, *args, **kwargs):
         user = get_user(self.request)
@@ -166,10 +176,58 @@ class QuestionGroupUpdateView(LoginRequiredMixin, UpdateView):
         return ctx
 
 
+class AddOneMoreTheoryQuestion(LoginRequiredMixin, CreateView):
+    template_name = "assessment/theory/add1theory.html"
+    form_class = QuestionCreateForm
+    model = Question
+
+    def get(self, request, *args, **kwargs):
+        self.init_instance()
+        if request.user.is_lecture:
+            return super(AddOneMoreTheoryQuestion, self).get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def post(self, request, *args, **kwargs):
+        self.init_instance()
+        if request.user.is_lecture:
+            return super(AddOneMoreTheoryQuestion, self).post(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def form_valid(self, form):
+        form.instance.group = self.question_group_instance
+        return super(AddOneMoreTheoryQuestion, self).form_valid(form)
+
+    def get_success_url(self):
+        next_url = self.request.GET.get("next")
+        if next_url and is_safe_url(next_url, self.request.get_host()):
+            return next_url
+        else:
+            return self.question_group_instance.get_absolute_url()
+
+    def init_instance(self):
+        self.question_group_instance = get_object_or_404(
+            QuestionGroup,
+            pk=self.kwargs.get("question_group_pk"),
+            title=self.kwargs.get("question_group_title"),
+            questions_type=self.kwargs.get("questions_type"),
+            course__lecture__profile=self.request.user,
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx =super(AddOneMoreTheoryQuestion, self).get_context_data(**kwargs)
+        ctx["title"] = "Add Question %s" % (self.question_group_instance.question_set.count() + 1)
+        ctx["header"] = "%s %s" % (self.question_group_instance.course.name,
+                                   self.question_group_instance.get_title_display().title())
+        ctx["back_url"] = self.question_group_instance.get_absolute_url()
+        return ctx
+
+
 class CreateTheoryQuestion(LoginRequiredMixin, View):
     template_name = "assessment/prepareTheoryQuestions.html"
     question_formset = inlineformset_factory(parent_model=QuestionGroup, model=Question, form=QuestionCreateForm,
-                                             can_delete=True, )
+                                             can_delete=True, extra=0)
 
     def get_question_group_instance(self):
         question_group_pk = self.kwargs.get("QGPK")
@@ -315,6 +373,7 @@ class AssessmentQuestionGroupDetailView(LoginRequiredMixin, DetailView):
             pass
         ctx["assessment_to_conduct_past_msg"] = "Assessment due date(dead line) is in the past now please update the assessment preference."
         ctx["title"] = "%s - %s" % (self.object.get_title_display(), self.object.course)
+        ctx["table_view"] = check_view(self.request.GET.get("view"))
         return ctx
     
     def get_due_date(self):
