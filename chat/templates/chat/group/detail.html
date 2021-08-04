@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-auto mx-auto">
+                <h4>{{ object.group_name|title }} Group <span class="fa fa-comments"></span></h4>
+            </div>
+        </div>
+        <div class="row my-md-3">
+            <div class="col-md-auto mx-auto">
+                <div class="card-deck">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="text-center">Group Detail</h5>
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td>Group Name</td>
+                                        <td>{{ object.group_name|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Created by</td>
+                                        <td>{{ object.from_user|title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>To Group</td>
+                                        <td>{{ object.get_to_group_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date created</td>
+                                        <td>{{ object.timestamp }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td colspan="2">
+                                            <h5 class="text-center">Constraints</h5>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Department</td>
+                                        <td>{{ object.department }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Programme</td>
+                                        <td>{{ object.programme }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Student Level</td>
+                                        <td>{{ object.level|default:"Not Specified" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Messages Total</td>
+                                        <td>{{ all_msg_cnt }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="table-responsive">
+                <h5>Group Members</h5>
+                <table class="table">
+                    <tr>
+                        <th colspan="2" class="text-left">#</th>
+                    </tr>
+                    
+                    {% for member in members %}
+                        <tr>
+                            <td><span>{{ forloop.counter }}</span></td>
+                            <td class="d-flex flex-row">
+                                <span>{{ member.get_full_name }}</span>
+                                <span>{{ member.phone_number }}</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                        
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+    
