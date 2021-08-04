@@ -15,7 +15,7 @@
             </div>
             <div class="row my-3" >
                 <div class="col-md-8 col-lg-6 mx-auto">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered shadow rounded">
                         <tr>
                             <td>Course</td>
                             <td>{{ course }}</td>
@@ -57,11 +57,11 @@
                         </tr>
                         <tr>
                             <td>Duration</td>
-                            <td>--- <a href="{{ preference_create }}?next={{ request.path }}">set duration</a></td>
+                            <td>--- <a href="{{ preference_create }}?next={{ request.path }}">(set duration)</a></td>
                         </tr>
                           <tr>
                             <td>Environment</td>
-                            <td>--- <a href="{{ preference_create }}?next={{ request.path }}">set environment</a></td>
+                            <td>--- <a href="{{ preference_create }}?next={{ request.path }}">(set environment)</a></td>
                         </tr>
                     {% endif %}
                         <tr>

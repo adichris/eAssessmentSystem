@@ -18,12 +18,12 @@
 
     <div class="row my-3">
         <div class="col-md-12 mx-auto">
-            <div class="btn-group btn-group-justified btn-block">
-                <a href="" class="btn btn-outline-secondary" title="Allow student to continue quiz">Resume {{ object.get_title_display }}</a>
-                <a href="{% url 'assessment:pre_questions_conducting' question_group_pk=questiongroup.pk question_group_title=questiongroup.title %}" class="btn btn-outline-secondary" title="questions preview">View Questions</a>
-                <a href="{% url 'lecture:mark_scripts' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-outline-secondary">Mark Scripts</a>
-                <a href="{% url 'records:publish' course_code=questiongroup.course.code question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-outline-secondary {% if questiongroup.status == "published" %} disabled">Published{% else %}">Publish{% endif %}</a>
-                <a href="{% url 'records:lecture_quiz_detail' question_group_pk=questiongroup.pk question_group_title=questiongroup.title course_code=questiongroup.course.code %}" class="btn btn-outline-secondary">Records</a>
+            <div class="d-flex flex-column flex-md-row justify-content-between">
+                <a href="" class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" title="Allow student to continue quiz" onclick="spinOnClick(this)">Resume {{ object.get_title_display }} <span class="fa fa-play"></span></a>
+                <a href="{% url 'assessment:pre_questions_conducting' question_group_pk=questiongroup.pk question_group_title=questiongroup.title %}" class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" title="questions preview" onclick="spinOnClick(this)">View Questions <span class="fa fa-question"></span></a>
+                <a href="{% url 'lecture:mark_scripts' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" onclick="spinOnClick(this)">Mark Scripts <span class="fa fa-marker" ></span></a>
+                <a href="{% url 'records:publish' course_code=questiongroup.course.code question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" onclick="spinOnClick(this)"  class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1 {% if questiongroup.status == 'published' %} disabled">Published{% else %}">Publish{% endif %} <span class="fa fa-newspaper"></span></a>
+                <a href="{% url 'records:lecture_quiz_detail' question_group_pk=questiongroup.pk question_group_title=questiongroup.title course_code=questiongroup.course.code %}" class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" onclick="spinOnClick(this)">Records <span class="fa fa-database"></span></a>
             </div>
         </div>
     </div>

@@ -688,11 +688,14 @@ class ConductAssessment(LoginRequiredMixin, TemplateView):
         return self.question_group.course.lecture.profile == self.request.user
     
     def is_assessment_due(self):
-        due_date = self.get_due_date()
-        if due_date:
-            return due_date < timezone.now()
-        else:
-            True
+        try:
+            due_date = self.get_due_date()
+            if due_date:
+                return due_date < timezone.now()
+            else:
+                True
+        except AttributeError:
+            return False
 
     def get(self, request, *args, **kwargs):
         user = get_user(request)
@@ -717,7 +720,10 @@ class ConductAssessment(LoginRequiredMixin, TemplateView):
             ctx["calculated_total_marks"] = sum([q.max_mark or 0 for q in self.question_group.question_set.all()])
             ctx["student_level"] = self.question_group.course.level
             ctx["course"] = self.question_group.course
-            due_date = self.question_group.preference.due_date
+            try:
+                due_date = self.question_group.preference.due_date
+            except AttributeError:
+                due_date = None
             if due_date:
                 duration = self.question_group.preference.duration
                 if duration:

@@ -12,7 +12,7 @@
                             {% csrf_token %}
                             {{ form|crispy }}
                             <div class="d-flex flex-column flex-md-row">
-                                <a href="{{ back_url }}" class="btn btn-outline-secondary flex-grow-1 mr-md-1 mb-2 mb-md-0" onclick="appendSpinOnClick(this)"><span class="fa fa fa-chevron-left mr-2"></span>Discard</a>
+                                <a href="{{ back_url }}" onclick="appendSpinOnClick(this)" class="btn btn-outline-secondary flex-grow-1 mr-md-1 mb-2 mb-md-0" onclick="appendSpinOnClick(this)"><span class="fa fa fa-chevron-left mr-2"></span>Discard</a>
                                 <button type="submit" onclick="spinOnClick(this)" class="btn btn-primary flex-grow-1 ml-md-1"><span class="fa fa-save mr-2"></span> Save</button>
                             </div>
                         </form>

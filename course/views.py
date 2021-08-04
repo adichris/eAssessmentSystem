@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .form import CourseModel, CourseCreateForm
 from eAssessmentSystem.tool_utils import admin_required_message
 from programme.models import Programme
+from django.utils.http import is_safe_url
 
 
 class CourseCreateView(LoginRequiredMixin, CreateView):
@@ -64,6 +65,18 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
         else:
             self.request.session["staff_required"] = admin_required_message(self.request.user)
             return redirect("accounts:staff-login-page")
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CourseDetailView, self).get_context_data(**kwargs)
+        ctx["title"] = self.object.name.title() + " Assessment"
+        ctx["back_url"] = self.get_back_url()
+        return ctx
+
+    def get_back_url(self):
+        back_url = self.request.GET.get("back")
+        if back_url and is_safe_url(back_url, self.request.get_host()):
+            return back_url
+        return
 
 
 class CourseDeleteView(LoginRequiredMixin, DeleteView):

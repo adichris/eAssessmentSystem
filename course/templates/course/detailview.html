@@ -82,30 +82,36 @@
     {% elif request.user.is_lecture %}
             <div class="row">
                 <div class="col-12">
-                    <h4 class="text-center mt-4">{{ coursemodel }} </h4>
-                    <hr>
+                    <h4 class="text-center mt-4">{{ coursemodel.name }} <span class="badge badge-secondary" >{{ coursemodel.code }}</span></h4>
+               
                 </div>
 
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col-4">
-                            <h5 class="lead mr-4">Assessment</h5>
-                        </div>
-                        <div class="col-md-8 ">
-                            <div class="btn-group btn-block">
-                                <a href="{% url 'assessment:create_group' courseName=coursemodel.name coursePK=coursemodel.pk %}" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">Prepare Question</a>
-                                <a href="" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">View Assigment</a>
-                                <a href="" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">View Records</a>
+                <div class="col-12 p-2 shadow-sm bg-light rounded">
+                    <div class="row ">
+                        <div class="col-12 {% if back_url %} d-flex flex-column flex-md-row justify-content-between {% endif %}">
+                        {% if back_url %}
+                            <a href="{{ back_url }}" class="btn btn-link mr-auto mr-md-0" onclick="onBackSpin(this)"><span class="fa fa-chevron-left mr-2"></span>back</a>
+                        {% endif %}
+
+                            <div class="d-flex flex-column flex-md-row justify-content-center flex-grow-1 flex-md-grow-0">
+                                <a href="{% url 'assessment:create_group' courseName=coursemodel.name coursePK=coursemodel.pk %}" class="btn btn-info flex-grow-1 flex-md-grow-0 mx-md-1 my-1 my-md-0" onclick="appendSpinOnClick(this)"><span class="fa fa-plus-circle mr-2"></span>Add New Quiz</a>
+                                {# <a href="" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">View Assigment</a> #}
+                                <a href="{% url 'records:course_detail' course_pk=coursemodel.pk course_code=coursemodel.code %}?back={{ request.path }}" class="btn btn-info flex-md-grow-0 flex-grow-1 mx-md-1 my-1 my-md-0" onclick="appendSpinOnClick(this)"><span class="fa fa-newspaper mr-1"></span>View All Records </a>
                             </div>
                         </div>
                     </div>
-                    <hr>
                 </div>
+            </div>
+
+            <div class="row my-3">
+            <div class="col-12 bg-light p-2 rounded text-center">
+                <h5>Assessment</h5>
+            </div>
             </div>
         <div class="row">
             {% for question_group in coursemodel.questiongroup_set.all %}
                 <div class="col-md-6 col-lg-4">
-                    <div class="card my-3" title={% if question_group.status == "conduct" %}"Students are allowed and access"{% else %}"Only you can access"{% endif %}>
+                    <div class="card card-hover-shadow my-3">
                         <div class="card-body">
                             <h5 class="card-title text-center">{{ question_group.get_title_display }}</h5>
                             <div class="table-responsive">

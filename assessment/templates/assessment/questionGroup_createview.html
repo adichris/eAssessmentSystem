@@ -11,7 +11,7 @@
                    {{ form|crispy }}
                     {% if questiongroup.get_absolute_url %}
                         <div class="d-flex flex-column flex-md-row justify-content-center">
-                            <a href="{{ questiongroup.get_absolute_url }}" class="btn btn-outline-secondary flex-grow-1 mb-2 mb-md-0 mr-md-1"><span class="fa fa-chevron-left mr-2"></span>Discard</a>
+                            <a href="{{ questiongroup.get_absolute_url }}" class="btn btn-outline-secondary flex-grow-1 mb-2 mb-md-0 mr-md-1" onclick="appendSpinOnClick(this)"><span class="fa fa-chevron-left mr-2"></span>Discard</a>
                         <button type="submit" class="btn btn-primary flex-grow-1 ml-md-1" value="Submit" onclick="appendSpinOnClick(this)"><span class="fa fa-save mr-2"></span> Save</button>
                         </div>
                     {% else %}
@@ -25,11 +25,11 @@
 
 {% block afterScripts %}
     <script>
-    {#var course = {{ course.pk }}#}
+  /*  {#var course = {{ course.pk }}#}  */
     var course_select = document.getElementById("id_course");
-        {#if (course == course_select.selectedOptions[0].value){#}
+        /* {#if (course == course_select.selectedOptions[0].value){#} */
             course_select.setAttribute("readOnly", true);
             course_select.classList.add("no-pointer");
-//        {
+//      {#  { #} 
     </script>
 {% endblock %}

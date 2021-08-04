@@ -6,39 +6,50 @@
             <div class="col mx-auto">
                 <h5 class="text-center">COURSES QUIZZES</h5>
                 <hr>
+                <p class="text-center">Courses are grouped in programmes; click on <span class="fa fa-folder-open"></span> to view course quizzes</p>
             </div>
         </div>
 
         {% regroup courses_set by programme as courses_set_list %}
         {% for courses_group in courses_set_list %}
             <div class="row">
-                <div class="col">
-                    <h5>{{ courses_group.grouper }} Programme - {{ courses_group.grouper.course_set }}</h5>
-                    <hr>
+                <div class="col bg-light p-2 shadow-sm">
+                    <h5 class="text-center">{{ courses_group.grouper }} Programme</h5>
                 </div>
             </div>
+
+
             <div class="row mb-4">
                 {% for course in  courses_group.list %}
-                    <div class="col-md-6 my-3">
-                        <div class="list-group shadow-sm">
-                            <h6 class="list-group-item text-center">{{ course }}</h6>
-                            <a href="{% url 'assessment:create_group' courseName=course.name coursePK=course.pk %}" class="list-group-item btn btn-light rounded-0" onclick="appendSpinOnClick(this)">New Quiz</a>
-                            {% if course.questiongroup_set.exists %}
-                                <a href="{{ course.get_absolute_url }}" class="list-group-item btn btn-light rounded-0" onclick="appendSpinOnClick(this)">View Quiz</a>
-                            {% else %}
-                                <p class="list-group-item text-center list-group-item-text text-muted">No Quiz or Midsem</p>
-                            {% endif %}
-{#                            <a href="{% url 'assessment:mark' %}" class="list-group-item btn btn-light rounded-0" title="Mark theory quizzes and theories" onclick="appendSpinOnClick(this)">Mark Quiz/Midsem</a>#}
-                            <a href="{% url 'records:all' %}" class="list-group-item btn btn-light rounded-0" onclick="appendSpinOnClick(this)">View All Records</a>
-                            <div class="list-group-item">
+                    <div class="col-md-6 col-lg-4 my-3">
+                        <div class="card h-100 card-hover-shadow w-100">
+                            <div class="card-header text-center">
+                                <span class="card-title">{{ course.name|upper }}</span><br>
+                                <span class="card-subtitle badge badge-secondary">{{ course.code }}</span><br>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-column">
+                                    <a href="{% url 'assessment:create_group' courseName=course.name coursePK=course.pk %}" class="btn btn-outline-secondary flex-grow-1 my-1" onclick="appendSpinOnClick(this)"><span class="fa fa-plus"></span> New Quiz</a>
+                                    {% if course.questiongroup_set.exists %}
+                                        <a href="{{ course.get_absolute_url }}?back={{ request.path }}" class="btn btn-outline-secondary flex-grow-1 my-1" onclick="appendSpinOnClick(this)"><span class="fa fa-folder-open"></span> View Quiz</a>
+                                    
+                                    {% endif %}
+                                    <a href="{% url 'records:course_detail' course_code=course.code course_pk=course.pk %}?back={{ request.path }}" class="btn btn-outline-secondary flex-grow-1 my-1" onclick="appendSpinOnClick(this)"><span class="fa fa-newspaper"></span> View All Records</a>
+                                </div>
+                            </div>
+
+
+                            <div class="card-footer">
                                 <div class="d-flex justify-content-around align-items-center">
                                     <span class="text-muted small">{{ course.level }}</span>
                                     <span class="text-muted small">{{ course.questiongroup_set.count }} Quizzes</span>
                                     <span class="text-muted small">{{ course.get_semester_display }}</span>
                                 </div>
                             </div>
+
                         </div>
                     </div>
+
                 {% endfor %}
 
             </div>

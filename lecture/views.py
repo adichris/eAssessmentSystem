@@ -15,6 +15,7 @@ from assessment.models import (QuestionGroup, QuestionGroupStatus, CourseModel, 
 from assessment.form import LectureQuestionSolutionForm
 from django.utils.html import format_html
 from django.db.models import ObjectDoesNotExist
+from django.utils.http import is_safe_url
 
 
 class LectureCreateView(LoginRequiredMixin, View):
@@ -164,7 +165,7 @@ class QuizTemplateView(LoginRequiredMixin, TemplateView):
         return CourseModel.objects.filter(
             lecture=lecture_model,
             semester=lecture_model.profile.generalsetting.semester
-        )
+        ).order_by("programme", "programme__department",)
 
     def get_context_data(self, **kwargs):
         ctx = super(QuizTemplateView, self).get_context_data(**kwargs)

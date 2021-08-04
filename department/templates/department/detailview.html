@@ -31,7 +31,7 @@
         <div class="row">
             {% for programme in programmes %}
                 <div class="col-md-5 col-lg-4 my-2">
-                    <div class="card card-body">
+                    <div class="card card-hover-shadow card-body">
                         <h6 class="card-title">{{ programme }}</h6>
                         <hr style="padding: 0; margin: 0 0 2px 0;">
                         <table class="table table-borderless">
@@ -44,13 +44,11 @@
                                 <td>{{ programme.coursemodel_set.count }}</td>
                             </tr>
                         </table>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="btn-group btn-block">
-                                <a href="{{ programme.get_absolute_url }}" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">View</a>
+                        <div class="d-flex justify-content-end align-items-center">
+                                <a href="{{ programme.get_absolute_url }}" class="btn btn-primary mr-2" onclick="appendSpinOnClick(this)">View<span class="fa fa-external-link-alt ml-1"></span> </a>
                                 {% if request.user.is_staff %}
-                                    <a href="{{ programme.get_update_url }}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)">Edit</a>
+                                    <a href="{{ programme.get_update_url }}" class="btn btn-secondary" onclick="appendSpinOnClick(this)">Edit<span class="fa fa-edit ml-1"></span></a>
                                 {% endif %}
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -71,6 +69,7 @@
     </div>
 {% endblock %}
 
+<!--
 {% block afterScripts %}
 {#    <script>#}
 {#        function addProgrammeDialog() {#}
@@ -119,3 +118,5 @@
 {##}
 {#    </script>#}
 {% endblock %}
+
+-->

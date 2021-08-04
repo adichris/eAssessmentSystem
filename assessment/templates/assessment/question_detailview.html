@@ -28,15 +28,15 @@
             <div class="row">
                 <div class="col-md-4 col-lg-3">
                     <p class="lead">{{ questiongroup.get_title_display }} Details:</p>
-                    <ul class="list-group">
-                        <li class="list-group-item">Course<br> <b>{{ questiongroup.course }} </b></li>
-                        <li class="list-group-item">Number of Questions<br> <b>{{ questiongroup.question_set.count }} </b></li>
-                        <li class="list-group-item">Total marks<br> <b>{{ questiongroup.total_marks|default_if_none:"---" }}</b></li>
-                        <li class="list-group-item">Programme<br> <b>{{ questiongroup.course.programme }}</b> - <small>{{ questiongroup.course.level }}</small></li>
-                        <li class="list-group-item">Assessment Type <br> <b>{{ questiongroup.get_questions_type_display }}</b></li>
-                        <li class="list-group-item">Last update:<br> <b>{{ questiongroup.updated }}</b></li>
+                    <ul class="list-group shadow-sm">
+                        <li class="list-group-item hover-inset">Course<br> <b>{{ questiongroup.course }} </b></li>
+                        <li class="list-group-item hover-inset">Number of Questions<br> <b>{{ questiongroup.question_set.count }} </b></li>
+                        <li class="list-group-item hover-inset">Total marks<br> <b>{{ questiongroup.total_marks|default_if_none:"---" }}</b></li>
+                        <li class="list-group-item hover-inset">Programme<br> <b>{{ questiongroup.course.programme }}</b> - <small>{{ questiongroup.course.level }}</small></li>
+                        <li class="list-group-item hover-inset">Assessment Type <br> <b>{{ questiongroup.get_questions_type_display }}</b></li>
+                        <li class="list-group-item hover-inset">Last update:<br> <b>{{ questiongroup.updated }}</b></li>
                         {% if questiongroup.status == "prepared" %}
-                        <li class="list-group-item">  <a href="{% url 'assessment:update_group' title=questiongroup.title pk=questiongroup.pk coursePK=questiongroup.course_id courseName=questiongroup.course.name %}" class="btn btn-outline-secondary btn-block " onclick="spinOnClick(this)"><span class="fa fa-edit mr-2"></span> Edit</a></li>
+                        <a href="{% url 'assessment:update_group' title=questiongroup.title pk=questiongroup.pk coursePK=questiongroup.course_id courseName=questiongroup.course.name %}" class="list-group-item text-center list-group-item-action" onclick="spinOnClick(this)"><span class="fa fa-edit mr-2"></span> Edit</a>
                         {% endif %}
                     </ul>
 
@@ -45,7 +45,7 @@
                 <div class="col-md-8 col-lg-9">
                     {% url 'assessment:preference_update' question_group_title=questiongroup.title question_group_pk=questiongroup.pk environment=questiongroup.preference.environment pk=questiongroup.preference_id  as preference_update_url %}
                     <p class="lead">{{ questiongroup.get_title_display }} Activity {% if questiongroup.status == "prepared" and questiongroup.preference %}<a href="{{ preference_update_url }}"> | change preference</a> {% endif %}</p>
-                    <div class="{% if not questiongroup.preference %} card {% endif %} my-2">
+                    <div class="{% if not questiongroup.preference %} card card-hover-shadow {% endif %} my-2">
                         <div class="{% if not questiongroup.preference %} card-body {% endif %}">
                             {% if questiongroup.preference %}
                                 <div class="card-group">
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                     {%  if  questiongroup.status == "conduct" %}
-                        <div class="card my-2 text-center alert-info">
+                        <div class="card card-hover-shadow my-2 text-center alert-info">
                             <div class="card-body">
                                 <a href="{% url 'assessment:conducting' course_name=questiongroup.course.name course_pk=questiongroup.course_id question_group_pk=questiongroup.pk %}" class="btn btn-link btn-lg" onclick="appendSpinOnClick(this)">This Assessment is set to conduct</a>
                             </div>
