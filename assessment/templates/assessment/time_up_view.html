@@ -28,7 +28,7 @@
                                     {{ question_group_instance.course }} {{ question_group_instance.get_title_display }} <br>
                                     <i class="fa fa-clock fa-spin mr-1"></i><b>TIME IS UP</b>
                                 </p>
-                                <a href="{{ script_result_url }}" class="btn btn-info btn-block" title="click to see your result" onclick="spinOnClick(this)">I Agree.</a>
+                                <a href="{{ script_result_url }}" class="btn btn-info btn-block my-2" title="click to see your result" onclick="spinOnClick(this)">I Agree.</a>
                         {% endif %}
                         <div class="alert alert-primary">
                             <span>This assessment due date is up or the dead line for this assessment is up.</span>
@@ -37,7 +37,7 @@
                                     {% with preference=question_group_instance.preference %}
                                         <a href="{% url 'assessment:preference_update' question_group_title=question_group_instance.title question_group_pk=question_group_instance.pk environment=preference.environment pk=preference.pk %}?next={{ request.path }}" class="alert-link" onclick="appendSpinOnClick(this)">change the assessment preference</a>
                                     {% endwith %}
-                                    <span>in other to conduct this assessmen.t</span> 
+                                    <span>in other to conduct this assessment</span>
                             {% endif %}
                         </div>
                         <p class="alert alert-info">This assessment ended {{ question_group_instance.preference.due_date|timesince }} ago.<br> Today is {% now "jS F Y H:i" %}</p>

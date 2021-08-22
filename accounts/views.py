@@ -1,9 +1,10 @@
+from django.views.generic.base import View
 from lecture.models import LectureModel
 from student.models import Student, Programme
 from department.models import Department
 from course.models import CourseModel, CourseLevel
 from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
-from .forms import UserCreateForm, StudentLoginForm, User, UserUpdateForm
+from .forms import UserCreateForm, StudentLoginForm, User, UserUpdateForm, ConfirmResetPasswordForm, PasswordSetForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
@@ -191,3 +192,69 @@ def user_logout(request):
     logout(request)
     request.session.clear()
     return redirect("landing-page")
+
+
+class ConfirmPasswordResetView(View):
+    template_name = "accounts/password/confirm_reset.html"
+    form_class = ConfirmResetPasswordForm
+
+    def get(self, request, *args, **kwargs):
+        ctx = self.get_content_data()
+        ctx["form"] = self.form_class()
+        return render(request, template_name=self.template_name, context=ctx)
+    
+    def get_content_data(self):
+        if self.request.user.is_authenticated:
+            logout(self.request)
+        return {
+            "title": "Reset Your Password",
+            "topic": "Reset Password",
+            "notes": "When you  reset your account, you reset your data",
+            "btn_name": "Confirm Password Reset"
+        }
+    
+    def post(self, request, *args, **kwargs):
+        ctx = self.get_content_data()
+        form_class = self.form_class(request.POST)
+        if form_class.is_valid():
+            try:
+                temp_user = User.objects.get(
+                    username=form_class.cleaned_data["username"],
+                    first_name__iexact=form_class.cleaned_data["first_name"],
+                    last_name__iexact=form_class.cleaned_data["last_name"],
+                    phone_number=form_class.cleaned_data["phone_number"],
+                    dob=form_class.cleaned_data["dob"],
+                )
+            except User.DoesNotExist:
+                err = "Please enter a valid credential"
+                for field in form_class.fields.keys():
+                    form_class.add_error(field, err)
+                    ctx["has_error"] = True
+            else:
+                if temp_user:
+                    login(request, user=temp_user)
+                    return redirect("accounts:change_pwd_reset")
+        ctx["form"] = form_class
+        return render(request, template_name=self.template_name, context=ctx)
+
+
+class ChangePasswordView(LoginRequiredMixin, UpdateView):
+    template_name = "accounts/password/confirm_reset.html"
+    form_class = PasswordSetForm
+    model = User
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ChangePasswordView, self).get_context_data(**kwargs)
+        ctx["btn_name"] = "Save"
+        ctx["title"] = "Set Password"
+        ctx["topic"] = "Create New Password"
+        ctx["is_set_pwd_view"] = True
+        return ctx
+
+    def get_success_url(self):
+        login(self.request, self.get_object())
+        return reverse("landing-page")
+

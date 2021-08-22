@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<div class="jumbotron mt-3">
+<div class="jumbotron mt-3" style="background: url('{% static 'icons/exam_start_page_header.jpg' %}') no-repeat center; background-attachment: scroll; background-size: cover">
     <div class="container">
         <div class="row mt-3">
-            <div class="col-md-6 mx-auto text-center">
-                <h5>DEPARTMENT OF {{ course.programme.department|upper }}</h5>
-                <h5>{{ academic_year|first }} / {{ academic_year|last }}</h5>
+            <div class="col-auto mx-auto text-center transparentBlur bg-white50 rounded p-2 shadow-sm">
+                <h5 class="">DEPARTMENT OF {{ course.programme.department|upper }}</h5>
+                <h5 class="">{{ academic_year|first }} / {{ academic_year|last }}</h5>
             </div>
         </div>
     </div>
@@ -23,11 +24,12 @@
     <div class="row">
         <div class="col-lg-10 mx-auto">
             <div class="table-responsive">
-            <table class="table table-bordered">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
 
                 <tr>
                     <td>DURATION</td>
-                    <td>{{ q_preference.duration|time:"H \h\o\u\r\s  i \m\i\n\u\t\e\s"}}</td>
+                    <td>{{ q_preference.duration|default:"--not set--"}}</td>
                 </tr>
                 {% if q_preference.due_date %}
                 <tr>
@@ -37,7 +39,7 @@
                 {% endif %}
                 <tr>
                     <td>HALL</td>
-                    <td>{{ q_preference.get_environment_display|upper }}</td>
+                    <td>{{ q_preference.get_environment_display|default:"ANY" }}</td>
                 </tr>
                 <tr>
                     <td>STUDENT NAME</td>
@@ -73,7 +75,8 @@
                 </tr>
 
             </table>
-        </div>
+                </div>
+            </div>
         </div>
     </div>
 

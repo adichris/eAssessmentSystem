@@ -4,7 +4,8 @@
         <div class="row my-3 my-lg-4">
             <div class="col-md-auto text-center mx-auto">
                 {% filter upper %}
-                    <h5>PUBLISH {{ object.course }} {{ object.get_title_display }} ASSESSMENT</h5>
+                    <h5>{{ object.course }}</h5>
+                    <h5>PUBLISH  {{ object.get_title_display }} ASSESSMENT</h5>
                 {% endfilter %}
                 <span>Make scripts accessible to student</span>
             </div>
@@ -26,22 +27,32 @@
                             </tr>
                             <tr>
                                 <td>Programme Students</td>
-                                <th>{{ students_count }}</th>
+                                <th>{{ students_count }} </th>
                             </tr>
                         </table>
                         {% url 'lecture:question_group_detail' course_id=object.course_id question_group_pk=object.pk as back_url %}
-                        {% if object.status == "published" %}
+                        {% if object.status == "published" or object.status == 'marked' %}
                             <p class="alert alert-primary">
-                                {{ object.get_title_display }} has already been published - {{ object.updated }}
+                                This {{ object.get_title_display }} has been publish on - {{ object.updated }}
                             </p>
-                            <a href="{{ back_url }}" class="btn btn-light btn-block" onclick="spinOnClick(this)">back</a>
-                        {% else %}
+                            <!-- <a href="{{ back_url }}" class="btn btn-light btn-block" onclick="spinOnClick(this)">back</a> -->
+                      
                             <span class="alert alert-warning d-block">
-                                This action will make student script available to them (respective student)
+                                This action will make student script available to them.
                             </span>
                             <div class="d-flex justify-content-end">
                                 <a href="{{ back_url }}" class="btn btn-default alert-secondary mr-2" onclick="spinOnClick(this)">back</a>
-                                <a href="?confirm_code={{ confirm_code }}" class="btn btn-primary" onclick="spinOnClick(this)">Publish</a>
+                                <a href="?confirm_code={{ confirm_code }}" class="btn btn-primary" onclick="spinOnClick(this)">Publish {% if object.status == "published" %} again! {% endif %}</a>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <p>Please finish marking students scripts in other to publish them</p>
+                                <hr>
+                                <b>Once published you can not mark them again</b>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <a href="{{ back_url }}" class="btn btn-default alert-primary alert-link mr-2" onclick="spinOnClick(this)">back</a>
+                                <a href="?confirm_code={{ confirm_code }}" class="btn alert-warning" onclick="spinOnClick(this)">Force Publish {% if object.status == "published" %} again! {% endif %}</a>
                             </div>
                         {% endif %}
                     </div>

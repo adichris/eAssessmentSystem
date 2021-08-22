@@ -3,16 +3,23 @@
 
 {% block content %}
     <div class="container">
+        {% if back_url %}
+            <div class="row">
+                <div class="col-12">
+                    <a href="{{ back_url }}" class="btn btn-link" onclick="onBackSpin(this)"><span class="fa fa-chevron-left mr-1"></span>back</a>
+                </div>
+            </div>
+        {% endif %}
+
         <div class="row my-3">
-            <div class="col-md-6 mx-auto">
-                <h5 class="text-center">Send Message</h5>
-                <hr>
+            <div class="col-md-6 mx-auto bg-light rounded p-2">
+                <h5 class="text-center">Send a Message to {{ to_user.get_full_name|title }}</h5>
             </div>
         </div>
 
         <div class="row mt-3">
-            <div class="col-md-8 col-lg-6 mx-auto">
-                <div class="card">
+            <div class="col-md-8 col-lg-6 bg-light p-2 mx-auto">
+                <div class="card card-hover-shadow">
                     <div class="card-body">
                         <form method="post">
                             {% csrf_token %}

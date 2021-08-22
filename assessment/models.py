@@ -47,7 +47,8 @@ class ScriptStatus(models.TextChoices):
 
 
 class AssessmentPreference(models.Model):
-    duration = models.TimeField(blank=True, null=True, help_text="The assessment duration in hours:minutes (eg; 2:30)")
+    #duration = models.TimeField(blank=True, null=True, help_text="The assessment duration in hours:minutes (eg; 2:30)")
+    duration = models.DurationField(blank=True, null=True, help_text="The assessment duration in hours:minutes:seconds (eg; 0:30:00)")
     environment = models.CharField(max_length=120, blank=True, null=True, choices=AssessmentEnvironment.choices,
                                    help_text="select how the assessment should be conducted")
     due_date = models.DateTimeField(blank=True, null=True, verbose_name="Due Date and Time - Deadline")
@@ -84,11 +85,12 @@ class QuestionGroup(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("assessment:question_grp_detail", kwargs={
-            "courseName": self.course.name,
-            "title": self.course,
-            "pk": self.pk
-        }
+        return reverse("assessment:question_grp_detail",
+                       kwargs={
+                                "courseName": self.course.name,
+                                "title": self.title,
+                                "pk": self.pk
+                            }
                        )
 
     def generate_marks(self):
@@ -120,12 +122,31 @@ class QuestionGroup(models.Model):
         elif self.questions_type == QuestionTypeChoice.THEORY:
             return self.studenttheoryscript_set.aggregate(average_score=models.Avg("total_score")).get("average_score")
 
-    # def generate_question_numbers(self):
-    #     num = 0
-    #     for question in self.question_set.all():
-    #         num += 1
-    #         question.question_number = num
-    #         question.save()
+    def fix_question_numbers(self):
+        num = 0
+        for question in self.question_set.order_by("id"):
+            num += 1
+            question.question_number = num
+            question.save()
+
+    def is_all_scripts_marked(self):
+        if self.questions_type == QuestionTypeChoice.THEORY:
+            return self.studenttheoryscript_set.count() == self.studenttheoryscript_set.filter(status=ScriptStatus.MARKED).count()
+        return self.multichoicescripts_set.count() == self.multichoicescripts_set.filter(status=ScriptStatus.MARKED).count()
+
+    def get_marked_scripts(self):
+        if self.questions_type == QuestionTypeChoice.THEORY:
+            return self.studenttheoryscript_set.filter(status=ScriptStatus.MARKED)
+        return self.multichoicescripts_set.filter(status=ScriptStatus.MARKED)
+
+    def get_unmarked_scripts(self):
+        if self.questions_type == QuestionTypeChoice.THEORY:
+            return self.studenttheoryscript_set.exclude(status__in=(ScriptStatus.PUBLISHED, ScriptStatus.MARKED))
+        return self.multichoicescripts_set.exclude(status__in=(ScriptStatus.PUBLISHED, ScriptStatus.MARKED))
+
+    @property
+    def total_script_count(self):
+        return self.multichoicescripts_set.count() + self.studenttheoryscript_set.count()
 
 
 class QuestionManager(models.Manager):
@@ -160,8 +181,9 @@ class Question(models.Model):
 
 
 def automate_question_number(instance, **kwargs):
-    if instance.group.questions_type == QuestionTypeChoice.THEORY and not instance.question_number:
-        instance.question_number = instance.group.question_set.count()
+    if not instance.question_number:
+        question_number = instance.group.question_set.count()
+        instance.question_number = question_number + 1
 
 
 models.signals.pre_save.connect(automate_question_number, sender=Question)
@@ -219,7 +241,10 @@ class MultiChoiceScripts(models.Model):
 
         self.score = self.get_selected_option__is_answer_option_sum()
         # self.correct_answers = self.get_answered_question_queryset().count()
+        if self.status not in (ScriptStatus.PUBLISHED, ScriptStatus. MARKED):
+            self.status = ScriptStatus.MARKED
         self.save()
+        return self.score
 
     def get_answered_question_queryset(self):
         self.answered_question_queryset_instance__ = self.studentmultichoiceanswer_set.filter(selected_option__isnull=False)
@@ -234,6 +259,12 @@ class MultiChoiceScripts(models.Model):
 
     def get_wrong_answers_count(self):
         return self.question_group.question_set.count() - self.get_correct_answers_set().count()
+
+    @property
+    def is_all_marked(self):
+        if self.score == 0:
+            return True
+        return bool(self.score)
 
 
 class StudentMultiChoiceAnswer(models.Model):
@@ -260,6 +291,11 @@ class StudentTheoryScript(models.Model):
     has_paused = models.BooleanField(default=False)
     total_score = models.FloatField(null=True, blank=True)
 
+    @property
+    def is_all_marked(self):
+        return self.studenttheoryanswer_set.filter(score__isnull=False).count() == \
+               self.studenttheoryanswer_set.count()
+
     def __str__(self):
         return "%s %s" % (self.student.get_name(), self.__class__.__name__)
 
@@ -281,7 +317,10 @@ class StudentTheoryScript(models.Model):
 
 class TheoryAnswerManager(models.Manager):
     def is_question_answered(self, question_id, script_id):
-        return self.filter(question_id=question_id, script_id=script_id, answer__isnull=False).exists()
+        try:
+            return bool(self.get(question_id=question_id, script_id=script_id, answer__isnull=False).answer)
+        except models.ObjectDoesNotExist:
+            return False
 
 
 class StudentTheoryAnswer(models.Model):

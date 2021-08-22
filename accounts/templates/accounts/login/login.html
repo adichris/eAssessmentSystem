@@ -18,12 +18,12 @@
     <div class="container">
         <div class="row" style="margin-top:20vh">
             <div class="col-auto mx-auto text-center">
-                <h2 class="text-monospace text-dark mb-2"><a href="\" class="btn btn-primary">Continuous Assessment System</a></h2>
+                <h2 class="text-monospace text-dark mb-2"><a href="{% url 'landing-page' %}" class="btn btn-primary">Continuous Assessment System</a></h2>
                 {% if request.user.is_authenticated %}
                     <span class="alert alert-warning d-block">
                         {{ request.user }}, this action will automatically logout your account.
                         Then the {{ cardHeader|lower }} to the system.
-                        <a href="\" class="alert-link" title="cancel {{ cardHeader|lower }}"><i class="fa fa-times-circle"></i></a>
+                        <a href="{% url 'landing-page' %}" class="alert-link" title="cancel {{ cardHeader|lower }}"><i class="fa fa-times-circle"></i></a>
                     </span>
                 {% endif %}
             </div>
@@ -45,6 +45,14 @@
                             {{ form|crispy }}
                             <button type="submit" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Log In</button>
                         </form>
+
+                        <br>
+                        <div class="d-flex justify-content-end">
+                            
+                        </div>
+                        <div class="text-center">
+                            <a href="{% url 'accounts:confirm_reset_pwd' %}" class="btn btn-link">Forgot password?</a>
+                        </div>
                     </div>
                 </div>
 

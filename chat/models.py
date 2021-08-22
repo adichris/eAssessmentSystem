@@ -24,6 +24,7 @@ class Message(models.Model):
         return f"Message {self.from_user} to {self.to_user} @{str(self.timestamp)} "
 
 
+
 class GroupMessageToChoices(models.TextChoices):
     LECTURES = "lecturers", "Lecturers"
     STAFFS = "staffs", "Staffs"

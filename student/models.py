@@ -71,7 +71,11 @@ class Student(models.Model):
                 score = self.multichoicescripts_set.get(
                     question_group_id=question_group_pk,
                     question_group__title=q_title,
-                ).score
+                )
+                s1 = score.score
+                if s1 is None:
+                    s1 = score.score_student()
+                score = s1
             elif quiz_type == "theory":
                 score = self.studenttheoryscript_set.get(
                     question_group_id=question_group_pk,
@@ -83,7 +87,8 @@ class Student(models.Model):
         else:
             try:
                 return round(score, 2)
-            except TypeError:
+            except TypeError as err:
+                print(err)
                 return "Not marked - %s question" % quiz_type
 
     def get_course_total_score(self, course_code, course_semester):

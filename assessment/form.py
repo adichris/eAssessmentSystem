@@ -16,7 +16,7 @@ class AssessmentPreferenceCreateForm(forms.ModelForm):
         widgets = {
             "due_date": forms.SplitDateTimeWidget(date_attrs={"type": "date", "class": "form-control", "title":"Date"},
                                                   time_attrs={"type": "time", "class": "form-control", "title":"Time"}),
-            "duration": forms.TimeInput(attrs={"type": "time"}),
+            "duration": forms.TimeInput(attrs={"type": "time", "step": 1}),
         }
         field_classes = {
             "due_date": forms.SplitDateTimeField
@@ -34,9 +34,8 @@ class AssessmentPreferenceCreateForm(forms.ModelForm):
 
     def clean_duration(self):
         duration = self.cleaned_data.get("duration")
-        if duration:
-            if timezone.timedelta(hours=duration.hour, minutes=duration.minute, seconds=duration.second) < timezone.timedelta(minutes=5):
-                raise forms.ValidationError("Minimum duration should be 5 minutes")
+        if duration and duration < timezone.timedelta(minutes=5):
+                raise forms.ValidationError("Minimum duration should be 5 minutes. You provided %s " % duration)
 
         return duration
 
@@ -67,7 +66,7 @@ class QuestionGroupCreateForm(forms.ModelForm):
 
         error_messages = {
             NON_FIELD_ERRORS: {
-                "unique_together": "Course with this type of assessment already exists"
+                "unique_together": "This course has a quiz with this title already."
             }
         }
 
@@ -85,7 +84,7 @@ class QuestionGroupUpdateForm(forms.ModelForm):
         }
         error_messages = {
             NON_FIELD_ERRORS: {
-                "unique_together": "Course with this type of assessment already exists"
+                "unique_together": "This course has a quiz with this title already. Please change the title"
             }
         }
 

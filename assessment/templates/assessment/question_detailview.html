@@ -11,6 +11,15 @@
         
     
     <div class="container mb-4">
+        <div class="row my-3">
+            <div class="col-auto mx-auto rounded p-2 shadow-sm">
+                <h5>{{ questiongroup.get_title_display }} status <span class="badge badge-primary">{{ questiongroup.get_status_display }}</span></h5>
+            </div>
+            <div class="col-12">
+                <hr>
+            </div>
+        </div>
+
         {% if not scheme_view %}
             <div class="row mt-4">
                     <div class="col-12 d-flex flex-column flex-md-row justify-content-between align-items-center">
@@ -105,8 +114,10 @@
                     {% elif questiongroup.questions_type == "theory" %}
                         <a href="{% url 'assessment:prepare_theory' QGPK=questiongroup.pk QGT=questiongroup.title %}" class="btn btn-secondary flex-grow-1 mx-md-1 my-1 my-md-0 shadow-sm" onclick="appendSpinOnClick(this)"><span class="fa fa-edit mr-2"></span> Edit {{ questiongroup.get_title_display }}</a>
                     {% endif %}
-                        <a href="{% url 'assessment:generate_marks' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-warning flex-grow-1 mx-md-1 my-1 my-md-0 shadow-sm" title="generate base on the total marks" onclick="appendSpinOnClick(this)"><span class="fa fa-cogs mr-2"></span> Generate Marks </a>
-                        <a href="{% url 'assessment:delete_question_group' coursePK=questiongroup.course.pk courseName=questiongroup.course.name pk=questiongroup.pk %}" class="btn btn-danger my-1 mx-md-1 my-md-0 shadow-sm" onclick="appendSpinOnClick(this)"><span class="fa fa-archive mr-2"></span> Remove {{ questiongroup.get_title_display }} Questions</a>
+                    <a href="?fixquestionnum=1" class="btn btn-secondary my-1 mx-md-1 my-md-0 shadow-sm" onclick="appendSpinOnClick(this)"><span class="fa fa-list-ol mr-2"></span> Fix Question Numbering</a>
+                    <a href="{% url 'assessment:generate_marks' QGT=questiongroup.title QGPK=questiongroup.pk %}" class="btn btn-warning flex-grow-1 mx-md-1 my-1 my-md-0 shadow-sm" title="generate base on the total marks" onclick="appendSpinOnClick(this)"><span class="fa fa-cogs mr-2"></span> Generate Marks </a>
+                    <a href="{% url 'assessment:delete_question_group' coursePK=questiongroup.course.pk courseName=questiongroup.course.name pk=questiongroup.pk %}" class="btn btn-danger my-1 mx-md-1 my-md-0 shadow-sm" onclick="appendSpinOnClick(this)"><span class="fa fa-archive mr-2"></span> Remove {{ questiongroup.get_title_display }} Questions</a>
+
                 </div>
             {% else %}
                 <hr>
@@ -267,10 +278,14 @@
                                     </tr>
                             {% endfor %}
                         </table>
-                        <a href="{% url 'assessment:add1theory' question_group_pk=questiongroup.pk question_group_title=questiongroup.title questions_type=questiongroup.questions_type %}" class="d-flex justify-content-center flex-column card card-body card-link text-center">
-                            <span class="fa fa-plus fa-5x"></span><br>
-                            <span>Add Question {{ questiongroup.question_set.count|add:1 }}</span>
-                        </a>
+                        
+                        {% if questiongroup.status == 'prepared' %}
+                            <a href="{% url 'assessment:add1theory' question_group_pk=questiongroup.pk question_group_title=questiongroup.title questions_type=questiongroup.questions_type %}" class="d-flex justify-content-center flex-column card card-body card-link text-center">
+                                <span class="fa fa-plus fa-5x"></span><br>
+                                <span>Add Question {{ questiongroup.question_set.count|add:1 }}</span>
+                            </a>
+                        {% endif %}
+                            
                 </div>
                 </div>
             {% else %}
@@ -300,17 +315,19 @@
                             </div>
                         {% endif %}
                     {% endfor %}
-
-                    <div class="col-md-6">
-                        <div class="card h-100 card-hover-shadow">
-                            <a href="{% url 'assessment:add1theory' question_group_pk=questiongroup.pk question_group_title=questiongroup.title questions_type=questiongroup.questions_type %}" class="card-link">
-                                <div class="card-body d-flex align-items-center flex-column">
-                                    <span class="fa fa-plus fa-10x "></span>
-                                    <p>Add Question {{ questions.count|add:1 }}</p>
-                                </div>
-                            </a>
+                    
+                    {% if questiongroup.status == 'prepared' %}
+                        <div class="col-md-6">
+                            <div class="card h-100 card-hover-shadow">
+                                <a href="{% url 'assessment:add1theory' question_group_pk=questiongroup.pk question_group_title=questiongroup.title questions_type=questiongroup.questions_type %}" class="card-link">
+                                    <div class="card-body d-flex align-items-center flex-column">
+                                        <span class="fa fa-plus fa-10x "></span>
+                                        <p>Add Question {{ questions.count|add:1 }}</p>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
             {% endif %}
         {% endif %}

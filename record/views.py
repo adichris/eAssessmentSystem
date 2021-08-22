@@ -232,7 +232,7 @@ class PublishRecordsDetailView(LoginRequiredMixin, DetailView):
         if self.request.user.is_lecture:
             self.init_instance()
             confirm_code = request.GET.get("confirm_code")
-            if confirm_code and confirm_code == self.get_confirm_code():
+            if confirm_code and confirm_code == self.get_confirm_code() and self.question_group_instance.status in (QuestionGroupStatus.MARKED, QuestionGroupStatus.PUBLISHED):
                 return self.publish_scripts()
             return super(PublishRecordsDetailView, self).get(request, *args, **kwargs)
         elif self.request.user.is_staff:

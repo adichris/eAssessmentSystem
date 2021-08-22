@@ -4,26 +4,44 @@
          {% include 'snippet/alert_success_beginStart.html' with alert_message=has_published_alert %}
     {% endif %}
     <div class="container">
+        <div class="row my-3">
+            <div class="col text-center">
+                <h5>{{ questiongroup.get_title_display }} Scripts</h5>
+                <hr>
+            </div>
+        </div>
         <div class="row mt-3">
-            <div class="col-md-8 mx-auto">
+            <div class="col-md-auto mx-auto">
                 <ul class="list-group list-group-horizontal-md mb-2">
                     <li class="list-group-item">Programme</li>
                     <li class="list-group-item list-group-item-secondary">{{ questiongroup.course.programme }}</li>
                     <li class="list-group-item">Course</li>
-                    <li class="list-group-item list-group-item-secondary">{{ questiongroup.course }}</li>
+                    <li class="list-group-item list-group-item-secondary">{{ questiongroup.course.name }}</li>
+                    <li class="list-group-item">Assessment</li>
+                    <li class="list-group-item list-group-item-secondary">{{ questiongroup.get_title_display }} Scripts</li>
                 </ul>
-                <h5 class="text-center">{{ questiongroup.get_title_display }} Scripts</h5>
             </div>
         </div>
 
     <div class="row my-3">
         <div class="col-md-12 mx-auto">
-            <div class="d-flex flex-column flex-md-row justify-content-between">
-                <a href="" class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" title="Allow student to continue quiz" onclick="spinOnClick(this)">Resume {{ object.get_title_display }} <span class="fa fa-play"></span></a>
-                <a href="{% url 'assessment:pre_questions_conducting' question_group_pk=questiongroup.pk question_group_title=questiongroup.title %}" class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" title="questions preview" onclick="spinOnClick(this)">View Questions <span class="fa fa-question"></span></a>
-                <a href="{% url 'lecture:mark_scripts' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" onclick="spinOnClick(this)">Mark Scripts <span class="fa fa-marker" ></span></a>
-                <a href="{% url 'records:publish' course_code=questiongroup.course.code question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" onclick="spinOnClick(this)"  class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1 {% if questiongroup.status == 'published' %} disabled">Published{% else %}">Publish{% endif %} <span class="fa fa-newspaper"></span></a>
-                <a href="{% url 'records:lecture_quiz_detail' question_group_pk=questiongroup.pk question_group_title=questiongroup.title course_code=questiongroup.course.code %}" class="btn btn-light my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" onclick="spinOnClick(this)">Records <span class="fa fa-database"></span></a>
+            <div class="d-flex flex-column flex-md-row justify-content-between bg-light p-2 rounded">
+                
+                {% comment %}
+                    <a href="" class="btn btn-secondary my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" title="Allow student to continue quiz" onclick="spinOnClick(this)">Resume {{ object.get_title_display }} <span class="fa fa-play"></span></a>
+                {% endcomment %}
+
+                <a href="{% url 'assessment:pre_questions_conducting' question_group_pk=questiongroup.pk question_group_title=questiongroup.title %}" class="btn btn-secondary my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" title="questions preview" onclick="spinOnClick(this)"><span class="fa fa-question"></span> View Questions</a>
+                <a href="{% url 'lecture:mark_scripts' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-secondary my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" onclick="spinOnClick(this)"><span class="fa fa-marker" ></span> Mark Scripts</a>
+                {% url 'records:publish' course_code=questiongroup.course.code question_group_title=questiongroup.title question_group_pk=questiongroup.pk as publish_url %}
+                {% if questiongroup.status == 'published' %}
+                    <a href="{{ publish_url }}" onclick="spinOnClick(this)"  class="btn btn-secondary my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1 "><span class="fa fa-newspaper"></span> Re-Publish</span></a>
+                {% elif questiongroup.status != 'marked' %}
+                    <a href="{{ publish_url }}" onclick="spinOnClick(this)"  class="btn btn-secondary my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1 "><span class="fa fa-newspaper"></span> Publish</a>
+                {% else %}
+                    <span>Can't published</span>
+                {% endif %}
+                <a href="{% url 'records:lecture_quiz_detail' question_group_pk=questiongroup.pk question_group_title=questiongroup.title course_code=questiongroup.course.code %}" class="btn btn-secondary my-1 my-md-0 shadow-sm flex-grow-1 mx-md-1" onclick="spinOnClick(this)"><span class="fa fa-database"></span> Records</a>
             </div>
         </div>
     </div>
@@ -76,11 +94,7 @@
                                         <tr>
                                             <td>Scripts Status</td>
                                             <td>
-                                                {% if questiongroup.status == "marked" or questiongroup.status == "published" %}
-                                                    <span>Marked</span>
-                                                {% else %}
-                                                    <span>Not Marked</span>
-                                                {% endif %}
+                                                <span>{{ script_marked }}</span>
                                             </td>
                                         </tr>
                                     {% endif %}
@@ -201,7 +215,12 @@
     {% elif questiongroup.questions_type == "theory" %}
         <div class="row">
             <div class="table-responsive">
-                <p class="lead small">Students Scripts - Records</p>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <p class="lead small">Students Scripts - Records</p>
+                    {% if questiongroup.get_unmarked_scripts.exists %}
+                        <a href="{% url 'lecture:mark_scripts' question_group_title=questiongroup.title question_group_pk=questiongroup.pk %}" class="btn btn-outline-primary btn-sm">mark scripts</a>
+                    {% endif %}
+                </div>
                 <table class="table table">
                     <tr>
                         <th>#</th>
@@ -215,7 +234,7 @@
                             <td>{{ forloop.counter }}</td>
                             <td>{{ script.student.index_number }}</td>
                             <td>{{ script.student.get_name }}</td>
-                            <td>{{ script.student.score|default:"Not marked" }}</td>
+                            <td>{{ script.score|default_if_none:"Not marked" }}</td>
                             <td>{{ script.studenttheoryanswer_set.count }}</td>
                         </tr>
                     {% endfor %}

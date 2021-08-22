@@ -8,7 +8,7 @@ from .views import (AssessmentQuestionGroupDetailView, CreateMultipleChoiceQuest
                     StudentAssessingTemplateView, MultiChoiceQuestionsExaminationView, QuestionResultTemplateView,
                     QuestionsPreviewTemplateView, QuestionResultDetailTemplateView, TheoryQuestionsExaminationView,
                     TheoryQuestionAnswerView, TheoryScriptStatusTemplateView, StopAllWorkTemplateView,
-                    AddOneMoreTheoryQuestion,
+                    AddOneMoreTheoryQuestion, StudentCompletedPublishedAssessmentView
                     )
 
 
@@ -40,12 +40,16 @@ urlpatterns = [
          name="conducting"),
     path("conducting_test/preview_question/<str:question_group_title>/<str:question_group_pk>/",
          QuestionsPreviewTemplateView.as_view(), name="pre_questions_conducting"),
+
+    # Assessment URLS
     path("student/view/", StudentAssessmentView.as_view(), name="student"),
+    path("student/view/<str:course_code>/<str:course_name>", StudentCompletedPublishedAssessmentView.as_view(), name="completed_published_assessment4student"),
 
     path("lecture/student/script/<int:course_id>/<int:question_group_id>/<int:student_id>/<str:questions_type>/",
          LectureStudentScriptTemplateView.as_view(), name="lecture_student_script"),
     path("generateMarks/<str:QGT>/<int:QGPK>/", GenerateQMarksRedirectQGroupRV.as_view(), name="generate_marks"),
     path("student/HALL/<str:QGT>/<int:QGPK>/", StudentAssessingTemplateView.as_view(), name="student_assessing"),
+
     # Exam
     path("scripts/multichoice/start/<str:course_code>/<str:QGT>/<int:QGPK>/",
          MultiChoiceQuestionsExaminationView.as_view(), name="MCQ_exam_start"),
@@ -62,8 +66,7 @@ urlpatterns = [
 
     # Results
     path("scripts/result/summary/multi_choice/<int:student_id>/<int:course_id>/<int:question_group_id>/<int:script_pk>/"
-         "<str:questions_type>/",
-         QuestionResultTemplateView.as_view(), name="result"),
+         "<str:questions_type>/", QuestionResultTemplateView.as_view(), name="result"),
     path("scripts/result/details/<int:student_id>/<int:course_id>/<int:question_group_id>/<str:questions_type>/",
          QuestionResultDetailTemplateView.as_view(), name="result_detail"),
 

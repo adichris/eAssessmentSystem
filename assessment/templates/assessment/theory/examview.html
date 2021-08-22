@@ -15,7 +15,7 @@
     {% endif %}
 
     <div class="container">
-        <div class="row">
+        <div class="row d-none d-md-block">
             <div class="col-md-8 col-lg-6 mx-auto">
                 <table class="table table-bordered">
                 {% with programme=request.user.student.programme %}
@@ -53,8 +53,10 @@
                 {% with preference=question_group_instance.preference %}
                 <div class="card-group">
                     {% include 'snippet/H_label_value_card.html' with label="Total Questions" value=4 new_line=1 tc=1 %}
-                    {% include 'snippet/H_label_value_card.html' with label="Due Date" value=preference.due_date|default:"Any time" new_line=1 tc=1 %}
-                    {% include 'snippet/H_label_value_card.html' with label="Duration" value=preference.duration|time:"h\h\r\s : i\m\s"|default:"Any time" new_line=1 tc=1 %}
+
+                        {% include 'snippet/H_label_value_card.html' with label="Due Date" value=preference.due_date|default:"Any time" new_line=1 tc=1 extra_cls="d-none d-md-block" %}
+                        {% include 'snippet/H_label_value_card.html' with label="Duration" value=preference.duration|default:"Any time" new_line=1 tc=1 extra_cls="d-none d-md-block" %}
+
                     {% include 'snippet/H_label_value_card.html' with label="Used Time" value=used_time_str new_line=1 value_id="id_used_time" tc=1 %}
                 </div>
                 {% endwith %}
@@ -77,7 +79,7 @@
                             <th>{{ forloop.counter }}</th>
                             <td><a href="{{ solve_link }}" class="text-decoration-none text-dark">{{ question_instance.question|linebreaksbr }}</a></td>
                             <td class="text-center text-nowrap">{{ question_instance.max_mark|floatformat }} Marks</td>
-                            <td><a href="{{ solve_link }}" class="btn btn-outline-primary btn-block btn-lg" onclick="spinOnClick(this)" title="Write your solution / view your solution">Solve </a></td>
+                            <td><a href="{{ solve_link }}?back={{ request.path }}" class="btn btn-outline-primary btn-block btn-lg" onclick="spinOnClick(this)" title="Write your solution / view your solution">Solve </a></td>
                         </tr>
 
                     {% endfor %}
@@ -98,14 +100,14 @@
                             <span class="float-right">{{ question_instance.max_mark }} marks</span>
                         </p>
                         <p>
-                            <a href="{{ solve_link }}" class="text-decoration-none text-dark">{{ question_instance.question|linebreaksbr }}</a>
+                            <a href="{{ solve_link }}?back={{ request.path }}" class="text-decoration-none text-dark">{{ question_instance.question|linebreaksbr }}</a>
                         </p>
                         <div class="float-right">
                             
                             {% if question_instance.pk|is_answered:script_pk %}
-                            <a href="{{ solve_link }}" class="btn btn-success " onclick="spinOnClick(this)" title="Write your solution / view your solution">Solved</a>
+                            <a href="{{ solve_link }}?back={{ request.path }}" class="btn btn-success " onclick="spinOnClick(this)" title="Write your solution / view your solution"><span class="fa fa-edit mr-1"></span> Edit</a>
                             {% else %}
-                                <a href="{{ solve_link }}" class="btn btn-outline-primary " onclick="spinOnClick(this)" title="Write your solution / view your solution">Solve</a>
+                                <a href="{{ solve_link }}?back={{ request.path }}" class="btn btn-outline-primary " onclick="spinOnClick(this)" title="Write your solution / view your solution"><span class="fa fa-edit mr-1"></span> Edit</a>
                             {% endif %}
                                                            
                         </div>
@@ -134,22 +136,21 @@
 {% block afterScripts %}
     <script src="{% static 'utils/moment.min.js' %}"></script>
     <script>
-        var usedTime_tag = document.getElementById("id_used_time");
-        {% if is_duration %}
-            var usedTime_moment = moment(`${moment().year()}-${moment().month()}-${moment().day()} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
-
+        let usedTime_tag = document.getElementById("id_used_time");
+        {% if used_time %}
+            let usedTime_moment = moment(`${moment().year()}-${moment().month()}-${moment().day()} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
             setInterval(function () {
-                MomemtUsed = usedTime_moment.add(1, "second")
-                usedTime_tag.innerHTML = `${usedTime_moment.hours()}:${usedTime_moment.minutes()}:${usedTime_moment.second()} `
-            }, 1000)
+                MomemtUsed = usedTime_moment.add(1, "second");
+                usedTime_tag.innerHTML = `{{ used_time.day }} days,${usedTime_moment.hours()}:${usedTime_moment.minutes()}:${usedTime_moment.second()} `
+            }, 1000);
 
-            var alrt_saved = $("#id_alert_saved");
+            let alrt_saved = $("#id_alert_saved");
             setTimeout(function () {
                 alrt_saved.hide("fade")
-            }, 10000)
+            }, 10000);
 
         {% else %}
-            usedTime_tag.innerHTML = "-- -- --"
+            usedTime_tag.innerHTML = "-- -- --";
         {% endif %}
     </script>
 {% endblock %}

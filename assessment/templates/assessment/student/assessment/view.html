@@ -4,7 +4,7 @@
 <div class="jumbotron rounded-0" style="background-image: url({% static 'DefaultImg/bg computer.jpeg' %}); background-size: cover;background-attachment: fixed;background-repeat: no-repeat">
     <div class="container">
         <div class="row">
-                <div class="col-auto mx-auto mark">
+                <div class="col-auto mx-auto transparentBlur bg-white50 rounded shadow-sm p-2">
                     {% if home_page %}
                     <h4>Do Various Courses Quizzes and Midsem in {{ request.user.student.programme }}</h4>
                     <h4>View your Records and Results</h4>
@@ -22,11 +22,11 @@
         <div class="row my-3">
             <div class="col-md-6 col-lg-4 my-2">
                 {% static 'icons/working_at_the_imac.svg' as ongoing_src %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="On going" src=ongoing_src  search_name="page" link=on_going_page_id %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="Continue Your Unfinished Assessment" src=ongoing_src  search_name="page" link=on_going_page_id %}
             </div>
             <div class="col-md-6 col-lg-4 my-2">
                 {% static 'icons/quiz.png' as assessment_src %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="New Assessment" src=assessment_src search_name="page" link=new_assessment_page_id %}
+                {% include 'snippet/lecture_asscessment_card.html' with title="New and other Assessment" src=assessment_src search_name="page" link=new_assessment_page_id %}
             </div>
             <div class="col-md-6 col-lg-4 my-2">
                 {% static 'icons/records.png' as published_src %}
@@ -42,7 +42,7 @@
     {% else %}
         <div class="row">
             <div class="col">
-                <a type="reset" class="btn btn-link" href="?" onclick="onBackSpin(this)"><span class="fa fa-chevron-left mr-2"></span>back</a>
+                <a class="btn btn-link" href="{{ back|default:'?' }}" onclick="onBackSpin(this)"><span class="fa fa-chevron-left mr-2"></span>back</a>
                 <hr>
             </div>
         </div>

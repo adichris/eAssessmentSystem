@@ -28,7 +28,7 @@
                                     </tr>
                                     <tr>
                                         <td>Duration</td>
-                                        <td>{{ question_group.preference.duration|time:"h\h\r\s \: i\m\s"|default_if_none:"No Duration set" }}</td>
+                                        <td>{{ question_group.preference.duration|default_if_none:"No Duration set" }}</td>
                                     </tr>
                                     <tr>
                                         <td>Due Date</td>

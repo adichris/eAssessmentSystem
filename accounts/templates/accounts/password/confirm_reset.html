@@ -1,0 +1,65 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ title }} - Assessment</title>
+    <link rel="shortcut icon" href="{% static 'DefaultImg/class_logo.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/custom.css' %}">
+</head>
+<body style="background-image: url({% static 'DefaultImg/bgs/gh_sch_bg.svg' %}); background-attachment: fixed;background-repeat: no-repeat; background-size: cover;">
+
+{% load crispy_forms_tags %}
+
+    <div class="container">
+        <div class="row my-2">
+            <div class="col-md-8 col-lg-6 mx-auto mt-auto ">
+
+                <div class="card shadow transparentBlur mt-3" style="background-color: #ffffffb3">
+                    {% if is_set_pwd_view and request.user.is_authenticated %}
+                        <div class="card-header">
+                            <h5 class="text-center">{{  request.user }}</h5>
+                            <span class="text-center d-block">{{ request.user.username }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="text-center">{{ topic }}</h5>
+                        <p class="text-center">Continue eAssessment</p>
+                        {% if notes %}
+                            <p><span class="text-danger">NOTE:</span> {{ notes }}</p>
+                        {% endif %}
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <button type="submit" class="btn btn-primary btn-block" onclick="spinOnClick(this)">{{ btn_name }}</button>
+                        </form>
+
+                        <br>
+                        <div class="d-flex justify-content-center">
+                            <a href="{% url 'landing-page' %}#studentLogin" class="btn btn-link">Remember password. Sign in</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+   <script src="{% static 'utils/active_btn_spin.js' %}"></script>
+</body>
+</html>
+
+{% if has_error %}
+
+    <script>
+        document.getElementById("id_phone_number_1").classList.add("is-invalid")
+        window.alert("No account found!")
+    </script>
+
+{% endif %}
+<script>
+    document.getElementById("id_phone_number_1").classList.add("mt-1")
+</script>

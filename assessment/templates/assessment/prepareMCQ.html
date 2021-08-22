@@ -8,11 +8,9 @@
                 <h5 class="text-center"> {{ question_group.course }} course </h5>
                 <hr>
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
-                    <a href="{{ question_group.get_absolute_url }}"><i class="fa fa-chevron-left mr-1"></i>Back to {{ question_group.get_title_display }}</a>
+                    <a href="{{ question_group.get_absolute_url }}"><i class="fa fa-chevron-left mr-1"></i>Done</a>
                     <p class="text-center">{% if is_new %} Prepare {% else %} Update {% endif %} Multi Choice Question</p>
-                    {% if question_number %}
-                        <p>Number of Questions <b>{{ question_number }} </b></p>
-                    {% endif %}
+
                     <div class="btn-group">
                         <a href="?view=0" class="btn btn{% if not table_view %}{% else %}-outline{% endif %}-secondary" title="list display"><span class="fa fa-list"></span></a>
                         <a href="?view=1" class="btn btn{% if table_view %}{% else %}-outline{% endif %}-secondary" title="table display"><span class="fa fa-table"></span></a>
@@ -41,74 +39,64 @@
                      {% endif %}
                  </div>
         </div>
+
+     <div class="row">
+         <div class="col-auto mx-auto">
+             {% if question_number %}
+                <b>
+                    Question {{ question_number|add:1 }}
+                </b>
+             {% elif question_number_on_edit %}
+                 <b>Edit Question {{ question_number_on_edit }}</b>
+             {% endif %}
+         </div>
+     </div>
      </div>
 
      {% if table_view %}
 {#         TABLE VIEW #}
          <div class="container">
 
-         {% if question_group.status == "prepared" or is_new %}
+             {% if question_group.status == "prepared" or is_new %}
 
-         <form action="" method="post">
-             <div class="row">
+                 <form action="" method="post">
+                    {% csrf_token %}
+                     <div class="row">
 
-                 <div class="table-responsive">
-                     {{ multiChoiceQFormset.management_form }}
-                     <table class="table">
-{#                         <tr>#}
-{#                             <th>#</th>#}
-{#                             <th>Question</th>#}
-{#                             <th>Options/ Objectives</th>#}
-{#                         </tr>#}
-                            <tr>
-                             <th> {{ question_number|add:"1" }}</th>
-                             <td>{{ questionForm|crispy }}</td>
-                             <td>
-    {#                             <table class="table" id="id_optionsTable">#}
-    {#                                 {% for multiChoiceQForm in multiChoiceQFormset %}#}
-    {#                                    <tr>#}
-    {#                                        <td>{{ forloop.counter }}</td>#}
-    {#                                        <td>{{ multiChoiceQForm|crispy }}</td>#}
-    {#                                    </tr>#}
-    {#                                 {% endfor %}#}
-    {##}
-    {#                             </table>#}
-                                 <ul id="id_optionsList">
-                                     {% for multiChoiceQForm in multiChoiceQFormset %}
-                                        <li style="list-style: upper-alpha" class="jumbotron p-2">{{ multiChoiceQForm|crispy }}</li>
-                                     {% endfor %}
-                                 </ul>
-                                 <hr>
-                                 <button type="button" class="btn btn-light btn-block" onclick="addAnotherOption()"><span class="fa fa-plus"></span> Add next Option</button>
-                             </td>
-                            </tr>
-                     </table>
-                 </div>
+                         <div class="table-responsive">
+                             {{ multiChoiceQFormset.management_form }}
+                             <table class="table">
+                                    <tr>
+                                     <th> {{ question_number|add:"1" }}</th>
+                                     <td>{{ questionForm|crispy }}</td>
+                                     <td>
+                                         <ul id="id_optionsList">
+                                             {% for multiChoiceQForm in multiChoiceQFormset %}
+                                                <li style="list-style: upper-alpha" class="jumbotron p-2">{{ multiChoiceQForm|crispy }}</li>
+                                             {% endfor %}
+                                         </ul>
+                                         <hr>
+                                         <button type="button" class="btn btn-light btn-block" onclick="addAnotherOption()"><span class="fa fa-plus"></span> Add next Option</button>
+                                     </td>
+                                    </tr>
+                             </table>
+                         </div>
 
-                    <div class="col-md-12 mx-auto mb-4">
-                        <div class="d-flex flex-column flex-md-row">
-                            <button type="submit" class="btn btn-outline-primary flex-grow-1 {% if is_new %} mb-2 mb-md-0 mr-md-2 {% endif %}" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span>Save</button>
-                            {% if is_new %}
-                                <button type="submit" class="btn btn-outline-primary flex-grow-1 {% if is_new %} {% endif %}" name="add_save_and_another" value="1" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span>Save and add Question {{ question_number|add:"2" }} <span class="fa fa-plus-circle"></span></button>
-                            {% endif %}
-                        </div>
-                    </div>
-             </div>
-         </form>
-             {% else %}
-         <div class="row">
-             <div class="row">
-                 <div class="col-md-6 mb-1">
-                     <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="addAnotherOption(this)"><span class="fa fa-save mr-2"></span> Save</button>
-                 </div>
-                 {% if is_new %}
-                     <div class="col-md-6 mt-1">
-                         <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span>Save and add Question <span class="fa fa-plus-circle"></span> {{ question_number|add:"2" }}</button>
                      </div>
-                 {% endif %}
-             </div>
-         </div>
-         {% endif %}
+
+                 <div class="row my-3">
+                     <div class="col-md-6 mb-1 mb-md-0">
+                         <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="addAnotherOption(this)"><span class="fa fa-save mr-2"></span> Save</button>
+                     </div>
+                     {% if is_new %}
+                         <div class="col-md-6 mt-1 mt-md-0">
+                             <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span>Save and add Question <span class="fa fa-plus-circle"></span> {{ question_number|add:"2" }}</button>
+                         </div>
+                     {% endif %}
+                 </div>
+                 </form>
+             {% else %}
+             {% endif %}
      </div>
 
          {% else %}
@@ -116,7 +104,7 @@
 
      <div class="container">
         <div class="row my-3">
-            <div class="col-md-10 col-lg-8 mx-auto">
+            <div class="col-lg-8 mx-auto">
                 <form method="post">
                     <div class="d-none">
                         {% csrf_token %}
@@ -140,11 +128,11 @@
                     <div class="well my-3">
                         <div class="row">
                             <div class="col{% if is_new %}-md-6{% endif %} mb-1 mb-md-0">
-                                <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span> Save</button>
+                                <button type="submit" class="btn btn-outline-primary shadow btn-block" onclick="spinOnClick(this)"><span class="fa fa-save mr-1"></span> Save</button>
                             </div>
                             {% if is_new %}
                                 <div class="col-md-6 mt-1 mt-md-0">
-                                    <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="addAnotherOption(this)"><span class="fa fa-save mr-1"></span>Save and Add Question {{ question_number|add:"2" }} <span class="fa fa-plus-circle"></span> </button>
+                                    <button type="submit" class="btn btn-outline-primary shadow btn-block" name="add_save_and_another" value="1" onclick="spinOnClick(this)"><span class="fa fa-save mr-1"></span>Save and Add Question {{ question_number|add:"2" }} <span class="fa fa-plus-circle"></span> </button>
                                 </div>
                             {% endif %}
                         </div>

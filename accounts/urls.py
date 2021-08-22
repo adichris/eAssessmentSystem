@@ -1,6 +1,10 @@
 from django.urls import path
-from .views import AdminCreateView, UserDetailView, StaffLoginView, AdminLoginView, user_logout, student_login, AddAdminView, UserUpdateView
+from .views import (AdminCreateView, UserDetailView, StaffLoginView,
+                    AdminLoginView, user_logout, student_login, AddAdminView,
+                    UserUpdateView, ConfirmPasswordResetView, ChangePasswordView
+ )
 from eAssessmentSystem.view import AdminStaffLogin
+
 
 app_name = "accounts"
 
@@ -14,4 +18,7 @@ urlpatterns = [
     path("login/", AdminStaffLogin.as_view(), name="loginPage"),
     path("addadmin/", AdminCreateView.as_view(), name="admin-add"),
     path("studentLogin/", student_login, name="student_login"),
+
+    path("resetpassword/", ConfirmPasswordResetView.as_view(), name="confirm_reset_pwd"),
+    path("changepwdreset/", ChangePasswordView.as_view(), name="change_pwd_reset")
 ]

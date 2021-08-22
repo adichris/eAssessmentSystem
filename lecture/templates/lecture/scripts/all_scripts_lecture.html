@@ -7,8 +7,13 @@
                 <h5 class="text-center">ALL STUDENT SCRIPTS</h5>
             </div>
             <div class="col-md-12">
-                <hr>
-                <a href="?action=back" class="btn btn-link" onclick="onBackSpin(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'assessment:all' %}" class="btn btn-link" onclick="onBackSpin(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
+                    <div class="btn-group">
+                        <a href="?action=listAllQS" class="btn btn-outline-secondary {% if ACTION == 'listAllQS' %} active {% endif %}" title="List All Scripts"> <span class="fa fa-list-ol"></span></a>
+                        <a href="?action=th" class="btn btn-outline-secondary {% if ACTION != 'listAllQS' %} active {% endif %}" title="List All Scripts"> <span class="fa fa-th"></span></a>
+                    </div>
+                </div>
                 <hr>
             </div>
         </div>

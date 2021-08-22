@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
     <div class="container">
         <div class="row">
@@ -8,63 +9,60 @@
             </div>
         </div>
 
-        <div class="row text-center">
-        {% with preference=question_group.preference %}
-            {% if preference.duration %}
-                <div class="col-md-6 col-lg-3 my-2 h-100 mx-auto">
-                    <div class="card">
-                        <div class="card-body">
-                            <p>Duration:</p>
-                            <h5>{{ preference.duration|time:"h\h\r\s \: i\m\i\n\s" }}</h5>
-                            <hr>
-                            <p>Due Date and Time</p>
-                            <h5>{{ preference.due_date }}</h5>
+        <div class="row text-center my-3">
+            <div class="col card-deck">
+                {% with preference=question_group.preference %}
+                   {% if preference.duration %}
+                        <div class="card">
+                                <div class="card-body">
+                                    <p>Duration:</p>
+                                    <h5>{{ preference.duration }}</h5>
+                                    <hr>
+                                    <p>Due Date and Time</p>
+                                    <h5>{{ preference.due_date }}</h5>
 
+                                </div>
                         </div>
-                    </div>
-                </div>
-                {% elif question_group.preference.due_date %}
-                    <div class="card card-body">
-                        <p>Due Date</p>
-                        <h5>{{ preference.due_date }}</h5>
-                    </div>
-                {% endif %}
-        {% endwith %}
-            <div class="col-md-6 col-lg-3 my-2 h-100 mx-auto">
-                <div class="card">
-                    <div class="card-body">
-                        <p>Environment</p>
-                        <h5>{{ question_group.preference.get_environment_display }}</h5>
-                        <hr>
-                        <p>Shuffle Questions</p>
-                        <h5>{%  if question_group.preference.is_question_shuffle %} On {% else  %} Off {% endif %}</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3 my-2 h-100 mx-auto">
-                <div class="card">
-                    <div class="card-body">
-                        {% url 'assessment:pre_questions_conducting' question_group_pk=question_group.pk question_group_title=question_group.title as preview_url %}
-                        <a href="{{ preview_url }}" class="card-link" title="preview questions">
-                            <p>Number of Questions</p>
-                            <h5>{{ question_group.question_set.count }}</h5>
-                            <hr>
-                            <p>Questions Type</p>
-                            <h5>{{ question_group.get_questions_type_display }}</h5>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3 my-2 h-100 mx-auto">
-                <div class="card">
-                    <div class="card-body">
-                        <p>Number of Student</p>
-                        <h5>{{ student_total }}</h5>
-                        <hr>
-                        <p>Finished Assessment</p>
-                        <h5>{{ student_finished }}</h5>
-                    </div>
-                </div>
+
+                    {% elif question_group.preference.due_date %}
+                        <div class="card card-body">
+                            <p>Due Date</p>
+                            <h5>{{ preference.due_date }}</h5>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                        <div class="card">
+                            <div class="card-body">
+                                <p>Environment</p>
+                                <h5>{{ question_group.preference.get_environment_display|default_if_none:"-Any-" }}</h5>
+                                <hr>
+                                <p>Shuffle Questions</p>
+                                <h4><span>{{ question_group.preference.is_question_shuffle|yesno|upper }} </span> </h4>
+                            </div>
+                        </div>
+
+                        <div class="card ">
+                            <div class="card-body">
+                                {% url 'assessment:pre_questions_conducting' question_group_pk=question_group.pk question_group_title=question_group.title as preview_url %}
+                                <a href="{{ preview_url }}" class="card-link" title="preview questions">
+                                    <p>Number of Questions</p>
+                                    <h5>{{ question_group.question_set.count }}</h5>
+                                    <hr>
+                                    <p>Questions Type</p>
+                                    <h5>{{ question_group.get_questions_type_display }}</h5>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <p>Number of Student</p>
+                                <h5>{{ student_total }}</h5>
+                                <hr>
+                                <p>Finished Assessment</p>
+                                <h5>{{ student_finished|default:"---" }}</h5>
+                            </div>
+                        </div>
             </div>
         </div>
 
@@ -72,17 +70,23 @@
         <div class="row">
             <div class="col-12">
                 <div class="card-group">
-                    {% include 'snippet/H_label_value_card.html' with label="Start time" value=question_group.preference.start_time fa_icon="fa fa-clock mr-2" new_line=1  tc=1 %}
-                    {% include 'snippet/H_label_value_card.html' with label="Time left" value="unkown" fa_icon="fa fa-clock mr-2" new_line=1  tc=1 %}
+                    {% include 'snippet/H_label_value_card.html' with label="Start time" value=start_time fa_icon="fa fa-clock mr-2" new_line=1  tc=1 %}
+
+                    <div class="card">
+                        <div class="card-body">
+                            <p><i class="fa fa-clock mr-2"></i>Time Left</p>
+                            <h5 class="text-center" id="timeLeftID">{{ time_left.day }} day/s, {{ time_left.hour }} hours, {{ time_left.minute }} minutes</h5>
+                        </div>
+                    </div>
 
                     <div class="card">
                         <div class="card-body">
                             <p><i class="fa fa-clock mr-2"></i> End Time</p>
                             <h5 class="text-center">{{ end_time }}</h5>
-
                         </div>
-                        <p class="text-muted small p-2"> time formatted in 24 hours</p>
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -154,3 +158,16 @@
     </div>
 
 {% endblock content %}
+
+{% block afterScripts %}
+    {% if time_left %}
+        <script src="{%  static 'utils/moment.min.js' %}"></script>
+    <script>
+        const timeLeft = document.getElementById("timeLeftID");
+        let TF_moment =  moment();
+        // timeLeft.innerHTML = TF_moment
+
+    </script>
+
+    {% endif %}
+{% endblock %}

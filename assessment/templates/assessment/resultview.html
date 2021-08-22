@@ -7,7 +7,9 @@
             <div class="col-auto mx-auto mx-md-0">
                 <div class="breadcrumb">
                     <a href="{% url 'assessment:student' %}" onclick="onBackSpin(this)" class="breadcrumb-item"><i class="fa fa-chevron-left"></i> Assessment</a>
-                    <a href="{% url 'assessment:student' %}" onclick="onBackSpin(this)" class="breadcrumb-item">back</a>
+                    {% if back %}
+                        <a href="{{ back }}" onclick="onBackSpin(this)" class="breadcrumb-item">back</a>
+                    {% endif %}
                 </div>
             </div>
                 <div class="col-12">

@@ -18,7 +18,7 @@
                                 {% with preference=script.question.preference %}
                                     <tr>
                                         <td>Duration</td>
-                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s"|default:"No Duration" }}</td>
+                                        <td>{{ preference.duration|default:"No Duration" }}</td>
                                     </tr>
                                     <tr>
                                         <td>Deadline</td>
@@ -68,7 +68,7 @@
                                 {% with preference=script.question_group.preference %}
                                     <tr>
                                         <td>Duration</td>
-                                        <td>{{ preference.duration|time:"h\h\r\s \: i\m\s" }}</td>
+                                        <td>{{ preference.duration|default:"No duration" }}</td>
                                     </tr>
                                     <tr>
                                         <td>Deadline</td>

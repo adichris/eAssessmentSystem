@@ -17,13 +17,13 @@
                         <div class="card">
                             <div class="card-body">
                                 <p>Duration</p>
-                                <h5 class="text-center" >{{ duration|time:"h \h\o\u\r\s \: i \m\i\n\u\t\e\s" }}</h5>
+                                <h5 class="text-center" >{{ duration.duration }}</h5>
                                 <hr>
                                 <p>Due Date (Deadline)</p>
                                 <h5 class="text-center" >{{ due_date }}</h5>
                             </div>
                         </div>
-                        <div class="card">
+                        <div class="card d-none d-md-block">
                             <div class="card-body">
                                 <p>Start Time</p>
                                 <h5 class="text-center" >{{ start_timestamp.time }}</h5>
@@ -56,7 +56,7 @@
                             </div>
                         </div>
                     {% endif %}
-                    <div class="card">
+                    <div class="card d-none d-md-block">
                         <div class="card-body">
                             <p>Now</p>
                             <h5 class="text-center" id="id_today_time">{{ today.time }}</h5>
@@ -107,26 +107,25 @@
 
         <div class="row" id="id_pagniation">
             <div class="col-md-12 col-lg-10 mx-auto">
-            <nav aria-label="Question navigation">
-                <div class="pagination justify-content-center">
-                    {% if question_page.has_previous %}
-                        <p class="page-item"><a class="page-link" href="?question=1" onclick="spinOnClick(this)">&laquo; first</a></p>
-                        <p class="page-item"><a class="page-link" href="?question={{ question_page.previous_page_number }}" onclick="spinOnClick(this)">previous</a></p>
-                    {% endif %}
+                <nav aria-label="Question navigation">
+                    <div class="pagination justify-content-center">
+                        {% if question_page.has_previous %}
+                            <p class="page-item"><a class="page-link" href="?question=1" onclick="spinOnClick(this)">&laquo; first</a></p>
+                            <p class="page-item"><a class="page-link" href="?question={{ question_page.previous_page_number }}" onclick="spinOnClick(this)">previous</a></p>
+                        {% endif %}
 
-                    <span class="current page-item disabled">
-                        <span class="page-link">Question {{ question_page.number }} of {{ question_page.paginator.num_pages }}.</span>
-                    </span>
+                        <span class="current page-item disabled">
+                            <span class="page-link">Question {{ question_page.number }} of {{ question_page.paginator.num_pages }}.</span>
+                        </span>
 
-                    {% if question_page.has_next %}
-                        <p class="page-item"><a class="page-link" href="?question={{ question_page.next_page_number }}" onclick="spinOnClick(this)">next</a></p>
-                        <p class="page-item"><a class="page-link" href="?question={{ question_page.paginator.num_pages }}" onclick="spinOnClick(this)">last &raquo;</a></p>
-                    {% endif %}
-                </div>
-            </nav>
+                        {% if question_page.has_next %}
+                            <p class="page-item"><a class="page-link" href="?question={{ question_page.next_page_number }}" onclick="spinOnClick(this)">next</a></p>
+                            <p class="page-item"><a class="page-link" href="?question={{ question_page.paginator.num_pages }}" onclick="spinOnClick(this)">last &raquo;</a></p>
+                        {% endif %}
+                    </div>
+                </nav>
             </div>
         </div>
-
     </div>
 
 {% endblock content %}
@@ -135,62 +134,67 @@
     <script src="{% static 'utils/moment.min.js' %}"></script>
     <script>
 
-        var todayTime = document.getElementById("id_today_time")
-        var todayDate = document.getElementById("id_today_date")
-        {% if duration %}
+        let todayTime = document.getElementById("id_today_time");
+        let todayDate = document.getElementById("id_today_date");
+        {% if duration or used_time %}
 
-        var duration_hour = {{ duration.hour|default:0 }} ;
-        var duration_minute = {{ duration.minute|default:0 }} ;
-        var MomemtUsed = moment(`{{ today.date }} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
+        let duration_hour = {{ duration.hour|default:0 }} ;
+        let duration_minute = {{ duration.minute|default:0 }} ;
+        let MomemtUsed = moment(`${moment().year()}-${moment().month()}-${moment().day()} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
         {% endif %}
 
-        $(".form-check").addClass("d-flex justify-content-between align-items-center")
-        var formCheckInput = $(".form-check .form-check-input")
-        var formCheckInputLabel = $(".form-check-label")
-        formCheckInput.addClass("my-auto")
-        formCheckInputLabel.addClass("btn btn-light my-1 btn-block")
+        $(".form-check").addClass("d-flex justify-content-between align-items-center");
+        let formCheckInput = $(".form-check .form-check-input");
+        let formCheckInputLabel = $(".form-check-label");
+        formCheckInput.addClass("my-auto");
+        formCheckInputLabel.addClass("btn btn-light my-1 btn-block");
 
         {% if used_time %}
-            var timeRemaining = document.getElementById("id_time_remaining")
+            let timeRemaining = document.getElementById("id_time_remaining");
 
             setInterval(function (){
-                MomemtUsed = MomemtUsed.add(1, "second")
-                timeRemaining.innerHTML = `${MomemtUsed.hours()}:${MomemtUsed.minutes()}:${MomemtUsed.second()} `
-                if(duration_hour > 0 && MomemtUsed.hour >= duration_hour && duration_minute >= MomemtUsed.minute){
-                    {#$("#id_time_used").css("backgroundColor", "#fc98a4");#}
-                    document.getElementById("id_show_on_time_up").removeAttribute("hidden")
-                    $("#id_time_used").addClass("alert alert-danger")
+                MomemtUsed = MomemtUsed.add(1, "second");
+                let dayStr = "";
+                if ( {{ used_time.day|default:0 }} > 0){
+                    dayStr = "{{ used_time.day }} days,";
+                }
+                timeRemaining.innerHTML = `${dayStr} ${MomemtUsed.hours()}:${MomemtUsed.minutes()}:${MomemtUsed.second()} `;
+                if(MomemtUsed.hours() >= duration_hour &&  MomemtUsed.minute() >= duration_minute){
+                    document.getElementById("id_show_on_time_up").removeAttribute("hidden");
+                    $("#id_time_used").addClass("alert alert-danger");
                     document.getElementById("time_up").innerHTML = "<hr><b>TIME UP</b>";
-                    document.getElementById("id_form_question").setAttribute("hidden", true)
+                    document.getElementById("id_form_question").setAttribute("hidden", true);
                     document.getElementById("id_pagniation").setAttribute("hidden", true)
 
                  }
 
-            }, 1000)
+            }, 1000);
         {% endif %}
         setInterval(function (){
-            todayTime.innerHTML = moment().format('LTS')
+            todayTime.innerHTML = moment().format('LTS');
             todayDate.innerHTML = moment().format('dddd, MMMM Do YYYY')
 
-        }, 1000)
+        }, 1000);
 
         function onchange(theTag) {
             if (theTag.checked){
-                theTag.labels[0].classList.remove("alert-light")
-                theTag.labels[0].classList.remove("text-dark")
-                theTag.labels[0].classList.remove("border-secondary")
-                theTag.labels[0].classList.add("alert-primary")
+                theTag.labels[0].classList.remove("alert-light");
+                theTag.labels[0].classList.remove("text-dark");
+                theTag.labels[0].classList.remove("border-secondary");
+                theTag.labels[0].classList.add("alert-primary");
+                theTag.labels[0].classList.add("shadow");
             }
             else {
-                theTag.labels[0].classList.add("alert-light")
-                theTag.labels[0].classList.add("text-dark")
-                theTag.labels[0].classList.add("border-secondary")
-                theTag.labels[0].classList.remove("alert-primary")
+                theTag.labels[0].classList.add("alert-light");
+                theTag.labels[0].classList.add("text-dark");
+                theTag.labels[0].classList.add("border-secondary");
+                theTag.labels[0].classList.remove("alert-primary");
+                theTag.labels[0].classList.remove("shadow");
             }
         }
 
         function handleChange() {
-            var radioButtons = document.SelectOption.selected_option
+            var radioButtons = document.SelectOption.selected_option;
             for (let idx = 0; idx < radioButtons.length; idx++){
                 const radioBtn = radioButtons[idx];
                radioBtn.addEventListener("onchange", onchange(radioBtn))

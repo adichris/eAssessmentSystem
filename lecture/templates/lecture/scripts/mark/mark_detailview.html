@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block content %}
     <div class="container">
         <div class="row mt-3">
@@ -20,7 +21,7 @@
 
     {% if question_group.questions_type == "theory" %}
         <div class="row my-3">
-            <div class="col-md-8 mx-auto">
+            <div class="col-12 mx-auto">
                 <div class="card-group">
                     <div class="card">
                         <div class="card-body">
@@ -70,10 +71,48 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Filter Scripts By:</p>
+                            <form method="get">
+                                {{ filter_form|crispy }}
+                                <hr>
+                                <span class="mt-2">Filter: </span>
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm {% if not filter_on %} active {% endif %}" name="filterOff" value="off">Off</button>
+                                    <button type="submit" class="btn btn-outline-success btn-sm {% if filter_on %} active {% endif %}" name="filterOn" value="on">Filter</button>
+                                </div>
+
+
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
             </div>
         </div>
+
+        <div class="row">
+            <div class="col">
+                <form method="get">
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="scriptSearch" id="" placeholder="Search Scripts" value="{{ scriptSearch|default_if_none:'' }}">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-outline-secondary">Search</button>
+                        </div>
+                    </div>
+                    <small>Search by student index number</small>
+                </form>
+            </div>
+
+            <div class="col-12">
+                {% if scriptSearch %}
+                    <p><b>"{{ scriptSearch }}"</b> matches {{ student_scripts.count }} script</p>
+                {% endif %}
+                <hr>
+            </div>
+        </div>
+
         <div class="row my-3 mt-lg-4">
         <div class="table-responsive">
             <table class="table">

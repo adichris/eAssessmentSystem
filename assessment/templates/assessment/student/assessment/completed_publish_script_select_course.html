@@ -1,0 +1,29 @@
+{% extends 'assessment/student/assessment/view.html' %}
+{% load static %}
+{% block page_content %}
+    <div class="row">
+        <div class="col-auto mx-auto bg-light rounded p-2 shadow-sm">
+            <h3>Select <span class="badge badge-secondary">{{ request.user.student.programme }}</span> Course</h3>
+        </div>
+
+    </div>
+
+    <div class="row my-3 mt-4">
+        {% for course in courses %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card card-hover-shadow h-100">
+                    <a href="{% url 'assessment:completed_published_assessment4student' course_code=course.code course_name=course.name %}" class="card-link">
+                        <div class="card-body">
+                            <h4 class="text-center">{{ course.name }}</h4>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">{{ course.code }}</li>
+                            <li class="list-group-item">{{ course.conducted_quizzes.count }} Quizzes</li>
+                            <li class="list-group-item">Lecturer {{ course.lecture }}</li>
+                        </ul>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

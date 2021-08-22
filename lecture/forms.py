@@ -1,6 +1,6 @@
 from .models import LectureModel
 from django import forms
-from assessment.models import StudentTheoryAnswer
+from assessment.models import StudentTheoryAnswer, ScriptStatus
 
 
 class LectureCreateForm(forms.ModelForm):
@@ -37,3 +37,11 @@ class StudentAnswerMarkForm(forms.ModelForm):
             elif score < 0:
                 score = 0
         return score
+
+
+class FilterForms(forms.Form):
+    marked = forms.CharField(widget=forms.CheckboxInput, required=False)
+    marking = forms.CharField(widget=forms.CheckboxInput, required=False)
+    submitted = forms.CharField(widget=forms.CheckboxInput, required=False)
+    # pending = forms.CharField(widget=forms.CheckboxInput, required=False)
+

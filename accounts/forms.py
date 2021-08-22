@@ -148,3 +148,42 @@ class StudentProfileCreateForm(forms.ModelForm):
 class StudentLoginForm(forms.Form):
     index_number = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
+
+
+class ConfirmResetPasswordForm(forms.Form):
+    username = forms.CharField(help_text="account username or index number")
+    first_name = forms.CharField(max_length=60)
+    last_name = forms.CharField(max_length=60)
+    phone_number = forms.CharField(widget=PhoneNumberPrefixWidget(attrs={"class":"form-control", "type": "tel"}))
+    dob = forms.CharField(max_length=60, widget=forms.DateInput(attrs={"type": "date"}), label="Date of birth")
+
+
+class PasswordSetForm(forms.ModelForm):
+    confirm_password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ("password", "confirm_password")
+
+        widgets = {
+        "password": forms.PasswordInput(attrs={"value": ""})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PasswordSetForm, self).__init__(*args, **kwargs)
+
+    def clean_confirm_password(self):
+        pwd = self.cleaned_data.get("password")
+        cn_pwd = self.cleaned_data.get("confirm_password")
+
+        if not pwd == cn_pwd:
+            raise forms.ValidationError("Password do not match!")
+        return cn_pwd
+
+    def save(self, commit=True):
+        instance = super(PasswordSetForm, self).save(False)
+        instance.set_password(self.cleaned_data["password"])
+        if commit:
+            instance.save()
+        return instance
+

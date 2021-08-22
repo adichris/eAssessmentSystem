@@ -43,7 +43,7 @@
                         </tr>
                         <tr>
                             <td>Duration</td>
-                            <td>{{ question_group.preference.duration|time:"h\h\r\s \: i\m\s" |default:"---"}}</td>
+                            <td>{{ question_group.preference.duration|default:"---"}}</td>
                         </tr>
                           <tr>
                             <td>Environment</td>
@@ -70,21 +70,25 @@
                         </tr>
                         <tr>
                             <td>Number of Questions</td>
-                            <td><a href="{{ question_group.get_absolute_url }}?next={{ request.path }}" >{{ question_group.question_set.count }}</a> <a href="{{ question_group.get_absolute_url }}?next={{ request.path }}" class="btn btn-outline-secondary float-right btn-sm" onclick="spinOnClick(this)" title="Preview assessment questions">preview</a></td>
+                            <td><a href="{{ question_group.get_absolute_url }}?next={{ request.path }}" >{{ question_group.question_set.count }} questions</a> <a href="{{ question_group.get_absolute_url }}?next={{ request.path }}" class="btn btn-outline-secondary float-right btn-sm" onclick="spinOnClick(this)" title="Preview assessment questions">preview</a></td>
                         </tr>
                     {% if question_group.preference %}
                     {% url 'assessment:preference_update' environment=question_group.preference.environment pk=question_group.preference_id question_group_pk=question_group.pk question_group_title=question_group.title as preference_change_url %}
                         <tr>
-                              {% if question_group.preference.is_question_shuffle %}
+                   
                                 <td COLSPAN="2" class="bg-light">
                                     <div class="d-flex justify-content-between">
-                                        <a href="{{ preference_change_url }}?next={{ request.path }}" title="change" onclick="appendSpinOnClick(this)">The questions are on shuffle</a>
-                                        <a href="{{ preference_change_url }}?next={{ request.path }}" title="change" onclick="appendSpinOnClick(this)">change preference</a>
+                                        <a href="{{ preference_change_url }}?next={{ request.path }}" title="change" class="btn btn-link">
+                                            {% if question_group.preference.is_question_shuffle %}
+                                                The questions are <span class="badge badge-primary">on shuffle</span>
+                                            {% else %}
+                                                The questions are in ordered form
+                                            {% endif %}
+                                            </a>
+                                        <a href="{{ preference_change_url }}?next={{ request.path }}" title="change" onclick="appendSpinOnClick(this)" class="btn btn-link">change preference</a>
                                     </div>
                                 </td>
-                              {% else %}
-                                  <td COLSPAN="2"><a href="{{ preference_change_url }}?next={{ request.path }}" title="change">The questions are in ordered form</a></td>
-                              {% endif %}
+                              
                         </tr>
                     {% endif %}
                         <tr>

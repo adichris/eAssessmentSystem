@@ -55,8 +55,8 @@
                             {% for student in student_group.list %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
-                                    <td>{{ student.get_name }}</td>
-                                    <td><a href="{{ student.get_absolute_url }}">{{ student.index_number }}</a></td>
+                                    <td><a href="{{ student.get_absolute_url }}">{{ student.get_name }}</a></td>
+                                    <td>{{ student.index_number }}</td>
                                     <td>{{ student.level }}</td>
                                     <td>{{ student.programme|default_if_none:"---" }}</td>
                                 </tr>

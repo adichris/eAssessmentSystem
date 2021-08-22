@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from .models import LectureModel
-from .forms import LectureCreateForm, StudentTheoryAnswer, StudentAnswerMarkForm
+from .forms import LectureCreateForm, StudentTheoryAnswer, StudentAnswerMarkForm, FilterForms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import View, DetailView, ListView, TemplateView, CreateView, UpdateView
@@ -27,8 +27,8 @@ class LectureCreateView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
             ctx = {
-                "lecture_form":self.lecture_form_class(),
-                "profile_form":self.profile_form(),
+                "lecture_form": self.lecture_form_class(),
+                "profile_form": self.profile_form(),
                 "pageTitle": "Add Lecture"
             }
             return render(request, template_name=self.template_name, context=ctx)
@@ -83,7 +83,7 @@ class LectureDetailView(LoginRequiredMixin, DetailView):
             return super().get(request, *args, **kwargs)
         else:
             return get_not_allowed_render_response(request)
-        
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["title"] = "%s Detail" % self.object
@@ -91,6 +91,7 @@ class LectureDetailView(LoginRequiredMixin, DetailView):
         ctx["courses_ctn"] = self.object.coursemodel_set.count()
         ctx["courses"] = self.object.coursemodel_set.all()
         return ctx
+
 
 class LectureListView(LoginRequiredMixin, ListView):
     model = LectureModel
@@ -124,12 +125,13 @@ class LectureStudentScripts(LoginRequiredMixin, TemplateView):
             lecture = self.request.user.lecturemodel
             self.question_group_queryset = QuestionGroup.objects.filter(
                 course__lecture=lecture,
-                status__in=(QuestionGroupStatus.CONDUCTED, QuestionGroupStatus.PUBLISHED, QuestionGroupStatus.MARKED),
                 course__semester=self.request.user.generalsetting.semester,
                 academic_year=self.request.user.generalsetting.academic_year
-            )
+            ).exclude(status=QuestionGroupStatus.PREPARED)
+
         except AttributeError:
-            raise get_http_forbidden_response()
+            raise get_not_allowed_render_response(request=self.request,
+                                                  message="In preparing state only you can view, edit and delete the question")
 
     def get(self, request, *args, **kwargs):
         self.init_lecture_course_question_groups()
@@ -139,8 +141,8 @@ class LectureStudentScripts(LoginRequiredMixin, TemplateView):
         ctx = super(LectureStudentScripts, self).get_context_data(**kwargs)
 
         # Add Question_groups to context data and return
-        # ctx["question_group"] = self.question_group_queryset
         ctx["question_group"] = self.question_group_queryset
+        ctx["ACTION"] = self.request.GET.get("action")
         return ctx
 
     def get_template_names(self):
@@ -153,10 +155,6 @@ class LectureStudentScripts(LoginRequiredMixin, TemplateView):
             return template_name
 
 
-class LectureStudentScriptMarkView(LoginRequiredMixin, TemplateView):
-    pass
-
-
 class QuizTemplateView(LoginRequiredMixin, TemplateView):
     template_name = "lecture/scripts/quiz_view.html"
 
@@ -165,7 +163,7 @@ class QuizTemplateView(LoginRequiredMixin, TemplateView):
         return CourseModel.objects.filter(
             lecture=lecture_model,
             semester=lecture_model.profile.generalsetting.semester
-        ).order_by("programme", "programme__department",)
+        ).order_by("programme", "programme__department", )
 
     def get_context_data(self, **kwargs):
         ctx = super(QuizTemplateView, self).get_context_data(**kwargs)
@@ -233,7 +231,19 @@ class QuestionGroupDetailView(LoginRequiredMixin, DetailView):
         ctx["questions_num"] = self.question_number
         ctx["student_script"] = self.get_scripts()
         ctx["has_published_alert"] = self.get_published_alert()
+        ctx["script_marked"] = self.get_script_marked()
         return ctx
+
+    def get_script_marked(self):
+        marked = self.question_group_instance.get_marked_scripts().count()
+        unmarked = self.question_group_instance.get_unmarked_scripts().count()
+
+        if self.question_group_instance.is_all_scripts_marked():
+            return "All marked"
+        elif unmarked:
+            return f'Marked ({marked}) and unmarked ({unmarked})'
+
+        return f"None Marked ({unmarked})"
 
     def get_published_alert(self):
         affected_rows = self.request.session.get("publish_alert")
@@ -256,11 +266,11 @@ class QuestionGroupDetailView(LoginRequiredMixin, DetailView):
             return format_html("{} {} has been published successfully."
                                "<br><b>{} student scripts has been published, </b>"
                                " Students can see their {} scripts",
-                          str(self.question_group_instance.course),
-                          self.question_group_instance.get_title_display(),
-                          affected_rows,
-                          self.question_group_instance.get_title_display()
-                          )
+                               str(self.question_group_instance.course),
+                               self.question_group_instance.get_title_display(),
+                               affected_rows,
+                               self.question_group_instance.get_title_display()
+                               )
         elif affected_rows == 0:
             published_alert_counter()
             return format_html("{} {} scripts has been already published.",
@@ -280,7 +290,7 @@ class QuestionGroupDetailView(LoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         if request.user.is_lecture:
             self.init_question_group_instance()
-            if self.question_group_instance.status not in (QuestionGroupStatus.PREPARED, QuestionGroupStatus.CONDUCT):
+            if self.question_group_instance.status != QuestionGroupStatus.PREPARED:
                 return super(QuestionGroupDetailView, self).get(request, *args, **kwargs)
             else:
                 return render(request, "assessment/status_not_allowed.html", {
@@ -290,7 +300,7 @@ class QuestionGroupDetailView(LoginRequiredMixin, DetailView):
                 })
 
         else:
-            return get_http_forbidden_response()
+            return get_not_allowed_render_response(request)
 
 
 class TheoryMarkingSchemeDetailView(LoginRequiredMixin, DetailView):
@@ -301,7 +311,7 @@ class TheoryMarkingSchemeDetailView(LoginRequiredMixin, DetailView):
         self.question_group_instance = get_object_or_404(QuestionGroup,
                                                          pk=self.kwargs.get("question_group_pk"),
                                                          course_id=self.kwargs.get("course_id"),
-                                                         course__lecture=lecture,)
+                                                         course__lecture=lecture, )
         instance, created = TheoryMarkingScheme.objects.get_or_create(
             lecture=lecture,
             question_group=self.question_group_instance,
@@ -485,19 +495,17 @@ class MarkTheoryScriptsDetailView(LoginRequiredMixin, DetailView):
                 return render(request, "assessment/status_not_allowed.html", {
                     "question_group_instance": self.question_instance,
                     "reason": "Scripts are published no need to mark them again!",
-                    "more": "Scripts are published no need to mark them again!",
+                    "more": "Please you can not remark published scripts",
                     "published_icon": True,
                     "return_link": reverse("lecture:question_group_detail", kwargs={
-                        "course_id":self.question_instance.course_id,
+                        "course_id": self.question_instance.course_id,
                         "question_group_pk": self.question_instance.pk,
                     }),
                 })
                 # "?open_page=1"
             return super(MarkTheoryScriptsDetailView, self).get(request, *args, **kwargs)
-        elif self.request.user.is_staffs:
-            return get_not_allowed_render_response(request)
         else:
-            return get_http_forbidden_response()
+            return get_not_allowed_render_response(request)
 
     def get_object(self, queryset=None):
         return self.question_instance
@@ -511,20 +519,64 @@ class MarkTheoryScriptsDetailView(LoginRequiredMixin, DetailView):
             academic_year=self.request.user.generalsetting.academic_year,
             pk=self.kwargs.get("question_group_pk"),
             title=self.kwargs.get("question_group_title"),
-            status__in=(QuestionGroupStatus.CONDUCTED, QuestionGroupStatus.MARKED, QuestionGroupStatus.PUBLISHED)
+            status__in=(QuestionGroupStatus.CONDUCTED, QuestionGroupStatus.MARKED, QuestionGroupStatus.PUBLISHED,
+                        QuestionGroupStatus.CONDUCT)
         )
         self.student_scripts = self.question_instance.studenttheoryscript_set.all()
-        self.marked_count = self.student_scripts.filter(status=ScriptStatus.MARKED).count()
-        self.umarked = self.student_scripts.filter(status__in=(ScriptStatus.SUBMITTED, ScriptStatus.MARKING,
-                                                               ScriptStatus.PENDING)).count()
+        self.marked_count = self.question_instance.get_marked_scripts().count()
+        self.umarked = self.question_instance.get_unmarked_scripts().count()
+
+        if self.question_instance.is_all_scripts_marked() and self.question_instance.status == \
+                QuestionGroupStatus.CONDUCTED:
+            self.question_instance.status = QuestionGroupStatus.MARKED
+            self.question_instance.save()
 
     def get_context_data(self, **kwargs):
         ctx = super(MarkTheoryScriptsDetailView, self).get_context_data(**kwargs)
         ctx["question_group"] = self.question_instance
+
+        if self.request.GET.get("filterOn") == 'on':
+            self.filter_query()
+            ctx["filter_on"] = True
+        ctx["filter_form"] = FilterForms(self.request.GET)
+        scriptSearch = self.request.GET.get("scriptSearch")
+        if scriptSearch:
+            self.student_scripts = self.student_scripts.filter(student__index_number__icontains=scriptSearch)
+
         ctx["student_scripts"] = self.student_scripts
         ctx["marked_count"] = self.marked_count
         ctx["unmarked_count"] = self.umarked
+        ctx["scriptSearch"] = scriptSearch
+        ctx["script_status"] = ScriptStatus
         return ctx
+
+    def filter_query(self):
+        from django.db.models import Q
+        filter_form = FilterForms(self.request.GET)
+        if filter_form.is_valid():
+            marked = filter_form.cleaned_data["marked"]
+            marking = filter_form.cleaned_data["marking"]
+            submitted = filter_form.cleaned_data["submitted"]
+            #pending = filter_form.cleaned_data["pending"]
+            query = Q()
+            try:
+                if eval(marked):
+                    query = Q(status=ScriptStatus.MARKED)
+
+                if eval(marking):
+                    query |= Q(status=ScriptStatus.MARKING)
+
+                if eval(submitted):
+                    query |= Q(status=ScriptStatus.SUBMITTED)
+
+                # if eval(pending):
+                #     query |= Q(status=ScriptStatus.PENDING)
+
+                if query is not None:
+                    self.student_scripts = self.student_scripts.filter(query)
+
+            except (ValueError, TypeError):
+                pass
 
 
 class MarkScriptView(LoginRequiredMixin, View):
@@ -554,7 +606,8 @@ class MarkScriptView(LoginRequiredMixin, View):
             "lecture_scheme": self.marking_scheme,
             "quiz_title": self.marking_scheme.question_group.get_title_display(),
             "course_title_code": self.student_script.question_group.course,
-            "student": self.student_script.student
+            "student": self.student_script.student,
+            "is_scroll_header": True
         }
 
     def post(self, request, *args, **kwargs):
@@ -599,5 +652,4 @@ class MarkScriptView(LoginRequiredMixin, View):
 
     def complete_marking(self):
         return self.student_script.studenttheoryanswer_set.count() == \
-            self.student_script.studenttheoryanswer_set.filter(score__isnull=False).count()
-
+               self.student_script.studenttheoryanswer_set.filter(score__isnull=False).count()

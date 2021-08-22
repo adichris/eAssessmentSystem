@@ -5,12 +5,24 @@
 {% block content %}
     <div class="container-fluid">
         <div class="row my-3 my-lg-4">
-            <div class="col-md-auto mx-auto">
-                <h5 class=>{{ course_title_code }}</h5>
-                <h5 class=>Student Name {{ student.get_name }}</h5>
-                <h5 class=>Index number {{ student.index_number }}</h5>
-                <h5 class=>Assessment {{ quiz_title }}</h5>
-                <hr>
+            <div class="col-md-auto col-lg-6 mx-auto">
+                <table class="table">
+                    <tr>
+                        <td colspan="2" class="text-center"><span class="h5">{{ course_title_code }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>Student Name</td>
+                        <td><span class="h5">{{ student.get_name }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>Index Number</td>
+                        <td><span class="h5">{{ student.index_number }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>Assessment</td>
+                        <td><span class="h5">{{ quiz_title }}</span></td>
+                    </tr>
+                </table>
             </div>
         </div>
 
@@ -30,78 +42,65 @@
         <form method="post">
             {% csrf_token %}
 
-            <div class="row mb-3" style="box-shadow: #eee -1px 3px 4px 0px;">
-                <div class="col-md-6 d-md-block mb-2" style="height: 80vh; overflow-y: auto;">
-                    <p>Student Scripts</p>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <p class="text-center h5">Student Scripts</p>
                     {{ student_script_formset.management_form }}
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            {% for answer_form in student_script_formset %}
-                                <tr>
-                                    <td>
-                                        <a href="#id_solu_{{ answer_form.question.value }}" class="card-link" style="color:#255486;" id="id_{{ answer_form.question.value }}_quz">
-                                        <div class="d-flex flex-column">
-                                            {{ answer_form.question|question_text }}
-                                        </div>
+                    <div class="table-responsive"  style="height: 80vh; overflow-y: auto;">
+                        {% for answer_form in student_script_formset %}
+                            <div class="card mb-3 card-hover-shadow">
+                                <div class="card-body">
+                                        <a href="#goto_{{ answer_form.question.value }}" class="text-decoration-none text-dark" id="goto{{ answer_form.question.value }}_quz">
+                                            <div class="d-flex flex-column">
+                                                {{ answer_form.question|question_text }}
+                                            </div>
                                         </a>
-                                    </td>
-                                </tr>
-                               <tr>
+                                </div>
+                                <div class="card-body">
                                     <td>{{ answer_form|crispy }}</td>
-                               </tr>
-                                {% if not forloop.last %}
-                                    <tr>
-                                        <td></td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                        </table>
+                               </div>
+                            </div>
+                        {% endfor %}
                     </div>
 
                 </div>
-                <div class="col-md-6 d-md-block mb-2" style="height: 80vh; overflow-y: auto;">
-                    <div class="d-flex flex-column">
-                        <p>Marking Scheme</p>
+                <div class="col-md-6  mb-2">
+                    <p class="text-center h5">Marking Scheme</p>
+                    <div class="d-flex flex-column"  style="height: 80vh; overflow-y: auto;">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
-                                {% for solution in lecture_scheme.solution_set.all %}
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex flex-column">
-                                                <a href="#id_{{ solution.question.pk }}_quz" class="card-link" style="color:#255486;">
-                                                    <p>Question {{ solution.question.question_number }}</p>
-                                                        <p>{{ solution.question|linebreaksbr }}</p>
-                                                </a>
+                            {% for solution in lecture_scheme.solution_set.all %}
+                                <div class="card card-hover-shadow mb-2">
+                                    <div class="card-body">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Question {{ solution.question.question_number }}</span>
+                                                <span>{{ solution.question.max_mark }} marks</span>
                                             </div>
-                                            <b class="badge badge-light">{{ solution.question.max_mark }} marks</b>
-                                        </td>
-                                    </tr>
-                                    <tr id="id_solu_{{ solution.question.id }}">
-                                        <td>
-                                            <p><b>Lecture Solution</b></p>
-                                            <p class="alert border-primary text-dark">{{ solution.answer|linebreaksbr }}</p>
-                                            {% if solution.notes %}
-                                                <p><b>Lecture Note</b></p>
-                                                <p class="alert bg-light">{{ solution.notes|linebreaksbr|default:"No Note" }}</p>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% if not forloop.last %}
-                                        <tr>
-                                            <td></td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
-
-                            </table>
+                                            
+                                            <div class="">
+                                                <a href="#goto{{ solution.question.pk }}_quz" class="text-decoration-none text-dark">
+                                                    {{ solution.question|linebreaksbr }}
+                                                </a>
+                                            </div> 
+                                    </div>
+                                    
+                                    <div id="goto_{{ solution.question.id }}" class="card-body">
+                                        <p>Lecture Solution</p>
+                                        <p class="text-success p-2 rounded" style="background-color: #d4edda5c;">{{ solution.answer|linebreaksbr }}</p>
+                                        {% if solution.notes %}
+                                            <p><b>Lecture Note</b></p>
+                                            <p class="alert bg-light">{{ solution.notes|linebreaksbr|default:"No Note" }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row my-3">
+            <div class="row my-3 p-2" style=" box-shadow: rgb(0 0 0 / 8%) 0px -11px 10px 4px;">
                 <div class="col-lg-8 mx-auto">
-                    <button class="btn btn-primary btn-block">Submit</button>
+                    <button class="btn btn-primary btn-block">Save Marking</button>
                 </div>
             </div>
         </form>
@@ -113,7 +112,7 @@
 {#    <script>#}
 {#        function show_on_scheme(question) {#}
 {#            console.log("Question id ", question)#}
-{#            window.location.href = `#id_solu_${question}`#}
+{#            window.location.href = `#goto_${question}`#}
 {#        }#}
 {#    </script>#}
 {#{% endblock %}#}

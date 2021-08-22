@@ -5,7 +5,7 @@
 {% load static %}
 {% url 'chat:home' as chat_url %}
 
-<nav  class="navbar navbar-expand-lg navbar-primary sticky-top shadow-sm transparentBlur bg-white50" >
+<nav  class="navbar navbar-expand-lg navbar-primary {% if is_scroll_header %} {% else %} sticky-top {% endif %} shadow-sm transparentBlur bg-white50" >
       <div class="container">
           <a class="navbar-brand" title="home page" href="{% url 'landing-page' %}"><img src="{% static 'DefaultImg/class_logo.png' %}" alt="class_logo" class="img-fluid" style="height: 1.5em;"></a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">

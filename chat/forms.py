@@ -1,4 +1,3 @@
-from department.models import Department
 from .models import Message, GroupMessage, GrpMsg
 from django import forms
 
@@ -11,6 +10,7 @@ class MessageCreateForm(forms.ModelForm):
             "from_user": forms.Select(attrs={"class": "no-pointer no-user-select"}),
             "to_user": forms.Select(attrs={"class": "no-pointer no-user-select"}),
         }
+
 
 class MessageCreateInlineForm(forms.ModelForm):
     class Meta:
@@ -27,7 +27,7 @@ class GrpMsgCreateInlineForm(forms.ModelForm):
 class MessageGroupCreateForm(forms.ModelForm):
     class Meta:
         model = GroupMessage
-        fields = ("group_name", "to_group","department", "programme", "level")
+        fields = ("group_name", "to_group", "department", "programme", "level")
     
     def __init__(self, user_obj=None, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

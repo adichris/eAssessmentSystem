@@ -6,7 +6,7 @@
         <div class="row">
             <div class="col-auto mx-auto mt-10vh pt-lg-5 text-monospace ">
                 {%  if request.user.is_authenticated %}
-                    <h1><mark>Welcome back, {{ request.user.get_short_name }}</mark></h1>
+                    <h1><mark>Welcome {% if request.user.last_login %} back{% endif %}, {{ request.user.get_short_name }}</mark></h1>
                     <br>
                 {% endif %}
                 <h1 class="text-center"><mark>Continuous Electronic Assessment System</mark></h1>
@@ -43,7 +43,7 @@
                             {% csrf_token %}
                             {{ student_login_form|crispy }}
                             <button type="submit" class="btn btn-outline-primary btn-block" onclick="spinOnClick(this)">Login</button>
-                            <a href="" class="card-link small" style="color: crimson">forgotten your password?</a>
+{#                            <a href="{% url 'accounts:confirm_reset_pwd' %}" class="btn btn-link small">forgotten your password?</a>#}
                         </form>
                     </div>
                 </div>

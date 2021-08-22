@@ -3,7 +3,7 @@
 {% block content %}
     <div class="container">
         <div class="row my-3">
-            <aside class="col-md-4 col-lg-3  rounded card-hover-shadow pb-1" style="overflow-y: auto; max-height: 100vh;">
+            <aside class="col-4 col-lg-3  rounded card-hover-shadow pb-1" style="overflow: auto; max-height: 100vh;">
                 <div class="table-responsive">
                     <span class="lead">Chat Contacts</span>
                     <hr>                    
@@ -13,7 +13,7 @@
                     <hr>
                         {% for user in staff_contact %}
                             <div class="list-group">
-                                <a class="list-group-item list-group-item-action" href="{% url 'chat:individualchats_user' current_user_slug=user.slug %}">{{ user }}</a>
+                                <a class="list-group-item list-group-item-action {% if user.profile == current_user  %} active {% endif %}" href="{% url 'chat:individualchats_user' current_user_slug=user.slug %}" style="overflow: auto">{{ user }}</a>
                             </div>
                         {% endfor %}
                     {% endif %}
@@ -23,7 +23,7 @@
                         <small>{{ d_lecturers.grouper }} Department Lecturers</small>
                         <div class="list-group">
                             {% for user in d_lecturers.list %}
-                            <a href="{% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}" class="list-group-item  list-group-item-action">
+                            <a href="{% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}" class="list-group-item  list-group-item-action {% if user.profile == current_user  %} active {% endif %}" style="overflow: auto">
                                 {{ user }}
                             </a>
                             {% endfor %}
@@ -36,7 +36,7 @@
                             <small>{{ student.grouper }} Students</small>
                             <div class="list-group">
                                 {% for user in student.list %}
-                                    <a href="{% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}" class="list-group-item  list-group-item-action">{{ user.profile }} <small>{{ user.profile.phone_number }}</small> </a>
+                                    <a href="{% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}" class="list-group-item  list-group-item-action {% if user.profile == current_user  %} active {% endif %} " style="overflow: auto">{{ user.profile }} <small>{{ user.profile.phone_number }}</small> </a>
                                 {% endfor %}                                        
                             </div>
                         {% endfor %}
@@ -46,10 +46,10 @@
                 </div>
             </aside>
 
-            <main class="col-md-8 col-9 rounded shadow-sm py-2" style="overflow-y: auto; max-height: 100vh;">
+            <main class="col-8 col-lg-9 rounded shadow-sm py-2 " style="overflow: auto; max-height: 100vh;">
                 
                 {% if object_list  %}
-                    <div class="alert alert-info">
+                    <div class="alert alert-primary">
                         <h5 class="text-center">{{ current_user }} <span class="fa fa-comments"></span></h5>
                     </div>
                 <div class="table-responsive">
@@ -57,10 +57,10 @@
                             {% for msg in object_list %}
                                 <tr>
                                     <td>
-                                        <div class="card card-hover-shadow">
+                                        <div class="card card-hover-shadow" style="overflow: auto">
                                             <div class="card-header 
                                             {% if request.user == msg.to_user %}
-                                                alert-info
+                                                alert-primary
                                             {% endif %}
                                                 ">
                                                 <span>{% if msg.from_user != request.user %} {{ msg.from_user.get_short_name }} - {{ msg.from_user.username }} {% else %} <span title="sent by you">You</span> {% endif %}</span> <span class="float-right text-muted">{{ msg.timestamp|timesince }} ago</span>
@@ -86,8 +86,8 @@
                             You Have No Chat with {{ current_user }}
                         </p>
                         <div class="d-flex justify-content-md-end">
-                            <a href="{% url 'chat:add_message' to_user_slug=current_user.slug %}?next={{ request.path }}" class="btn btn-outline-primary">Send {{ current_user }} Message</a>
-                        </p>
+                            <a href="{% url 'chat:start_message' to_user_slug=current_user.slug %}?back={{ request.path }}" class="btn btn-outline-primary">Send {{ current_user }} Message</a>
+                        </div>
 
                     {% else %}
                         <div class="d-flex flex-column justify-content-center align-items-center mt-3 mt-md-5">
