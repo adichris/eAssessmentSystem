@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col text-center">
+                <h5 title="{{ request.user }}">List Of Courses the you Handle </h5>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <form action="" method="get">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="search" name="searchCourse" id="" class="form-control" placeholder="Search course by name or code" value="{{ searchCourse|default:'' }}">
+                            <div class="input-group-append">
+                                <button type="submit" onclick="spinOnClick(this)" class="btn btn-secondary">Search</button>
+                            </div>
+                        </div>
+                        
+                        {% if searchCourse %}
+                            <small>"<b>{{ searchCourse }}</b>" matches {{ courses_list.count }} courses</small><br>
+                            <hr>
+                        {% endif %}
+                            
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            
+            {% for course in courses_list %}
+                <div class="col-md-6 col-lg-4 my-3">
+                    <div class="card h-100 card-hover-shadow">
+                        <div class="card-body">
+                            <h6 class="text-center">{{ course.name }}</h6>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <small>Course Code</small> <br>
+                                <p>{{ course.code }}</p>
+                            </li>
+                            <li class="list-group-item">
+                                <small>Quizzes</small>
+                                <p>{{ course.conducted_quizzes.count }}</p>
+                            </li>
+                            <li class="list-group-item">
+                                <small>Programme</small>
+                                <p>{{ course.programme }}</p>
+                            </li>
+                            <li class="list-group-item">
+                                <small>Department</small>
+                                <p>{{ course.programme.department }}</p>
+                            </li>
+                        </ul>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">{{ course.level }}</span>
+                                <div class="">
+                                    <a href="{{ course.get_absolute_url }}?back={{ request.path }}" class="btn btn-outline-secondary btn-sm mr-2" onclick="spinOnClick(this)">Quizzes</a>
+                                    <a href="{% url 'records:course_detail' course_pk=course.pk course_code=course.code %}?back={{ request.path }}" class="btn btn-outline-secondary btn-sm" onclick="spinOnClick(this)">Records</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+                
+        </div>
+    </div>
+{% endblock content %}
+    

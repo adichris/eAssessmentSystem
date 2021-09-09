@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block afterTitle %}
+    <style>
+        body {
+            background-position: center;
+             background-size: cover;
+             background-repeat: no-repeat;
+             background-origin: border-box;
+            background-image: url( {% static 'DefaultImg/bgs/bg1.jpg' %} );
+              
+        }
+    </style>
+{% endblock afterTitle %}
+    
+
+{% block content %}
+    <div class="container p-4">
+        <div class="row my-3" >
+            <div class="col-auto mx-auto text-center">
+                <p class="h1 text-white"><span class="fa fa-info-circle"></span><br> CONTINUOUS ASSESSMENT SYSTEM</p>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="col col-lg-7 mx-auto my-3">
+               <div class="card transparentBlur bg-white50 card-hover-shadow">
+                   <div class="card-body">
+                        <p>
+                            The purpose of developing this continuous assessment system is to computerized the tradition way of taking continuous assessment.
+                            Another purpose for developing this web application is to assess student electronical. 
+                            Some of the purpose of this continuous assessment:
+                                            
+                        </p>
+                        <ul>
+                            <li class="">
+                                <b>Enhancing the student’s learning.</b><br> Continuous assessment of the knowledge that the student acquires during the course of study is very important. This also ensures that the students are in constant touch with the curriculum and all that it has to offer. 
+                            </li>
+                            <li>
+                                <b>Improving the faculty’s teaching skills.</b> <br> The pressure of continuous assessment can ensure optimum performance of the teachers as well. This is achieved by reducing the workload on the lecture. Let’s say that a lecture wants to conduct quizzes for hundred student, this system reduces the time that the lectures take to correct tests and exercises, and help mark and distribute the result to student easily. Giving the lecture time and space to focus on tuition.
+                            </li>
+                        </ul>
+                   </div>
+               </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-auto mx-auto rounded p-2 transparentBlur bg-white50 shadow-sm">
+                <h5 class="text-center">The Project Developers</h5>
+            </div>
+        </div>
+        <div class="row my-3">
+            <div class="col-md-6 col-lg-4 my-3">
+                <div class="card card-hover-shadow bg-white50 transparentBlur h-100">
+                    <img class="img" class="img-fluid card-img-top" src="{% static 'DefaultImg/student_male.svg' %}">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <small>Name</small><br>
+                            <p>Addai Christopher</p>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Tel</small><br>
+                            <a href="tel:+233202662642" class="btn btn-link">020 266 2642</a>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Email</small><br>
+                            <a href="mailto:addaichristopher1@gmail.com" class="btn btn-link">addaichristopher1@gmail.com</a>
+                        </li>
+
+                        <li class="list-group-item">
+                            <small>Programme</small>
+                            <p>Information Communication Technology HND</p>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Department</small>
+                            <p>Computer Science Department</p>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Institution</small><br>
+                            <a href="http://https://stu.edu.gh/" class="btn btn-link">Sunyani Technical University</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 my-3">
+                <div class="card card-hover-shadow bg-white50 transparentBlur h-100">
+                    <img class="img" class="img-fluid card-img-top" src="{% static 'DefaultImg/student_male.svg' %}">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <small>Name</small><br>
+                            <p>Fosu Kwame Paul</p>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Tel</small> <br>
+                            <a href="tel:+233554308246" class="btn btn-link">055 430 8246</a>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Email</small>
+                            <p>---</p>
+                        </li>
+
+                        <li class="list-group-item">
+                            <small>Programme</small>
+                            <p>Information Communication Technology HND</p>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Department</small>
+                            <p>Computer Science Department</p>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Institution</small><br>
+                            <a href="http://https://stu.edu.gh/" class="btn btn-link">Sunyani Technical University</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 my-3">
+                <div class="card card-hover-shadow bg-white50 transparentBlur h-100">
+                    <img class="img" class="img-fluid card-img-top" src="{% static 'DefaultImg/student_male.svg' %}">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <small>Name</small><br>
+                            <p>Attakorah Bernard</p>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Tel</small> <br>
+                            <a href="tel:+233556653210">055 665 3210</a>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Email</small>
+                            <p>---</p>
+                        </li>
+
+                        <li class="list-group-item">
+                            <small>Programme</small>
+                            <p>Information Communication Technology HND</p>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Department</small>
+                            <p>Computer Science Department</p>
+                        </li>
+                        <li class="list-group-item">
+                            <small>Institution</small><br>
+                            <a href="http://https://stu.edu.gh/" class="btn btn-link">Sunyani Technical University</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    </div>
+{% endblock content %}
+    

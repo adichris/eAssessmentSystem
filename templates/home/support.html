@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block afterTitle %}
+    <style>
+        body {
+            background-position: center;
+             background-size: cover;
+             background-repeat: no-repeat;
+             background-origin: border-box;
+             height: 100vh;
+            background-image: url( {% static 'DefaultImg/bgs/bg.jpg' %} );
+            
+        }
+    </style>
+{% endblock afterTitle %}
+    
+
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-auto mx-auto ">
+                <div class="rounded p-2 bg-white50 transparentBlur text-center">
+                    <span class="fa fa-hands-helping fa-3x"></span>
+                    <h1>HELP AND SUPPORT</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+    
