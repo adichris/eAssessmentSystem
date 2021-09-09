@@ -74,6 +74,12 @@ class UserManager(DefaultUserManager):
         )
 
 
+def upload_user_to_path(instance, filename):
+    import os
+    new_filename = instance.username + os.path.splitext(filename)[-1]
+    return os.path.join("user", "picture", new_filename)
+
+
 class User(AbstractBaseUser):
     """Model definition for User."""
     first_name = models.CharField(max_length=150)
@@ -89,6 +95,7 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_lecture = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    picture = models.ImageField(null=True, blank=True, upload_to=upload_user_to_path)
 
     REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number']
     USERNAME_FIELD = "username"
@@ -163,7 +170,7 @@ class User(AbstractBaseUser):
 
     @property
     def is_staff(self):
-        return (self.is_superuser or self.is_admin) and self.is_active
+        return bool((self.is_superuser or self.is_admin) and self.is_active)
 
 
 @receiver(models.signals.pre_save, sender=User)

@@ -9,7 +9,7 @@
                 <p class="text-center">Courses are grouped in programmes; click on <span class="fa fa-folder-open"></span> to view course quizzes</p>
             </div>
         </div>
-
+        {% if courses_set %}
         {% regroup courses_set by programme as courses_set_list %}
         {% for courses_group in courses_set_list %}
             <div class="row">
@@ -32,7 +32,7 @@
                                     <a href="{% url 'assessment:create_group' courseName=course.name coursePK=course.pk %}" class="btn btn-outline-secondary flex-grow-1 my-1" onclick="appendSpinOnClick(this)"><span class="fa fa-plus"></span> New Quiz</a>
                                     {% if course.questiongroup_set.exists %}
                                         <a href="{{ course.get_absolute_url }}?back={{ request.path }}" class="btn btn-outline-secondary flex-grow-1 my-1" onclick="appendSpinOnClick(this)"><span class="fa fa-folder-open"></span> View Quiz</a>
-                                    
+
                                     {% endif %}
                                     <a href="{% url 'records:course_detail' course_code=course.code course_pk=course.pk %}?back={{ request.path }}" class="btn btn-outline-secondary flex-grow-1 my-1" onclick="appendSpinOnClick(this)"><span class="fa fa-newspaper"></span> View All Records</a>
                                 </div>
@@ -54,6 +54,10 @@
 
             </div>
         {% endfor %}
+
+        {% else %}
+            {% include 'snippet/lecture_has_no_course.html' %}
+        {% endif %}
 
     </div>
 

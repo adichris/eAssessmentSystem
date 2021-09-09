@@ -4,10 +4,11 @@
 <div class="jumbotron rounded-0" style="background-image: url({% static 'DefaultImg/bg computer.jpeg' %}); background-size: cover;background-attachment: fixed;background-repeat: no-repeat">
     <div class="container">
         <div class="row">
-                <div class="col-auto mx-auto transparentBlur bg-white50 rounded shadow-sm p-2">
+                <div class="col-auto mx-auto transparentBlur text-center bg-white50 rounded shadow-sm p-2">
                     {% if home_page %}
-                    <h4>Do Various Courses Quizzes and Midsem in {{ request.user.student.programme }}</h4>
-                    <h4>View your Records and Results</h4>
+                        <h4>Complete Quizzes and Mid semester exam in {{ request.user.student.programme }} Here</h4>
+                        <hr>
+                        <h4>And view your Records and Results</h4>
                     {% else %}
                         <h4>{{ sub_header|upper }}</h4>
                     {% endif %}

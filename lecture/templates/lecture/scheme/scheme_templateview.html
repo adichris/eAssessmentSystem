@@ -8,21 +8,26 @@
             </div>
         </div>
 
-    <div class="row">
-        <div class="col">
-            <h5>Please Select the course available to view it Quizzes Marking Scheme</h5>
-            <hr>
-        </div>
-    </div>
-
-    <div class="row">
-        {% for course in courses_set %}
-            <div class="col-md-6 col-lg-4 my-2">
-                {% static 'DefaultImg/course.png' as course_img %}
-                {% include 'snippet/lecture_asscessment_card.html' with title=course src=course_img link=course.code search_name="course_code" %}
+        <div class="row">
+            <div class="col-auto mx-auto text-center">
+                <p class="lead">Please Select the course available to view it Quizzes Marking Scheme</p>
+                <hr>
             </div>
-        {% endfor %}
+        </div>
 
-    </div>
+        {% if courses_set %}
+
+            <div class="row">
+                {% for course in courses_set %}
+                    <div class="col-md-6 col-lg-4 my-2">
+                        {% static 'DefaultImg/course.png' as course_img %}
+                        {% include 'snippet/lecture_asscessment_card.html' with title=course src=course_img link=course.code search_name="course_code" %}
+                    </div>
+                {% endfor %}
+
+            </div>
+            {% else %}
+                {% include 'snippet/lecture_has_no_course.html' %}
+        {% endif %}
     </div>
 {% endblock %}

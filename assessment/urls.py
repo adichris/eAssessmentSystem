@@ -34,7 +34,7 @@ urlpatterns = [
     path("conduct/<str:question_group_title>/<int:question_group_pk>", ConductAssessment.as_view(), name="conduct"),
     path("preference/<str:question_group_title>/<str:question_group_pk>/", AssessmentPreferenceCreateView.as_view(),
          name="preference"),
-    path("preference/<str:question_group_title>/<str:question_group_pk>/<str:environment>/<int:pk>/",
+    path("preference/<str:question_group_title>/<str:question_group_pk>/<int:pk>/",
          AssessmentPreferenceUpdateView.as_view(), name="preference_update"),
     path("conducting_test/<str:course_name>/<int:question_group_pk>/<int:course_pk>/", ConductingAssessment.as_view(),
          name="conducting"),
@@ -65,7 +65,7 @@ urlpatterns = [
          StopAllWorkTemplateView.as_view(), name="exam_stop_all"),
 
     # Results
-    path("scripts/result/summary/multi_choice/<int:student_id>/<int:course_id>/<int:question_group_id>/<int:script_pk>/"
+    path("scripts/result/summary/<int:student_id>/<int:course_id>/<int:question_group_id>/<int:script_pk>/"
          "<str:questions_type>/", QuestionResultTemplateView.as_view(), name="result"),
     path("scripts/result/details/<int:student_id>/<int:course_id>/<int:question_group_id>/<str:questions_type>/",
          QuestionResultDetailTemplateView.as_view(), name="result_detail"),

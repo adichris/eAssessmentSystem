@@ -11,7 +11,7 @@ from django.utils import timezone
 class AssessmentPreferenceCreateForm(forms.ModelForm):
     class Meta:
         model = AssessmentPreference
-        fields = ("duration", "due_date", "environment", "is_question_shuffle")
+        fields = ("duration", "due_date", "is_question_shuffle")
 
         widgets = {
             "due_date": forms.SplitDateTimeWidget(date_attrs={"type": "date", "class": "form-control", "title":"Date"},

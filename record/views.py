@@ -1,10 +1,10 @@
 from lecture.models import LectureModel
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.views.generic import TemplateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user
 from eAssessmentSystem.tool_utils import (admin_required_message, get_http_forbidden_response,
-                                          get_not_allowed_render_response,general_setting_not_init
+                                          get_not_allowed_render_response, general_setting_not_init
                                           )
 from student.models import Student
 from django.utils.text import slugify
@@ -13,7 +13,6 @@ from .form import LectureFilterForm
 from assessment.models import (QuestionGroupStatus, QuestionGroup, QuestionTypeChoice, ScriptStatus,
                                StudentTheoryScript, MultiChoiceScripts, CourseModel)
 from django.db.models import ObjectDoesNotExist, Sum
-REASON = "Your not allowed to access this page because of your profile"
 
 
 class RecordsView(LoginRequiredMixin, TemplateView):
@@ -67,28 +66,23 @@ class StudentRecordTemplateView(LoginRequiredMixin, TemplateView):
 class LectureRecordsTemplateView(LoginRequiredMixin, TemplateView):
     template_name = "record/lecture/all_records_view.html"
     filter_form_class = LectureFilterForm
-    LIST_VIEW = "list"
-    GRID_VIEW = "grid"
     COURSE_SORT = "course"
     QUIZ_SORT = "quiz"
     SORT_NAME = "sort"
-    VIEW_NAME = "view"
 
     def get_context_data(self, **kwargs):
         ctx = super(LectureRecordsTemplateView, self).get_context_data(**kwargs)
-        if self.is_course_sort:
-            ctx["courses"] = self.get_courses()
-        else:
+        self.filter_class = self.filter_form_class(data=self.request.GET,
+                                                   lecture=self.request.user.lecturemodel)
+        if self.is_quiz_sort:
             ctx["all_course_scripts"] = self.get_all_lecture_records()
-            ctx["filter_form"] = self.filter_class
+        else:
+            ctx["courses"] = self.get_courses()
+        ctx["filter_form"] = self.filter_class
         ctx["title"] = "Records"
-        ctx["is_course_sort"] = self.is_course_sort
-        ctx["is_list_view"] = self.is_list_view
-        ctx["list_view"] = self.LIST_VIEW
-        ctx["grid_view"] = self.GRID_VIEW
+        ctx["is_quiz_sort"] = self.is_quiz_sort
         ctx["course_sort"] = self.COURSE_SORT
         ctx["quiz_sort"] = self.QUIZ_SORT
-        ctx["view_name"] = self.VIEW_NAME
         ctx["sort_name"] = self.SORT_NAME
         return ctx
 
@@ -100,43 +94,39 @@ class LectureRecordsTemplateView(LoginRequiredMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_lecture:
-            self.is_course_sort = self.request.GET.get(self.SORT_NAME) == self.COURSE_SORT
-            self.is_list_view = self.request.GET.get(self.VIEW_NAME) == self.LIST_VIEW
+            self.is_quiz_sort = self.request.GET.get(self.SORT_NAME) == self.QUIZ_SORT
             return super(LectureRecordsTemplateView, self).get(request, *args, **kwargs)
         elif self.request.user:
-            return render(request, "assessment/status_not_allowed.html", {
-                "reason": REASON
-            })
+            return get_not_allowed_render_response(request)
         else:
             return get_http_forbidden_response()
 
     def get_all_lecture_records(self):
         lecture_profile = self.request.user
-        queryset = QuestionGroup.objects.filter(
+        queryset_filter = dict(
             course__lecture=lecture_profile.lecturemodel,
             course__semester=lecture_profile.generalsetting.semester,
             academic_year=lecture_profile.generalsetting.academic_year,
             status__in=(QuestionGroupStatus.CONDUCTED, QuestionGroupStatus.PUBLISHED, QuestionGroupStatus.MARKED)
         )
-        is_reset_btn_clicked = self.request.GET.get("reset") == "reset"
-        self.filter_class = self.filter_form_class(data=self.request.GET if not is_reset_btn_clicked else None,
-                                                   lecture=lecture_profile.lecturemodel)
         if self.filter_class.is_valid():
-            # Check if the filter tags are not None
             question_group_title = self.filter_class.cleaned_data.get("question_group_title")
             course_id = self.filter_class.cleaned_data.get("course")
             course__level = self.filter_class.cleaned_data.get("level")
             course__programme_id = self.filter_class.cleaned_data.get("programme")
 
             if question_group_title:
-                queryset = queryset.filter(title=question_group_title)
+                queryset_filter["title"] = question_group_title
             if course_id:
-                queryset = queryset.filter(course_id=course_id)
+                queryset_filter["course_id"] = course_id
             if course__programme_id:
-                queryset = queryset.filter(course__programme_id=course__programme_id)
+                queryset_filter["course__programme_id"] = course__programme_id
             if course__level:
-                queryset = queryset.filter(course__level=course__level)
-        return queryset.order_by("course__code", "course__level")
+                queryset_filter["course__level"] = course__level
+
+            return QuestionGroup.objects.filter(
+                **queryset_filter
+            ).order_by("course__code", "course__level")
 
 
 class LectureQuizRecordDetailView(LoginRequiredMixin, DetailView):
@@ -156,10 +146,7 @@ class LectureQuizRecordDetailView(LoginRequiredMixin, DetailView):
         if self.request.user.is_lecture:
             return super(LectureQuizRecordDetailView, self).get(request, *args, **kwargs)
         elif self.request.user.is_admin:
-            return render(request, "assessment/status_not_allowed.html",
-            {
-                "reason": REASON
-            })
+            return get_not_allowed_render_response(request)
 
         else:
             return get_http_forbidden_response()
@@ -206,7 +193,7 @@ class LectureCourseRecords(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super(LectureCourseRecords, self).get_context_data(**kwargs)
-        ctx["is_course_sort"] = self.request.GET.get("sort") == "course"
+        ctx["is_quiz_sort"] = self.request.GET.get("sort") == "course"
         ctx["title"] = f"{self.get_object().name} - records"
         ctx["students"] = self.get_students()
         ctx["question_groups"] = self.get_questions()
@@ -232,7 +219,10 @@ class PublishRecordsDetailView(LoginRequiredMixin, DetailView):
         if self.request.user.is_lecture:
             self.init_instance()
             confirm_code = request.GET.get("confirm_code")
-            if confirm_code and confirm_code == self.get_confirm_code() and self.question_group_instance.status in (QuestionGroupStatus.MARKED, QuestionGroupStatus.PUBLISHED):
+
+            logic1 = confirm_code and confirm_code == self.get_confirm_code()
+            logic2 = self.question_group_instance.status in (QuestionGroupStatus.MARKED, QuestionGroupStatus.PUBLISHED)
+            if logic1 and logic2:
                 return self.publish_scripts()
             return super(PublishRecordsDetailView, self).get(request, *args, **kwargs)
         elif self.request.user.is_staff:

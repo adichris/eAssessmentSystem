@@ -56,41 +56,42 @@
 
     {% if student_script.question_group.questions_type == "multichoice" %}
         <div class="row">
-            <div class="col-md-12 col-lg-8 mx-auto">
-                <div class="table-responsive">
-                <table class="table">
-                    {% for choice_answer in studentmultichoiceanswer_set %}
-                        <tr>
-                        <td class="card my-2">
-                            <div class="card-body">
-                                <div class="d-flex flex-row justify-content-between align-items-center">
-                                    <h6>Question {{ choice_answer.question.question_number }}</h6>
-                                    <h6>{{ choice_answer.question.max_mark|floatformat }} Marks</h6>
-                                </div>
-                                <div>
-                                    <div class="d-flex flex-column">
-                                        <p>{{ choice_answer.question.question|linebreaksbr }}</p>
-                                        <div class="jumbotron">
-                                            {% for option in choice_answer.question.multichoicequestion_set.all %}
-                                                <p class="alert
-                                                              {% if option == choice_answer.selected_option and option.is_answer_option  %} alert-primary
-                                                               {% elif option == choice_answer.selected_option  %} alert-danger
-                                                               {% elif option.is_answer_option  %} alert-success
-                                                               {% else %} alert-light {% endif %} shadow">
-                                                    {{ option.option }}
-                                                </p>
-                                            {% endfor %}
-                                        </div>
-
-                                    </div>
+            <div class="col-12">
+             <div class="row">
+                 {% for choice_answer in studentmultichoiceanswer_set %}
+                     <div class="col-md-6 my-3">
+                         <div class="card h-100">
+                             <div class="card-body">
+                                 <div class="d-flex flex-row justify-content-between align-items-center mb-2">
+                                     <b>Question {{ choice_answer.question.question_number }}</b>
+                                     <b>{{ choice_answer.question.max_mark|floatformat }} Marks</b>
+                                 </div>
+                                 <div class="d-flex flex-column">
+                                     <p>{{ choice_answer.question.question|linebreaksbr }}</p>
+                                     {% for option in choice_answer.question.multichoicequestion_set.all %}
+                                         {% if option.option %}
+                                             <p class="alert
+                                                            {% if option == choice_answer.selected_option and option.is_answer_option  %} alert-success
+                                                             {% elif option == choice_answer.selected_option  %} alert-danger
+                                                             {% elif option.is_answer_option  %} alert-primary
+                                                             {% else %} text-dark border-dark {% endif %} ">
+                                                 {% if option == choice_answer.selected_option and option.is_answer_option %}
+                                                     <span class="fa fa-check mr-2"></span>
+                                                 {% elif option == choice_answer.selected_option %}
+                                                     <span class="fa fa-times text-danger mr-2"></span>
+                                                 {% endif %}
+                                                 {{ option.option }}
+                                             </p>
+                                         {% endif %}
+                                     {% endfor %}
                                 </div>
                             </div>
-                        </td>
-                        </tr>
-                    {% endfor %}
+                        </div>
+                     </div>
+                 {% endfor %}
 
-                </table>
-            </div>
+                </div>
+
             </div>
         </div>
     {% endif %}

@@ -22,9 +22,11 @@
             <div class="col-lg-8 mx-auto my-3">
                 <div class="card-group">
                     <div class="card">
-                        <div class="card-body">
-                            <p class="card-title">Your Score</p>
-                            <h1 class="text-center mt-2 display-4 " title="You scored {{ score|floatformat }}">{{ score|floatformat }} / {{ question_group.total_marks }}</h1>
+                        <div class="card-body text-center">
+                            <p class="card-title">Your Scored</p>
+                            <h1 class="text-center"><b>{{ score|floatformat }}</b></h1>
+                            <p>Total Marks</p>
+                            <h1><b>{{ question_group.total_marks }}</b></h1>
                              {% if is_mulichoice %}
                             <p class="form-text text-center"><b>{{ correct_answers_num }}</b> out of  <b>{{ question_group.question_set.count }}</b> questions</p>
                             {% endif %}
@@ -67,7 +69,7 @@
                                     <td title="correct and wrong answers">Answers</td>
                                     <td>
                                         <ul class="list-group list-group-horizontal w-100">
-                                            <li class="list-group-item list-group-item-primary w-50" title="{{ correct_answers_num }} Corrects">{{ correct_answers_num }}</li>
+                                            <li class="list-group-item list-group-item-success w-50" title="{{ correct_answers_num }} Corrects">{{ correct_answers_num }}</li>
                                             <li class="list-group-item list-group-item-danger w-50" title="{{ wrong_answers_num }} Wrongs">{{ wrong_answers_num }}</li>
                                         </ul>
                                     </td>
@@ -86,9 +88,9 @@
                 {% if is_mulichoice %}
                     <ul class="list-group list-group-horizontal-md small text-center">
                         <li class="list-group-item "><b>Table Guide</b></li>
-                        <li class="list-group-item list-group-item-primary">Answered Correct</li>
+                        <li class="list-group-item list-group-item-success">Answered Correct</li>
                         <li class="list-group-item list-group-item-danger">Answered Wrong</li>
-                        <li class="list-group-item list-group-item-success">Correct Answer</li>
+                        <li class="list-group-item list-group-item-primary">Lecturer Answer</li>
                     </ul>
                 {% endif %}
                 <hr>
@@ -98,74 +100,79 @@
     {% if is_mulichoice %}
         <div class="row">
             <div class="col-12 ">
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <tr>
-                            <th>#</th>
-                            <th>Question</th>
-                            <th>Option</th>
-                            <th>Score</th>
-                        </tr>
-                        {% for question_anwser in student_script.studentmultichoiceanswer_set.all %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td>
-                                    <p>{{ question_anwser.question|linebreaksbr }}</p>
-                                    <p class="alert alert-secondary float-right small">{{ question_anwser.question.max_mark|floatformat }} mark</p>
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-column">
-                                        {% for option in question_anwser.question.multichoicequestion_set.all %}
-                                            {% if question_anwser.selected_option == option and question_anwser.selected_option.is_answer_option  %}
-                                                <span class="my-1 alert d-block alert-primary shadow-sm" title="you had correct">{{ option.option }}</span>
-                                            {% elif option.is_answer_option %}
-                                                <span class="my-1 alert d-block alert-success shadow-sm" title="this is the correct answer. You missed">{{ option.option }}</span>
-                                            {% elif option == question_anwser.selected_option %}
-                                                <span class="my-1 alert d-block alert-danger shadow-sm" title="you had wrong">{{ option.option }}</span>
-                                            {% else %}
-                                                <span class="my-1 alert alert-light border-dark text-dark d-block shadow-sm">{{ option.option }}</span>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if question_anwser.is_correct_answer %}
-                                        <p class="alert alert-primary">{{ question_anwser.question.max_mark|floatformat }}</p>
-                                    {% else %}
-                                        <p class="alert alert-secondary">0</p>
-                                    {% endif %}
-                                </td>
+                <div class="row">
 
-                            </tr>
-                        {% endfor %}
-                    </table>
+                    {% for question_anwser in student_script.studentmultichoiceanswer_set.all %}
+                        <div class="col-md-6 my-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <b class="">Q {{ forloop.counter }}</b>
+                                    <b class="">{{ question_anwser.question.max_mark|floatformat }} mark</b>
+                                    <b>{% if question_anwser.is_correct_answer %}
+                                        <p class="text-success">Scored {{ question_anwser.question.max_mark|floatformat }}</p>
+                                    {% else %}
+                                        <p class="text-danger">Scored 0</p>
+                                    {% endif %}
+                                    </b>
+                                </div>
+                                <br>
+                                <p>{{ question_anwser.question|linebreaksbr }}</p>
+
+                                <div class="d-flex flex-column">
+                                    {% for option in question_anwser.question.multichoicequestion_set.all %}
+                                        {% if question_anwser.selected_option == option and question_anwser.selected_option.is_answer_option  %}
+                                            <span class="my-1 alert d-block alert-success" title="you had correct"><span class="fa fa-check text-success mr-2"></span> {{ option.option }}</span>
+                                        {% elif option.is_answer_option %}
+                                            <span class="my-1 alert d-block alert-primary" title="this is the correct answer. You missed">{{ option.option }}</span>
+                                        {% elif option == question_anwser.selected_option %}
+                                            <span class="my-1 alert d-block alert-danger" title="you had wrong"><span class="fa fa-times text-danger mr-2"></span> {{ option.option }}</span>
+                                        {% else %}
+                                            <span class="my-1 alert alert-light border-dark text-dark d-block">{{ option.option }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     {% else %}
         <div class="row">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-borderless">
                     {% for theoryanswer in student_script.studenttheoryanswer_set.all %}
                         <tr>
                             <td>
-                                <div class="card card-body shadow-sm">
+                                <div class="card card-body card-hover-shadow">
                                  <div class="d-flex flex-column align-items-start">
-                                    <p>Question {{ theoryanswer.question.question_number }} - <span class="badge badge-light">{{ theoryanswer.question.max_mark|floatformat }} marks</span></p>
+                                    <div class="w-100 d-flex justify-content-between">
+                                        <b>Question {{ theoryanswer.question.question_number }}</b>
+                                        <b>{{ theoryanswer.question.max_mark|floatformat }} marks</b>
+                                    </div>
+                                     <p></p>
                                     <p>{{ theoryanswer.question.question|linebreaksbr }}</p>
                                     <p>Answer</p>
-                                    <div class="alert border border-primary flex-grow-1 flex-fill">
-                                        <p class="text-primary">
+                                    <div class="flex-grow-1 w-100 alert {% if theoryanswer.score == 0 %} text-danger border-danger {% else %} text-success border-success {% endif %} flex-grow-1 flex-fill">
+                                        <p class="">
+                                            {% if theoryanswer.score > 0 %}
+                                                <span class="fa fa-check text-success mr-2"></span><br>
+
+                                            {% else %}
+                                                <span class="fa fa-times text-danger mr-2"></span><br>
+                                            {% endif %}
                                             {{ theoryanswer.answer|linebreaksbr }}
                                         </p>
                                     </div>
                                      {% if theoryanswer.lecture_comment %}
-                                         <p class="alert alert-info">
+                                         <p class="alert border-dark w-100 flex-grow-1">
                                             <b title="By Lecture {{ course.lecture }}">Lecture's Comment</b> <br>
                                              {{ theoryanswer.lecture_comment }}
                                          </p>
                                      {% endif %}
-                                    <p class="alert {% if theoryanswer.score == 0 %} alert-danger  {% else %} alert-primary {% endif %}">Score {{ theoryanswer.score }}</p>
+                                    <b class=" {% if theoryanswer.score == 0 %} text-danger  {% else %} text-success {% endif %}">Score {{ theoryanswer.score }}</b>
                                 </div>
                                 </div>
                             </td>

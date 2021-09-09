@@ -31,12 +31,6 @@ class QuestionGroupStatus(models.TextChoices):
     PUBLISHED = "published", "Published"
 
 
-class AssessmentEnvironment(models.TextChoices):
-    CLASS_ROOM = "class", "Class Room"
-    ANY_PLACE = "any", "Any Place"
-    HOME_WORK = "home", "Home Work"
-
-
 class ScriptStatus(models.TextChoices):
     MARKED = "marked", "Marked"
     MARKING = "marking", "Marking"
@@ -48,8 +42,6 @@ class ScriptStatus(models.TextChoices):
 
 class AssessmentPreference(models.Model):
     duration = models.DurationField(blank=True, null=True, help_text="The assessment duration in hours:minutes:seconds (eg; 0:30:00)")
-    environment = models.CharField(max_length=120, blank=True, null=True, choices=AssessmentEnvironment.choices,
-                                   help_text="select how the assessment should be conducted")
     due_date = models.DateTimeField(blank=True, null=True, verbose_name="Due Date and Time - Deadline")
     is_question_shuffle = models.BooleanField(default=False, verbose_name="Shuffle Questions",
                                               help_text="Rearrange questions for each student")
@@ -98,8 +90,8 @@ class QuestionGroup(models.Model):
                             }
                        )
 
-    def generate_marks(self):
-        if self.is_share_total_marks or self.questions_type == QuestionTypeChoice.MULTICHOICE:
+    def generate_marks(self, force=None):
+        if force or self.is_share_total_marks or self.questions_type == QuestionTypeChoice.MULTICHOICE:
             try:
                 each_mark = self.total_marks / self.question_set.count()
                 for question in self.question_set.all():
@@ -127,6 +119,27 @@ class QuestionGroup(models.Model):
         elif self.questions_type == QuestionTypeChoice.THEORY:
             return self.studenttheoryscript_set.aggregate(average_score=models.Avg("total_score")).get("average_score")
 
+    def get_scripts_highest_score(self):
+        if self.questions_type == QuestionTypeChoice.MULTICHOICE:
+            return self.multichoicescripts_set.aggregate(average_score=models.Max("score")).get("average_score")
+        elif self.questions_type == QuestionTypeChoice.THEORY:
+            return self.studenttheoryscript_set.aggregate(average_score=models.Max("total_score")).get("average_score")
+
+    def get_scripts_lowest_score(self):
+        if self.questions_type == QuestionTypeChoice.MULTICHOICE:
+            return self.multichoicescripts_set.aggregate(average_score=models.Min("score")).get("average_score")
+        elif self.questions_type == QuestionTypeChoice.THEORY:
+            return self.studenttheoryscript_set.aggregate(average_score=models.Min("total_score")).get("average_score")
+
+    def get_scripts_average_score_count(self):
+        average_score = self.get_scripts_average_score()
+        if not average_score:
+            return
+        if self.questions_type == QuestionTypeChoice.MULTICHOICE:
+            return self.multichoicescripts_set.filter(score__gte=average_score).count()
+        elif self.questions_type == QuestionTypeChoice.THEORY:
+            return self.studenttheoryscript_set.filter(total_score__gte=average_score).count()
+
     def fix_question_numbers(self):
         num = 0
         for question in self.question_set.order_by("id"):
@@ -152,6 +165,10 @@ class QuestionGroup(models.Model):
     @property
     def total_script_count(self):
         return self.multichoicescripts_set.count() + self.studenttheoryscript_set.count()
+
+    def theory_question_without_max_mark(self):
+        if self.questions_type == QuestionTypeChoice.THEORY:
+            return self.question_set.filter(max_mark__isnull=True)
 
 
 class QuestionManager(models.Manager):

@@ -11,6 +11,15 @@
                 <div class="col-md-6 mx-auto text-center mt-3 mt-lg-4 ">
                     <h4>Conduct {{ question_group.get_title_display }} Assessment</h4>
                     <hr>
+                    {% if question_group.theory_question_without_max_mark.exists %}
+                        <div class="alert alert-warning">
+                            <span class="fa fa-exclamation-circle"></span>
+                            <p>All or some of your question has not maximum max assigned</p>
+                            <hr>
+                            <b>If you proceed, the system will share the total marks </b><br>
+                            <b>among the questions</b><br>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="row my-3" >
@@ -45,10 +54,7 @@
                             <td>Duration</td>
                             <td>{{ question_group.preference.duration|default:"---"}}</td>
                         </tr>
-                          <tr>
-                            <td>Environment</td>
-                            <td>{{ question_group.preference.get_environment_display|default:"---" }}</td>
-                        </tr>
+
                     {% else %}
                     {% url 'assessment:preference' question_group_title=question_group.title question_group_pk=question_group.pk as preference_create %}
                         <tr>
@@ -58,10 +64,6 @@
                         <tr>
                             <td>Duration</td>
                             <td>--- <a href="{{ preference_create }}?next={{ request.path }}">(set duration)</a></td>
-                        </tr>
-                          <tr>
-                            <td>Environment</td>
-                            <td>--- <a href="{{ preference_create }}?next={{ request.path }}">(set environment)</a></td>
                         </tr>
                     {% endif %}
                         <tr>
@@ -73,7 +75,7 @@
                             <td><a href="{{ question_group.get_absolute_url }}?next={{ request.path }}" >{{ question_group.question_set.count }} questions</a> <a href="{{ question_group.get_absolute_url }}?next={{ request.path }}" class="btn btn-outline-secondary float-right btn-sm" onclick="spinOnClick(this)" title="Preview assessment questions">preview</a></td>
                         </tr>
                     {% if question_group.preference %}
-                    {% url 'assessment:preference_update' environment=question_group.preference.environment pk=question_group.preference_id question_group_pk=question_group.pk question_group_title=question_group.title as preference_change_url %}
+                    {% url 'assessment:preference_update' pk=question_group.preference_id question_group_pk=question_group.pk question_group_title=question_group.title as preference_change_url %}
                         <tr>
                    
                                 <td COLSPAN="2" class="bg-light">

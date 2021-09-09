@@ -52,7 +52,7 @@
                 </div>
             
                 <div class="col-md-8 col-lg-9">
-                    {% url 'assessment:preference_update' question_group_title=questiongroup.title question_group_pk=questiongroup.pk environment=questiongroup.preference.environment pk=questiongroup.preference_id  as preference_update_url %}
+                    {% url 'assessment:preference_update' question_group_title=questiongroup.title question_group_pk=questiongroup.pk pk=questiongroup.preference_id  as preference_update_url %}
                     <p class="lead">{{ questiongroup.get_title_display }} Activity {% if questiongroup.status == "prepared" and questiongroup.preference %}<a href="{{ preference_update_url }}"> | change preference</a> {% endif %}</p>
                     <div class="{% if not questiongroup.preference %} card card-hover-shadow {% endif %} my-2">
                         <div class="{% if not questiongroup.preference %} card-body {% endif %}">
@@ -60,7 +60,6 @@
                                 <div class="card-group">
                                     {%  include "snippet/H_label_value_card.html" with label="Duration" value=questiongroup.preference.duration|time:"h\h\r\s\ \:i\m\s"|default:"No Duration" new_line=1 %}
                                     {%  include "snippet/H_label_value_card.html" with label="Due Date" value=questiongroup.preference.due_date|default:"No Due Date" caption=questiongroup.preference.due_date|timeuntil|default:"" new_line=1 %}
-                                    {%  include "snippet/H_label_value_card.html" with label="Environment" value=questiongroup.preference.get_environment_display new_line=1 %}
                                     {%  include "snippet/H_label_value_card.html" with label="Shuffle " value=questiongroup.preference.is_question_shuffle|yesno:"ON,OFF" color_bg=1 new_line=1 %}
                                 </div>
 

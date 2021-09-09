@@ -3,8 +3,13 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-md-6 mx-auto mt-3 mt-md-4 mt-lg-5">
-                <h4 class="text-center">Lecture {{ lecturemodel }} Detail</h6>
+            <div class="col-md-6 mx-auto text-center mt-3 mt-md-4 mt-lg-5">
+                {% if profile.picture %}
+                    <img src="{{ profile.picture.url }}" alt="" class="img-fluid rounded-pill p-2 my-2" style="height: 10em">
+                {% else %}
+                    <span class="fa fa-user-circle fa-6x my-2"></span>
+                {% endif %}
+                <h4 class="text-center">Lecture {{ lecturemodel }} Detail</h4>
                 <hr>
             </div>
         </div>

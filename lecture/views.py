@@ -151,7 +151,10 @@ class LectureStudentScripts(LoginRequiredMixin, TemplateView):
                                                   message="In preparing state only you can view, edit and delete the question")
 
     def get(self, request, *args, **kwargs):
-        self.init_lecture_course_question_groups()
+        try:
+            self.init_lecture_course_question_groups()
+        except ObjectDoesNotExist:
+            return get_not_allowed_render_response(request)
         return super(LectureStudentScripts, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

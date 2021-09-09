@@ -23,7 +23,7 @@ class UserCreateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "username", "phone_number", "email", "dob", "password")
+        fields = ("first_name", "last_name", "username", "phone_number", "email", "dob", "password", "password2","picture")
         widgets = {
             "password": forms.PasswordInput,
             "dob": forms.DateInput(attrs={"type": "date"}),
@@ -81,7 +81,7 @@ class UserCreateForm(forms.ModelForm):
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "phone_number", "email", "dob",)
+        fields = ("first_name", "last_name", "phone_number", "email", "dob", "picture")
         widgets = {
             "dob": forms.DateInput(attrs={"type": "date"}),
             "phone_number": PhoneNumberPrefixWidget(attrs={"class":"form-control", "type": "tel"})
@@ -118,7 +118,7 @@ class StudentProfileCreateForm(forms.ModelForm):
         widgets = {
             "password": forms.PasswordInput,
             "dob": forms.DateInput(attrs={"type": "date"}),
-            "phone_number":PhoneNumberPrefixWidget(attrs={"class": "form-control", "type": "tel"})
+            "phone_number": PhoneNumberPrefixWidget(attrs={"class": "form-control", "type": "tel"})
         }
 
         error_messages = {

@@ -1,34 +1,46 @@
 {% extends 'assessment/student/assessment/view.html' %}
 
 {% block page_content %}
-    <div class="row">
-    {% for course in courses %}
-        <div class="col-md-6 col-lg-4 my-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="text-center">{{ course.name }}</h5>
-                    <div class="table-responsive">
-                        <table class="table table-borderless">
-                            <tr>
-                                <td>Code</td>
-                                <td>{{ course.code }}</td>
-                            </tr>
-                            <tr>
-                                <td>Master</td>
-                                <td>{{ course.lecture }}</td>
-                            </tr>
-                            <tr>
-                                <td>Quizzes</td>
-                                <td>{{ course.question_conduct.count }}</td>
-                            </tr>
-                        </table>
+    {% if courses %}
+            <div class="row my-3">
+                {% for course in courses %}
+                    <div class="col-md-6 col-lg-4 my-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="text-center">{{ course.name }}</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td>Code</td>
+                                            <td>{{ course.code }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Master</td>
+                                            <td>{{ course.lecture }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Quizzes</td>
+                                            <td>{{ course.question_conduct.count }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="{% url 'records:student_course_records' course_code=course.code course_id=course.id %}" class="btn btn-primary float-right" onclick="spinOnClick(this)">view</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="card-footer bg-transparent">
-                    <a href="{% url 'records:student_course_records' course_code=course.code course_id=course.id %}" class="btn btn-primary float-right" onclick="spinOnClick(this)">view</a>
+                {% endfor %}
+            </div>
+    {% else %}
+        <div class="row my-3">
+            <div class="col-auto mx-auto text-center">
+                <span class="fa fa-exclamation-circle fa-spin fa-4x my-2"></span>
+                <div class="alert alert-info">
+                    <h4>You have no records yet</h4>
+                    <p>Complete and do more assessment to view your records.</p>
                 </div>
             </div>
         </div>
-    {% endfor %}
-    </div>
+    {% endif %}
 {% endblock %}

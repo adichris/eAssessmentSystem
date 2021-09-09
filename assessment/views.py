@@ -696,9 +696,9 @@ class DeleteQuestionGroup(LoginRequiredMixin, DeleteView):
 
 
 class ConductAssessment(LoginRequiredMixin, TemplateView):
-    """Check if the assessement meet some requirement before proceeding to conducting the assessment"""
+    """Check if the assessment meet some requirement before proceeding to conducting the assessment"""
     template_name = "assessment/conductAssessment.html"
-    MINIMUM_MINUTES = 10 # unit in minutes
+    MINIMUM_MINUTES = 10  # unit in minutes
 
     def is_lecture_course_master(self):
         self.question_group = get_object_or_404(QuestionGroup, pk=self.kwargs.get("question_group_pk"),
@@ -884,13 +884,14 @@ class ConductingAssessment(LoginRequiredMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         user = get_user(request)
-        if user.is_lecture and self.is_lecture_course_master() and (
-                self.question_group.status in (QuestionGroupStatus.PREPARED, QuestionGroupStatus.CONDUCT)):
+        logic1 = user.is_lecture and self.is_lecture_course_master()
+        logic2 = self.question_group.status in (QuestionGroupStatus.PREPARED, QuestionGroupStatus.CONDUCT)
+        if logic1 and logic2:
+            if self.question_group.theory_question_without_max_mark():
+                self.question_group.generate_marks(force=True)
             self.question_group.status = QuestionGroupStatus.CONDUCT
             if not self.question_group.preference:
-                preference = AssessmentPreference.objects.create(
-                    environment="any",
-                )
+                preference = AssessmentPreference.objects.create()
                 self.question_group.preference = preference
             self.question_group.save()
             return super(ConductingAssessment, self).get(request, *args, **kwargs)
@@ -1052,7 +1053,7 @@ class StudentAssessmentView(LoginRequiredMixin, TemplateView):
                 ctx["sub_header"] = "Published Script and Completed Assessment"
                 ctx["courses"] = self.assessment_courses()
             elif page == self.assessment_records_script_page_id:
-                ctx["sub_header"] = "Assessment Record"
+                ctx["sub_header"] = "Assessment Records"
                 ctx["courses"] = self.assessment_courses()
             else:
                 ctx["home_page"] = True
@@ -1539,7 +1540,6 @@ class QuestionResultDetailTemplateView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if self.is_student():
             self.init_student_script()
-            print(self.student_script_instance.status)
             if self.student_script_instance.status == ScriptStatus.PUBLISHED:
                 # if isinstance(self.student_script_instance, MultiChoiceScripts):
                 #     self.student_script_instance.score_student()
@@ -1725,7 +1725,6 @@ class QuestionsPreviewTemplateView(LoginRequiredMixin, TemplateView):
             # if not self.question_group.preference:
             #     preference = AssessmentPreference.objects.create(
             #         due_date=timezone.now(),
-            #         environment="any",
             #     )
             #     self.question_group.preference = preference
             # self.question_group.save()
@@ -2047,11 +2046,9 @@ class TheoryQuestionAnswerView(LoginRequiredMixin, View):
                 return self.get_render_is_completed()
             elif not (self.question_instance.group.status == QuestionGroupStatus.CONDUCT):
                 return self.get_question_status_not_allowed()
-            else:
-                return get_http_forbidden_response()
-        except Exception as err:
-            print(err)
-            return get_http_forbidden_response()
+        except ObjectDoesNotExist:
+            pass
+        return get_not_allowed_render_response(request)
 
 
 class TheoryScriptStatusTemplateView(LoginRequiredMixin, TemplateView):

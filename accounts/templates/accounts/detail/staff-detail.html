@@ -3,10 +3,13 @@
 {% block content %}
     <div class="container">
         <div class="row mt-2 mt-md-4">
-            <div class="col-auto mx-auto text-center">
-                <div class="alert shadow-sm mb-1 alert-primary rounded-pill" title="{{ object.get_full_name|title }}">
-                     <span class="display-1 font-weight-normal text-center">{{ object.get_name_abr }}</span>
-                </div>
+            <div class="col-auto mx-auto text-center d-flex justify-content-center align-items-center flex-column">
+                    {% if object.picture %}
+                        <img src="{{ object.picture.url }}" alt="" class="img-fluid rounded-pill p-2" style="height: 10em">
+                    {% else %}
+                         <span class="fa fa-user-circle fa-6x text-center"></span>
+                    {% endif %}
+                     <span class="font-weight-normal text-center">{{ object.get_short_name }}</span>
             </div>
         </div>
         <div class="row">
@@ -16,7 +19,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <p class="text-center">Personal Information</p>
+                                <h5 class="text-center">Personal Information</h5>
                                 <table class="table">
                                     <tr>
                                         <td>First Name</td>
@@ -46,7 +49,7 @@
                     
                     <div class="card">
                         <div class="card-body">
-                            <p class="text-center">Roles</p>
+                            <h5 class="text-center">Roles</h5>
                             <div class="table-responsive">
                                 <table class="table">
                                 <tr>
@@ -65,8 +68,10 @@
                                         {% endif %}
                                         
                                         <span class = "badge badge-pill p-2 {% if object.is_active %} alert-success {% else %} alert-danger {% endif %}" title="Is user active?">Active {{ object.is_active|yesno|title }}</span>
-                                        <span class = "badge badge-pill p-2 {% if object.student %} alert-success {% else %} alert-danger {% endif %}" title="Is user student?">Student {{ object.student|yesno|title }}</span>
-                                        
+                                        {% if object.student %}
+                                            <span class = "badge badge-pill p-2 {% if object.student %} alert-success {% else %} alert-danger {% endif %}" title="Is user student?">Student {{ object.student|yesno|title }}</span>
+                                        {% endif %}
+
                                     </td>
                                 </tr>
                                     
@@ -81,7 +86,7 @@
                   {% if not request.user.is_admin %}                          
                     <div class="card">
                         <div class="card-body">
-                            <p class="text-center">School</p>
+                            <h5 class="text-center">Faculty</h5>
                             <div class="table-responsive">
                                 <table class="table">
                                     {% if object.student %}

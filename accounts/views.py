@@ -16,6 +16,7 @@ from eAssessmentSystem.tool_utils import get_not_allowed_render_response
 class AddAdminView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/add_admin_view.html"
 
+
 class AdminCreateView(LoginRequiredMixin ,CreateView):
     model = User
     template_name = "accounts/create/superuser_createview.html"
@@ -27,8 +28,7 @@ class AdminCreateView(LoginRequiredMixin ,CreateView):
         self.object.is_admin = True
         self.object.save()
         return valid_
-    
-    
+
     def get_context_data(self, **kwargs):
         ctx = super(AdminCreateView, self).get_context_data(**kwargs)
         ctx["title"] = "Administrator Registeration"
@@ -43,10 +43,9 @@ class AdminCreateView(LoginRequiredMixin ,CreateView):
             return super().get(request, *args, **kwargs)
         else:
             return get_not_allowed_render_response(request, message=msg)
-    
 
 
-class UserUpdateView(LoginRequiredMixin ,UpdateView):
+class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     template_name = "accounts/create/superuser_createview.html"
     form_class = UserUpdateForm

@@ -10,28 +10,33 @@
             <div class="col-md-12">
                 <div class="d-flex flex-column flex-md-row justify-content-between">
                     <a href="{% url 'assessment:all' %}" class="btn btn-link" onclick="onBackSpin(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
+                        {% if question_group %}
 
-                    <form method="get" class="flex-grow-1 mx-0 mx-md-5 my-2 my-md-0">
-                        <div class="input-group">
-                            <input type="search" value="{{ scriptQ|default:'' }}" name="scriptQ" class="form-control" placeholder="Assessment title. eg Quiz 1">
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-outline-secondary" onclick="spinOnClick(this)">Search <span class="fa fa-search"></span></button>
+                            <form method="get" class="flex-grow-1 mx-0 mx-md-5 my-2 my-md-0">
+                                <div class="input-group">
+                                    <input type="search" value="{{ scriptQ|default:'' }}" name="scriptQ" class="form-control" placeholder="Assessment title. eg Quiz 1">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-outline-secondary" onclick="spinOnClick(this)">Search <span class="fa fa-search"></span></button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="d-none d-md-block">
+
                             </div>
-                        </div>
-                    </form>
 
-                    <div class="d-none d-md-block">
+                            <div class="btn-group">
+                                <a href="?action=listAllQS" class="btn btn-outline-secondary {% if ACTION == 'listAllQS' %} active {% endif %}" title="List Script "> <span class="fa fa-list-ol"></span></a>
+                                <a href="?action=th" class="btn btn-outline-secondary {% if ACTION != 'listAllQS' %} active {% endif %}" title="Grid View "> <span class="fa fa-th"></span></a>
+                            </div>
 
-                    </div>
-
-                    <div class="btn-group">
-                        <a href="?action=listAllQS" class="btn btn-outline-secondary {% if ACTION == 'listAllQS' %} active {% endif %}" title="List Script "> <span class="fa fa-list-ol"></span></a>
-                        <a href="?action=th" class="btn btn-outline-secondary {% if ACTION != 'listAllQS' %} active {% endif %}" title="Grid View "> <span class="fa fa-th"></span></a>
-                    </div>
+                    {% endif %}
                 </div>
                 <hr>
             </div>
         </div>
+    {% if question_group %}
+
     <div class="row">
         <div class="col-auto">
             <div class="d-flex rounded p-2 shadow-sm">
@@ -42,8 +47,7 @@
             </div>
         </div>
     </div>
-
-   {% if question_group.exists %}
+        {% if question_group.exists %}
         {% regroup question_group by course as question_group_list %}
         {% for question_group_lt in question_group_list %}
             <div class="row mt-3">
@@ -88,7 +92,7 @@
                                          {% endif %}
                                     {% endif %}
                                 </div>
-                                
+
                             </div>
                             <div class="card-footer bg-transparent d-flex justify-content-between align-items-center mt-1">
                                 <span class="text-muted mt-1 small">{{ group.course.programme }}</span>
@@ -107,7 +111,7 @@
                 </div>
             {% endif %}
         {% endfor %}
-    
+
     {% else %}
         <div class="row mt-3">
             <div class="col-md-6 mx-auto text-center">
@@ -118,5 +122,12 @@
             </div>
         </div>
     {% endif %}
+
+
+    {% else %}
+        {% include 'snippet/lecture_has_no_course.html' %}
+    {% endif %}
+
+
     </div>
 {% endblock %}

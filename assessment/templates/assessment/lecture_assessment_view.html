@@ -26,10 +26,10 @@
                 {% url 'lecture:quiz_all' as quiz_url %}
                 {% include 'snippet/lecture_asscessment_card.html' with title="QUIZ" alt="Quiz img" src=quiz_img link=quiz_url %}
             </div>
-             <div class="col-md-6 col-lg-4 my-3">
-                {% static 'icons/midsem.png' as midsem_img %}
-                {% include 'snippet/lecture_asscessment_card.html' with title="MIDSEM" alt="Midsem img" src=midsem_img %}
-            </div>
+{#             <div class="col-md-6 col-lg-4 my-3">#}
+{#                {% static 'icons/midsem.png' as midsem_img %}#}
+{#                {% include 'snippet/lecture_asscessment_card.html' with title="MIDSEM" alt="Midsem img" src=midsem_img %}#}
+{#            </div>#}
              <div class="col-md-6 col-lg-4 my-3">
                 {% static 'icons/marking_schemes.png' as marking_scheme_img %}
                 {% url 'lecture:scheme_home' as scheme_url %}
