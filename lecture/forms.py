@@ -1,6 +1,6 @@
 from .models import LectureModel
 from django import forms
-from assessment.models import StudentTheoryAnswer, ScriptStatus
+from assessment.models import StudentTheoryAnswer, QuestionTypeChoice, CourseModel
 
 
 class LectureCreateForm(forms.ModelForm):
@@ -42,6 +42,16 @@ class StudentAnswerMarkForm(forms.ModelForm):
 class FilterForms(forms.Form):
     marked = forms.CharField(widget=forms.CheckboxInput, required=False)
     marking = forms.CharField(widget=forms.CheckboxInput, required=False)
-    submitted = forms.CharField(widget=forms.CheckboxInput, required=False)
+    submitted = forms.CharField(widget=forms.CheckboxInput, required=False, label="Unmarked")
     # pending = forms.CharField(widget=forms.CheckboxInput, required=False)
+
+
+class QuestionGroupFilterForm(forms.Form):
+    course = forms.ModelChoiceField(required=False, queryset=CourseModel.objects.all())
+    assessment_type = forms.CharField(widget=forms.Select(choices=[(None, "---------")] + QuestionTypeChoice.choices ),
+                                      required=False, initial=None)
+
+    def __init__(self, course_queryset, *args, **kwargs):
+        super(QuestionGroupFilterForm, self).__init__(*args, **kwargs)
+        self.fields["course"].queryset = course_queryset.all()
 

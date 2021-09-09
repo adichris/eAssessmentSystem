@@ -32,7 +32,7 @@
 
         <div class="row mb-4">
             <div class="col-md-6 mx-auto">
-                <div class="card shadow-sm">
+                <div class="card shadow">
                     
                     <div class="card-img-top text-center p-2 no-pointer">
 
@@ -51,7 +51,7 @@
                     </div>
                     <div class="card-body">
                         {% if reason and not published_icon %}
-                            <p class="card-text alert {% if is_completed %} alert-danger {% else %} alert-danger {% endif %}">
+                            <p class="card-text alert {% if is_completed %} alert-primary {% else %} alert-primary {% endif %}">
                                 {{ reason|safe }}
     {#                            {% if return_link %}#}
     {#                                <a href="{{ return_link }}" class="alert-link"><i title="return to assessment" class="fa fa-times-circle"></i></a>#}
@@ -74,7 +74,7 @@
                                 <i class="fa fa-info-circle mr-2"></i> If you do not submitted by yourself, see authorities/supervisor
                             </p>
                         {% elif question_group_instance and lecture_details %}
-                            <div class="alert alert-danger">
+                            <div class="alert alert-primary">
                                 <span><b>{{ question_group_instance.course }} {{ question_group_instance.get_title_display }} </b> <br>Is still in
                                     {{ question_group_instance.status }} mode
                                     <a href="{% url 'assessment:exam_stop_all' course_id=question_group_instance.course_id question_group_title=question_group_instance.title question_group_pk=question_group_instance.pk %}" class="card-link px-1">stop it's work</a> to view details, records.</span>

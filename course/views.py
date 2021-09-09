@@ -1,5 +1,6 @@
+from django.db.models.query_utils import Q
 from django.shortcuts import redirect, get_object_or_404, reverse
-from django.views.generic import CreateView, DetailView, DeleteView, UpdateView
+from django.views.generic import CreateView, DetailView, DeleteView, UpdateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .form import CourseModel, CourseCreateForm
 from eAssessmentSystem.tool_utils import admin_required_message
@@ -133,3 +134,28 @@ class CourseUpdateView(LoginRequiredMixin, UpdateView):
         else:
             self.request.session["staff_required"] = admin_required_message(self.request.user)
             return redirect("accounts:staff-login-page")
+
+
+class LectureCourseListView(LoginRequiredMixin, ListView):
+    template_name = "course/lecture/courses.html"
+    model = CourseModel
+
+    def get_queryset(self):
+        queryset = self.model.objects.get_lecture_courses(self.request.user.lecturemodel)
+        searchCourse = self.request.GET.get("searchCourse")
+        if searchCourse:
+            searchCourse = searchCourse.strip().lstrip()
+            return queryset.filter(Q(name__icontains=searchCourse)|Q(code__icontains=searchCourse))
+        return queryset
+    
+    def get_context_object_name(self, object_list=None)->str:
+        return "courses_list"
+    
+    def get_context_data(self, **kwargs) -> dict:
+        ctx = super().get_context_data(**kwargs)
+        searchCourse = self.request.GET.get("searchCourse")
+        ctx["title"] = "Your Courses"
+        if searchCourse:
+            ctx["title"] = '"%s"' % searchCourse
+        ctx["searchCourse"] = searchCourse
+        return ctx

@@ -63,7 +63,6 @@ class QuestionGroupCreateForm(forms.ModelForm):
             "title": "Select Assessment title",
             "questions_type": "Assessment Type"
         }
-
         error_messages = {
             NON_FIELD_ERRORS: {
                 "unique_together": "This course has a quiz with this title already."

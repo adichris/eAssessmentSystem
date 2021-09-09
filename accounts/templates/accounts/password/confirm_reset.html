@@ -15,14 +15,20 @@
 {% load crispy_forms_tags %}
 
     <div class="container">
-        <div class="row my-2">
-            <div class="col-md-8 col-lg-6 mx-auto mt-auto ">
+        <div class="row my-3">
+            <div class="col-auto mx-auto">
+                <a href="{% url 'landing-page' %}" class="btn btn-primary">Continuous Assessment System</a>
+            </div>
+        </div>
+        <div class="row my-3">
+            <div class="col-md-8 col-lg-6 mx-auto mt-auto">
 
                 <div class="card shadow transparentBlur mt-3" style="background-color: #ffffffb3">
                     {% if is_set_pwd_view and request.user.is_authenticated %}
-                        <div class="card-header">
+                        <div class="card-header d-flex flex-column mt-2">
+                            <img src="{% static 'icons/password.svg' %}" class="img-fluid" style="height: 7em; margin-top: -3em;">
                             <h5 class="text-center">{{  request.user }}</h5>
-                            <span class="text-center d-block">{{ request.user.username }}</span>
+{#                            <span class="text-center d-block">{{ request.user.username }}</span>#}
                         </div>
                     {% endif %}
                     <div class="card-body">

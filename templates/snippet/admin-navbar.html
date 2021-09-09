@@ -5,7 +5,9 @@
 {% url 'student:register' as add_student %}
 {% url 'student:list' as list_student %}
 {% url 'lecture:list' as list_lecture %}
+{% url 'about-page' as about_url %}
 {% url 'chat:home' as chat_url %}
+{% url 'support-page' as support_url %}
 {% load static %}
 
 <nav class="navbar navbar-expand-lg navbar-dark  sticky-top shadow-sm  bg-admin-nav">
@@ -44,7 +46,10 @@
               </li>
 
                 <li class="nav-item"><a href="/admin" class="nav-link ">Administration</a></li>
-                <li class="nav-item"><a href="#" class="nav-link ">Help and Support</a></li>
+                <li class="nav-item {% if request.path == about_url %} active {% endif %}">
+                    <a href="{{ about_url }}" class="nav-link">About</a>
+                </li>
+                <li class="nav-item"><a href="{{ support_url }}" class="nav-link {% if request.path == support_url %} active {% endif %}">Help and Support</a></li>
               </ul>
               <ul class="navbar-nav ml-auto">
                   <li class="dropdown nav-item">

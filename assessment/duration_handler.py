@@ -64,15 +64,18 @@ class AssessmentDurationHandler:
 
     @property
     def hour(self):
-        return self.duration.seconds // 3600
+        if isinstance(self.duration, timezone.timedelta):
+            return self.duration.seconds // 3600
 
     @property
     def minute(self):
-        return (self.duration.seconds // 60) % 60
+        if isinstance(self.duration, timezone.timedelta):
+            return (self.duration.seconds // 60) % 60
 
     @property
     def seconds(self):
-        return self.duration.seconds % 60
+        if isinstance(self.duration, timezone.timedelta):
+            return self.duration.seconds % 60
 
     @property
     def is_time_up(self):

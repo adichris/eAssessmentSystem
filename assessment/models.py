@@ -47,7 +47,6 @@ class ScriptStatus(models.TextChoices):
 
 
 class AssessmentPreference(models.Model):
-    #duration = models.TimeField(blank=True, null=True, help_text="The assessment duration in hours:minutes (eg; 2:30)")
     duration = models.DurationField(blank=True, null=True, help_text="The assessment duration in hours:minutes:seconds (eg; 0:30:00)")
     environment = models.CharField(max_length=120, blank=True, null=True, choices=AssessmentEnvironment.choices,
                                    help_text="select how the assessment should be conducted")
@@ -66,7 +65,7 @@ class AssessmentPreference(models.Model):
 
 
 class QuestionGroup(models.Model):
-    title = models.CharField(max_length=20, choices=QuestionGroupChoice.choices)
+    title = models.CharField(max_length=20, help_text="Assessment title example: Assignment 1 or Quiz 2")
     course = models.ForeignKey(CourseModel, on_delete=models.CASCADE, help_text="The course to hold the questions")
     updated = models.DateTimeField(auto_now_add=True)
     total_marks = models.IntegerField(default=5)
@@ -78,8 +77,14 @@ class QuestionGroup(models.Model):
     academic_year = models.CharField(max_length=20, default=f"{timezone.now().year - 1} / {timezone.now().year}")
 
     class Meta:
-        unique_together = ("title", "course")
+        unique_together = ("title", "course", "questions_type")
         ordering = ("pk", "title", "questions_type")
+
+    def get_title_display(self):
+        if not self.title.istitle():
+            return self.title.capitalize()
+
+        return self.title
 
     def __str__(self):
         return self.title
@@ -240,7 +245,6 @@ class MultiChoiceScripts(models.Model):
         # The new way
 
         self.score = self.get_selected_option__is_answer_option_sum()
-        # self.correct_answers = self.get_answered_question_queryset().count()
         if self.status not in (ScriptStatus.PUBLISHED, ScriptStatus. MARKED):
             self.status = ScriptStatus.MARKED
         self.save()

@@ -4,6 +4,8 @@
 {% url 'assessment:all' as assessment %}
 {% load static %}
 {% url 'chat:home' as chat_url %}
+{% url 'about-page' as about_url %}
+{% url 'support-page' as support_url %}
 
 <nav  class="navbar navbar-expand-lg navbar-primary {% if is_scroll_header %} {% else %} sticky-top {% endif %} shadow-sm transparentBlur bg-white50" >
       <div class="container">
@@ -26,15 +28,18 @@
                   <a href="#" class="dropdown-toggle nav-link {% if request.path == request.user.lecturemodel.department.get_absolute_url %} active  {% endif %}" data-toggle="dropdown"><span class="caret">Department</span></a>
                   <div class="dropdown-menu dropdown-menu-left">
                       <a href="{{ request.user.lecturemodel.department.get_absolute_url }}" class="dropdown-item">View Department</a>
-                      <a href="" class="dropdown-item">Courses</a>
+                      <a href="{% url 'department:programme:course:for_lecturer' %}" class="dropdown-item">Courses</a>
                   </div>
               </li>
 
               <li class="nav-item">
                   <a href="{{ assessment }}" class="nav-link {% if request.path == assessment %} active {% endif %}">Assessment</a>
               </li>
+              <li class="nav-item {% if request.path == about_url %} active {% endif %}">
+                <a href="{{ about_url }}" class="nav-link">About</a>
+            </li>
               <li class="nav-item">
-                  <a href="#" class="nav-link ">Help and Support</a>
+                  <a href="{{ support_url }}" class="nav-link {% if request.path == support_url %} active {% endif %}">Help and Support</a>
               </li>
               </ul>
               <ul class="navbar-nav ml-auto">

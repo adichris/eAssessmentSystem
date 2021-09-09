@@ -11,6 +11,7 @@ class LandingPage(TemplateView):
         from .forms import StudentLoginForm
         ctx = super(LandingPage, self).get_context_data(**kwargs)
         ctx["student_login_form"] = StudentLoginForm(self.request.POST or None)
+        ctx["include_footer"] = True
         return ctx
 
 
@@ -33,3 +34,26 @@ class AdminStaffLogin(LoginView):
         ctx = super(AdminStaffLogin, self).get_context_data(**kwargs)
         ctx["admin_required"] = self.request.session.get("admin_required")
         return ctx
+
+
+class AboutTemplatePage(TemplateView):
+    template_name = "home/about.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "about"
+        ctx["include_footer"] = True
+        return ctx
+
+
+
+class SupportTemplatePage(TemplateView):
+    template_name = "home/support.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Support and Help"
+        #ctx["include_footer"] = True
+        return ctx
+
+

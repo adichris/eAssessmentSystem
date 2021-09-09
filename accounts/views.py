@@ -4,7 +4,7 @@ from student.models import Student, Programme
 from department.models import Department
 from course.models import CourseModel, CourseLevel
 from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
-from .forms import UserCreateForm, StudentLoginForm, User, UserUpdateForm, ConfirmResetPasswordForm, PasswordSetForm
+from .forms import UserCreateForm, StudentLoginForm, User, UserUpdateForm, ConfirmResetPasswordForm, PasswordSetForm, PasswordUpdateForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
@@ -219,7 +219,7 @@ class ConfirmPasswordResetView(View):
         if form_class.is_valid():
             try:
                 temp_user = User.objects.get(
-                    username=form_class.cleaned_data["username"],
+                    username__iexact=form_class.cleaned_data["username"],
                     first_name__iexact=form_class.cleaned_data["first_name"],
                     last_name__iexact=form_class.cleaned_data["last_name"],
                     phone_number=form_class.cleaned_data["phone_number"],
@@ -258,3 +258,47 @@ class ChangePasswordView(LoginRequiredMixin, UpdateView):
         login(self.request, self.get_object())
         return reverse("landing-page")
 
+
+class ChangePasswordUpdateView(LoginRequiredMixin, View):
+    model = User
+    template_name = "accounts/change_password.html"
+    form_class = PasswordUpdateForm
+
+    def get(self, request, *args, **kwargs):
+        ctx = self.get_content()
+        ctx["form"] = self.form_class(user=self.request.user)
+        return render(request, self.template_name, ctx)
+
+    def get_back_url(self):
+        back_url = self.request.GET.get("back")
+        if back_url and is_safe_url(back_url, self.request.get_host()):
+            return back_url
+
+    def get_content(self):
+        return {
+            "title": "Change password",
+            "back_url": self.get_back_url()
+        }
+
+    def post(self, request, *args, **kwargs):
+        ctx = self.get_content()
+        form_class = self.form_class(data=request.POST, user=self.request.user)
+        if form_class.is_valid():
+            old_pwd = form_class.cleaned_data["old_password"]
+            new_pwd = form_class.cleaned_data["new_password"]
+            new_confirm_pwd = form_class.cleaned_data["confirm_new_password"]
+            user = self.request.user
+            if new_pwd == new_confirm_pwd:
+                user.set_password(new_pwd)
+                user.save()
+                back_url = self.get_back_url()
+                if back_url:
+                    return redirect(back_url)
+                else:
+                    return redirect(user.get_absolute_url())
+            else:
+                form_class.add_error("old_password", "enter a correct password")
+
+        ctx["form"] = form_class
+
+        return render(request, self.template_name, ctx)

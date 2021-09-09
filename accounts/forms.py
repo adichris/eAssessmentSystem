@@ -187,3 +187,44 @@ class PasswordSetForm(forms.ModelForm):
             instance.save()
         return instance
 
+
+class PasswordUpdateForm(forms.Form):
+    old_password = forms.CharField(widget=forms.PasswordInput())
+    new_password = forms.CharField(widget=forms.PasswordInput)
+    confirm_new_password = forms.CharField(widget=forms.PasswordInput, label="New password confirmation")
+
+    def clean_old_password(self):
+        old_pwd = self.cleaned_data.get("old_password")
+        if not self.user.check_password(old_pwd):
+            raise forms.ValidationError("Enter a correct password")
+
+        return old_pwd
+
+    def clean_new_password(self):
+        old_pwd = self.cleaned_data.get("old_password")
+        new_pwd = self.cleaned_data.get("new_password")
+
+        from django.contrib.auth.password_validation import CommonPasswordValidator, MinimumLengthValidator
+        mini_pwd = MinimumLengthValidator(min_length=4)
+        mini_pwd.validate(new_pwd, user=self.user)
+
+        common_pwd = CommonPasswordValidator()
+        common_pwd.validate(new_pwd, user=self.user)
+
+        if old_pwd == new_pwd:
+            raise forms.ValidationError("New password can not be the same as the old password")
+
+        return new_pwd
+
+    def clean_confirm_new_password(self):
+        cn_pwd = self.cleaned_data.get("confirm_new_password")
+        new_pwd = self.cleaned_data.get("new_password")
+
+        if cn_pwd != new_pwd:
+            raise forms.ValidationError("Password must match")
+
+        return cn_pwd
+
+    def __init__(self, user, *args, **kwargs):
+        super(PasswordUpdateForm, self).__init__(*args, **kwargs)
+        self.user = user

@@ -12,11 +12,11 @@ from course.models import CourseModel
 from .models import (MultiChoiceQuestion, Question, QuestionGroup, AssessmentPreference,
                      QuestionGroupStatus, MultiChoiceScripts, StudentMultiChoiceAnswer,
                      QuestionTypeChoice, StudentTheoryAnswer, StudentTheoryScript,
-                     ScriptStatus,
+                     ScriptStatus
                      )
 from django.forms import formset_factory, inlineformset_factory
 from eAssessmentSystem.tool_utils import (admin_required_message, is_lecture, get_http_forbidden_response,
-                                          get_time_obj_from, get_status_tips, get_not_allowed_render_response,
+                                          get_status_tips, get_not_allowed_render_response,
                                         general_setting_not_init
                                           )
 import string
@@ -231,7 +231,7 @@ class AddOneMoreTheoryQuestion(LoginRequiredMixin, CreateView):
 class CreateTheoryQuestion(LoginRequiredMixin, View):
     template_name = "assessment/prepareTheoryQuestions.html"
     question_formset = inlineformset_factory(parent_model=QuestionGroup, model=Question, form=QuestionCreateForm,
-                                             can_delete=True, extra=0)
+                                             can_delete=True, min_num=1, validate_min=True, validate_max=True, max_num=50)
 
     def get_question_group_instance(self):
         question_group_pk = self.kwargs.get("QGPK")
@@ -264,7 +264,7 @@ class CreateTheoryQuestion(LoginRequiredMixin, View):
             question_form_set_instance = self.question_formset(data=request.POST, instance=question_group_instance)
             if question_form_set_instance.is_valid():
                 question_form_set_instance.save(True)
-                return redirect("assessment:question_grp_detail", courseName=question_group_instance.course,
+                return redirect("assessment:question_grp_detail", courseName=question_group_instance.course.name,
                                 title=question_group_instance.title, pk=question_group_instance.pk)
             else:
                 ctx = {

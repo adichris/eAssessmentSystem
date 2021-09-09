@@ -6,7 +6,7 @@
             <div class="col-md-8 col-lg-6 mx-auto">
                 <h4 class="text-center">{{ course }} Assessment</h4>
                 <p class="text-center">Start by providing question information</p>
-                <form action="" method="POST" class="card card-body">
+                <form action="" method="POST" class="card card-body" autocomplete="off">
                     {% csrf_token %}
                    {{ form|crispy }}
                     {% if questiongroup.get_absolute_url %}
@@ -30,6 +30,7 @@
         /* {#if (course == course_select.selectedOptions[0].value){#} */
             course_select.setAttribute("readOnly", true);
             course_select.classList.add("no-pointer");
-//      {#  { #} 
+//      {#  { #}
+
     </script>
 {% endblock %}

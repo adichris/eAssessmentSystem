@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from .models import LectureModel
-from .forms import LectureCreateForm, StudentTheoryAnswer, StudentAnswerMarkForm, FilterForms
+from .forms import LectureCreateForm, StudentTheoryAnswer, StudentAnswerMarkForm, FilterForms, QuestionGroupFilterForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import View, DetailView, ListView, TemplateView, CreateView, UpdateView
@@ -121,13 +121,30 @@ class LectureListView(LoginRequiredMixin, ListView):
 class LectureStudentScripts(LoginRequiredMixin, TemplateView):
 
     def init_lecture_course_question_groups(self):
-        try:
-            lecture = self.request.user.lecturemodel
-            self.question_group_queryset = QuestionGroup.objects.filter(
+        lecture = self.request.user.lecturemodel
+        filter_form = QuestionGroupFilterForm(course_queryset=self.request.user.lecturemodel.coursemodel_set,
+                                              data=self.request.GET)
+        filter_dict = dict(
                 course__lecture=lecture,
                 course__semester=self.request.user.generalsetting.semester,
-                academic_year=self.request.user.generalsetting.academic_year
-            ).exclude(status=QuestionGroupStatus.PREPARED)
+                academic_year=self.request.user.generalsetting.academic_year,
+            )
+
+        if filter_form.is_valid():
+            course = filter_form.cleaned_data.get("course")
+            assessment_type = filter_form.cleaned_data.get("assessment_type")
+            if course:
+                filter_dict["course__id"] = course.id
+            if assessment_type:
+                filter_dict["questions_type"] = assessment_type
+
+        scriptQ = self.request.GET.get("scriptQ")
+        if scriptQ is not None and scriptQ.isidentifier():
+            filter_dict["title__icontains"] = scriptQ
+        try:
+            self.question_group_queryset = QuestionGroup.objects.filter(
+                **filter_dict
+            ).exclude(status=QuestionGroupStatus.PREPARED).order_by("course")
 
         except AttributeError:
             raise get_not_allowed_render_response(request=self.request,
@@ -139,10 +156,12 @@ class LectureStudentScripts(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(LectureStudentScripts, self).get_context_data(**kwargs)
-
         # Add Question_groups to context data and return
         ctx["question_group"] = self.question_group_queryset
         ctx["ACTION"] = self.request.GET.get("action")
+        ctx["scriptQ"] = self.request.GET.get("scriptQ")
+        ctx["filter_form"] = QuestionGroupFilterForm(course_queryset=self.request.user.lecturemodel.coursemodel_set,
+                                                     data=self.request.GET)
         return ctx
 
     def get_template_names(self):

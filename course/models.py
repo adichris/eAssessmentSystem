@@ -58,16 +58,15 @@ class CourseModel(models.Model):
         # unique_together = ("lecture", "programme")
 
     def question_conduct(self):
-        return self.questiongroup_set.filter(status__in=("conducted", "marked", "published"))
+        return self.conducted_quizzes()
+        #return self.questiongroup_set.filter(status__in=("conducted", "marked", "published"))
 
     def __str__(self):
         return "%s (%s)" % (self.name, self.code)
 
     def conducted_quizzes(self):
-        return self.questiongroup_set.filter(status__in=("conducted", "published"))
-
-    def get_lecture(self):
-        return None
+        # return question group and join lecture GeneralSetting where academic_year is the same
+        return self.questiongroup_set.filter(status__in=("conducted", "published"), academic_year=self.lecture.profile.generalsetting.academic_year)
 
     def get_absolute_url(self):
         return reverse("department:programme:course:detail", kwargs={"courseName": self.name, "pk": self.pk})

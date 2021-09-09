@@ -15,6 +15,10 @@
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'styles/custom.css' %}">
 
+{% block afterTitle %}
+    
+{% endblock afterTitle %}
+    
 </head>
 <body>
 {% if request.user.is_staff  %}
@@ -34,6 +38,22 @@
     <script src="{% static 'utils/active_btn_spin.js' %}"></script>
     {% block afterScripts %} {% endblock afterScripts %}
 
+
+{% if include_footer %}    
+    <footer class="p-2 transparentBlur bg-white50">
+        <div class="container">
+            <div class="row">
+                <div class="col-auto mx-auto">
+                    <a href="#" class="btn btn-link text-center">
+                        <span class="fa fa-chevron-up"></span><br>
+                        <span>back to top</span>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </footer>
+{% endif %}
 <script>
     $("#id_profile_form-phone_number_0").parent().addClass("input-group");
 </script>

@@ -18,11 +18,13 @@ from django.urls import path, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from django.conf import settings
-from .view import LandingPage
+from .view import LandingPage, AboutTemplatePage, SupportTemplatePage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', LandingPage.as_view(), name="landing-page"),
+    path('about/', AboutTemplatePage.as_view(), name="about-page"),
+    path('support/', SupportTemplatePage.as_view(), name="support-page"),
     path("accounts/", include("accounts.urls")),
     path("student/", include("student.urls")),
     path("department/", include("department.urls")),

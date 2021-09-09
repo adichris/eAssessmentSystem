@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (AdminCreateView, UserDetailView, StaffLoginView,
                     AdminLoginView, user_logout, student_login, AddAdminView,
-                    UserUpdateView, ConfirmPasswordResetView, ChangePasswordView
+                    UserUpdateView, ConfirmPasswordResetView, ChangePasswordView,
+                    ChangePasswordUpdateView
  )
 from eAssessmentSystem.view import AdminStaffLogin
 
@@ -20,5 +21,8 @@ urlpatterns = [
     path("studentLogin/", student_login, name="student_login"),
 
     path("resetpassword/", ConfirmPasswordResetView.as_view(), name="confirm_reset_pwd"),
-    path("changepwdreset/", ChangePasswordView.as_view(), name="change_pwd_reset")
+    path("changepwdreset/", ChangePasswordView.as_view(), name="change_pwd_reset"),
+
+    path("changeyourpwd/", ChangePasswordUpdateView.as_view(), name="change_pwd_update"),
+
 ]

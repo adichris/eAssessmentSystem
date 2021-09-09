@@ -4,12 +4,15 @@
 {% block content %}
     <div class="container-fluid" style="height: 95vh; background: url({% static 'DefaultImg/bgs/gh_sch_bg.svg'  %}) no-repeat center; background-size: cover; background-attachment: fixed">
         <div class="row">
-            <div class="col-auto mx-auto mt-10vh pt-lg-5 text-monospace ">
+            <div class="col-auto mx-auto mt-10vh pt-lg-5 text-monospace text-center">
                 {%  if request.user.is_authenticated %}
-                    <h1><mark>Welcome {% if request.user.last_login %} back{% endif %}, {{ request.user.get_short_name }}</mark></h1>
-                    <br>
+{#                    <h1>Welcome {{ request.user.get_short_name }} to,</h1>#}
+                    <h1 class="text-white"><b>{{ request.user }}</b></h1>
+                    <h1 class="text-center bg-white50 transparentBlur rounded p-3 shadow">Your Username is <br> <b>{{ request.user.username }}</b></h1>
+
+                {% else %}
+                    <h1 class="text-center bg-white50 transparentBlur rounded p-2 shadow">Continuous  Electronic <br> Assessment System</h1>
                 {% endif %}
-                <h1 class="text-center"><mark>Continuous Electronic Assessment System</mark></h1>
             </div>
         </div>
    </div>
@@ -48,26 +51,39 @@
                     </div>
                 </div>
             </div>
-
             {% endif %}
         </div>
 
     <div class="row mt-3">
         <div class="col-md-6">
-            <img src="{% static 'DefaultImg/courses.svg' %}" alt="" class="img-fluid">
+            <img src="{% static 'DefaultImg/bg computer.jpeg' %}" alt="" class="img-fluid rounded">
         </div>
-        <div class="col-md-6">
-            <h5>Electronic Assessment Features</h5>
-            {% lorem 2 p random %}
+        <div class="col-md-6 shadow-sm rounded">
+            <h5>Continuous Assessment Inputs</h5>
+            <p>All the data will be inputted into the system electronically. 
+                The data includes lectures questions and marking scheme, student answers, and publishing of result will be done through the computer. 
+                Moreover, work becomes very easy because student works will mark automatically, and there will no need to keep data on papers.
+                The scope of the project is to developed web application, that is the project is developed as a responsive web application, and it will work for every academic institution.
+            </p>
         </div>
     </div>
     <div class="row mt-3 my-3">
-        <div class="col-md-6">
-            <h6>eAssessment Multi Choice Question and Theoretical</h6>
-            {% lorem 2 p random %}
+        <div class="col-md-6 shadow-sm rounded">
+            <p><b>Multiple Choice Questions</b></p>
+            <p>Multiple Choice Questions are questions type where the student has to choose or select an option or a choice from the available choices.
+                In our Continuous eAssessment System every multiple-choice question can have any number of choices, where students are to select one of them in every question.
+                When lectures are setting up questions, they are required to indicate a correct option or choice from the rest of the choices for a particular question.
+                Multichoice assessment questions are marked automatically by the system based on the correct option or choices indicated by the lecture and the option or choice the student choice.
+            </p>
+            <br>
+            <p><b>Theory Assessment</b></p>
+            <p>In this continuous assessment system, theory assessment is designed in the likeness to the physical theory quizzes, and midsem questions, where students are expected to provide in writing solutions to the questions.
+                The difference ours is electronically based instead of on paper quiz.
+                The student is expected to type in solutions to respectively questions on the page.
+            </p>
         </div>
         <div class="col-md-6">
-            <img src="{% static 'DefaultImg/course.png' %}" alt="" class="img-fluid">
+            <img src="{% static 'DefaultImg/services_img.png' %}" alt="" class="img-fluid">
         </div>
     </div>
 
