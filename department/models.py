@@ -21,6 +21,12 @@ class Department(models.Model):
     name = models.CharField(max_length=250, unique=True)
     short_name = models.CharField(max_length=60, null=True, blank=True, unique=True)
     created_by = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    hod = models.OneToOneField(null=True, blank=True, help_text="Change Head of Department",
+                               verbose_name="Head Of Department",
+                               to=User, related_name="hod_user",
+                               on_delete=models.CASCADE,
+                               )
+
     updated = models.DateTimeField(auto_now=True)
     objects = DepartmentManager()
 

@@ -330,4 +330,3 @@ class StudentRecordsTemplateView(LoginRequiredMixin, TemplateView):
             self.total_score = thoery_total_score_sum
         if multichoice_score_sum is not None:
             self.total_score += multichoice_score_sum
-

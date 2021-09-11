@@ -1079,13 +1079,14 @@ class StudentAssessmentView(LoginRequiredMixin, TemplateView):
 
     def get_new_assessment(self):
         general_setting = self.request.user.generalsetting
-        # from django.db.models import Q
+        student = self.request.user.student
         return QuestionGroup.objects.filter(
             course__semester=general_setting.semester,
             academic_year=general_setting.academic_year,
             status=QuestionGroupStatus.CONDUCT,
             course__programme_id=self.student.programme_id,
-        )
+            course__level=student.level,
+        ).exclude(studenttheoryscript__student__index_number=student.index_number)
 
     def assessment_courses(self):
         return CourseModel.objects.filter(
@@ -1261,23 +1262,25 @@ class StudentAssessingTemplateView(LoginRequiredMixin, TemplateView):
 
     def init_question_group(self):
         settings = self.request.user.generalsetting
+        student = self.get_student()
         self.question_group_instance = get_object_or_404(QuestionGroup,
                                                          title=self.kwargs.get("QGT"),
                                                          pk=self.kwargs.get("QGPK"),
                                                          academic_year=settings.academic_year,
-                                                         course__semester=settings.semester
+                                                         course__semester=settings.semester,
+                                                         course__level=student.level,
+                                                         course__programme=student.programme,
                                                          )
+        QuestionGroup.objects.filter(
 
-    def student_can_enter_hall(self):
-        student = self.get_student()
-        return student and student.programme == self.question_group_instance.course.programme \
-               and student.level == self.question_group_instance.course.level
+
+        )
 
     def get(self, request, *args, **kwargs):
         self.init_question_group()
-        if self.student_can_enter_hall():
+        try:
             return super(StudentAssessingTemplateView, self).get(request, *args, **kwargs)
-        else:
+        except ObjectDoesNotExist:
             return get_not_allowed_render_response(request)
 
     def has_done_before(self):

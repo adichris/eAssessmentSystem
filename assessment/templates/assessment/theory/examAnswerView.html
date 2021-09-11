@@ -6,7 +6,6 @@
         <div class="row">
             <div class="col-md-6 mx-auto">
                 <div class="d-flex flex-column align-items-center">
-                    <p class="lead" id="id_now"></p>
                     <ul class="list-group list-group-horizontal">
                         <li class="list-group-item list-group-item-secondary">Duration</li>
                         <li class="list-group-item list-group-item-secondary"><b>{{ duration|default_if_none:"Any Time" }}</b></li>
@@ -78,8 +77,7 @@
             var usedTime_moment = moment(`${moment().year()}-${moment().month()}-${moment().day()} {{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}`);
             setInterval(function (){
                 usedTime_moment.add(1 ,"seconds");
-                document.getElementById("id_used_time").innerHTML = `{{ used_time.day }} days, ${usedTime_moment.hours()}:${usedTime_moment.minutes()}:${usedTime_moment.second()} `;
-                document.getElementById("id_now").innerHTML = moment().format("LLLL")
+                document.getElementById("id_used_time").innerHTML = `{{ used_time.day }} days, ${usedTime_moment.hours()}:${usedTime_moment.minutes()}:${usedTime_moment.second()} `
             }, 1000);
         {% endif %}
 

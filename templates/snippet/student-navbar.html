@@ -16,9 +16,7 @@
                 <li class="nav-item">
                     <a href="{% url 'records:student' %}" class="nav-link">Records</a>
                 </li>
-                <li class="nav-item">
-                    <a href="" class="nav-link">Result</a>
-                </li>
+
                 {% if request.user.student %}
                  <li class="nav-item">
                     <a href="{% url 'department:student_programme' %}" class="nav-link">{{ request.user.student.programme }} Programme</a>

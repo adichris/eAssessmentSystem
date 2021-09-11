@@ -1,11 +1,14 @@
-from django.shortcuts import redirect
-from .forms import DepartmentCreateForm, Department
-from django.views.generic import CreateView, DetailView, ListView, TemplateView
+from django.shortcuts import redirect, get_object_or_404, render
+from .forms import DepartmentCreateForm, Department, DepartmentSetChangeHODForm
+from django.views.generic import CreateView, DetailView, ListView, TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.http import is_safe_url
 from programme.forms import ProgrammeCreateForm
 from course.models import CourseModel
 from student.models import Student
-from eAssessmentSystem.tool_utils import admin_required_message, get_http_forbidden_response, get_not_allowed_render_response
+from eAssessmentSystem.tool_utils import (
+    admin_required_message, get_http_forbidden_response, get_not_allowed_render_response,
+)
 
 
 class DepartmentCreateView(LoginRequiredMixin, CreateView):
@@ -132,3 +135,36 @@ class StudentDepartmentTemplateView(LoginRequiredMixin, TemplateView):
         ctx["class_mates"] = self.get_class_mate()
         return ctx
 
+
+class HodStatusUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "department/hod/change_hod.html"
+    model = Department
+    form_class = DepartmentSetChangeHODForm
+
+    def get_context_data(self, **kwargs):
+        ctx = super(HodStatusUpdateView, self).get_context_data(**kwargs)
+        ctx["title"] = "HOD Status"
+        return ctx
+
+    def get_object(self, **kwargs):
+        return get_object_or_404(
+            self.model,
+            pk=self.kwargs["pk"],
+            name=self.kwargs["name"],
+        )
+
+    def get_success_url(self):
+        back_url = self.request.GET.get("back")
+        if back_url and is_safe_url(back_url, self.request.get_host()):
+            return back_url
+        else:
+            return self.get_object().get_absolute_url()
+
+
+class HodDashboardTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "department/hod/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(HodDashboardTemplateView, self).get_context_data(**kwargs)
+        ctx["title"] = "HOD Dashboard"
+        return ctx

@@ -16,6 +16,7 @@ from assessment.form import LectureQuestionSolutionForm
 from django.utils.html import format_html
 from django.db.models import ObjectDoesNotExist
 from django.utils.http import is_safe_url
+from department.models import Department
 
 
 class LectureCreateView(LoginRequiredMixin, View):
@@ -159,7 +160,6 @@ class LectureStudentScripts(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(LectureStudentScripts, self).get_context_data(**kwargs)
-        # Add Question_groups to context data and return
         ctx["question_group"] = self.question_group_queryset
         ctx["ACTION"] = self.request.GET.get("action")
         ctx["scriptQ"] = self.request.GET.get("scriptQ")
@@ -221,8 +221,28 @@ class OnGoingQuizTemplateView(LoginRequiredMixin, TemplateView):
             return get_http_forbidden_response()
 
 
-# class MarkingSchemeCreateView(LoginRequiredMixin, View):
-#     pass
+class DepartmentLecturesTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "lecture/hod/department_view.html"
+
+    def init_instance(self):
+        self.department_instance = get_object_or_404(
+            Department,
+            name=self.kwargs["department_name"]
+        )
+        
+    def get(self, request, *args, **kwargs):
+        self.init_instance()
+        return super(DepartmentLecturesTemplateView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DepartmentLecturesTemplateView, self).get_context_data(**kwargs)
+        ctx["title"] = "Title"
+        ctx["department"] = self.department_instance
+        ctx["lecturers"] = self.get_lecturers()
+        return ctx
+
+    def get_lecturers(self):
+        return self.department_instance.lecturemodel_set.all()
 
 
 class QuestionGroupDetailView(LoginRequiredMixin, DetailView):

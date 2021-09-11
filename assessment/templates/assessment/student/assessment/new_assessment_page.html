@@ -33,15 +33,11 @@
                                     <tr>
                                         <td>Due Date</td>
                                         <td>{{ question_group.preference.due_date|default_if_none:"No Due Date Set" }}</td>
-                                    <tr>
-                                        <td>Environment</td>
-                                        <td>{{ question_group.preference.get_environment_display }}</td>
-                                    </tr>
                                 </table>
 
                             </div>
                             <div class="card-footer bg-transparent">
-                                <a href="{% url 'assessment:student_assessing' QGPK=question_group.pk QGT=question_group.title %}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">Enter Hall</a>
+                                <a href="{% url 'assessment:student_assessing' QGPK=question_group.pk QGT=question_group.title %}" class="btn btn-primary btn-block" onclick="spinOnClick(this)">View <span class="fa fa-chevron-right ml-2"></span></a>
                             </div>
                         </div>
                     </div>
@@ -53,14 +49,13 @@
         <div class="row">
             <div class="col-md-8 col-lg-6 mx-auto mt-10vh text-center">
                 <img src="{% static 'icons/empty_box.svg' %}" alt="NO UNFINISHED img" class="no-pointer img-fluid mb-3" style="height: 15em">
-                <h5>Come back later</h5>
+                <h5>You done all Assessment</h5>
                 <hr>
-                <p>There is no Quizzes or Midsem available.</p>
+                <p>No new assessment yet.</p>
                 <div class="alert alert-info">
-                    <p>If there is an assigment that you are not seeing try resetting your
-                    academic year and semester to reflect the quiz or midsem.</p>
-                    <hr>
-                    <p class="text-danger">If the problem persist, Please contact the lecture</p>
+                    <span class="fa fa-exclamation-circle"></span>
+                    <i>If there is an assigment that you are not seeing try resetting your
+                    academic year and semester to reflect the quiz or midsem.</i>
                 </div>
             </div>
         </div>

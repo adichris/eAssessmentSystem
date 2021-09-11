@@ -141,7 +141,11 @@ class LectureCourseListView(LoginRequiredMixin, ListView):
     model = CourseModel
 
     def get_queryset(self):
-        queryset = self.model.objects.get_lecture_courses(self.request.user.lecturemodel)
+        lecturer_pk = self.kwargs.get("lecturer_pk")
+        if lecturer_pk or self.request.user.is_hod:
+            queryset = self.model.objects.get_lecture_courses(lecturer_pk)
+        else:
+            queryset = self.model.objects.get_lecture_courses(self.request.user.lecturemodel)
         searchCourse = self.request.GET.get("searchCourse")
         if searchCourse:
             searchCourse = searchCourse.strip().lstrip()

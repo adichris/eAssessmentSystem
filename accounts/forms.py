@@ -228,3 +228,4 @@ class PasswordUpdateForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         super(PasswordUpdateForm, self).__init__(*args, **kwargs)
         self.user = user
+

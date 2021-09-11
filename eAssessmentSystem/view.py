@@ -46,7 +46,6 @@ class AboutTemplatePage(TemplateView):
         return ctx
 
 
-
 class SupportTemplatePage(TemplateView):
     template_name = "home/support.html"
 

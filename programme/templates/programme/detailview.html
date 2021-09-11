@@ -54,22 +54,25 @@
             </div>
                 {% for course in courses_lst.list %}
                     <div class="col-md-5 col-lg-4">
-                        <div class="card card-hover-shadow my-2 h-100 ">
+                        <div class="card card-hover-shadow my-2 h-100 alert-primary">
+                        <div class="card-header">
+                            <a href="{{ course.get_absolute_url }}?back={{ request.path }}" class="card-link">
+                                    <h5 class="card-title text-center">{{ course.name }}</h5></a>
+                        </div>
                             <div class="card-body">
-                                <a href="{{ course.get_absolute_url }}?back={{ request.path }}" class="card-link">
-                                    <p class="card-title text-center">{{ course }}</p></a>
+
                                     <table class="table table-borderless">
                                         <tr>
-                                            <td>Course Master</td>
+                                            <td>Course Code</td>
+                                            <td>{{ course.code }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Lecturer</td>
                                             <td>{{ course.lecture }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Number of Quizzes</td>
-                                            <td><span class="mr-2"><b>---</b></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Midsem</td>
-                                            <td><span class="mr-2"><b>---</b></span></td>
+                                            <td>Students</td>
+                                            <td><span class="mr-2"><b>{{ course.get_student_studying.count }}</b></span></td>
                                         </tr>
                                     </table>
                             </div>

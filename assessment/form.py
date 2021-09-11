@@ -79,7 +79,7 @@ class QuestionGroupUpdateForm(forms.ModelForm):
             "questions_type": "Assessment Type"
         }
         widgets = {
-            "questions_type": forms.Select(attrs={"class": "no-pointer"})
+            "questions_type": forms.Select(attrs={"class": "no-pointer", "readonly": True})
         }
         error_messages = {
             NON_FIELD_ERRORS: {

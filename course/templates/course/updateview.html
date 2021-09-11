@@ -9,16 +9,21 @@
                 <hr>
             </div>
         </div>
-        <div class="row">
+        <div class="row mb-4">
             <div class="col-md-6 mx-auto">
-                <form action="" method="post">
+                <div class="card alert-primary shadow-sm">
+                    <div class="card-body">
+                         <form action="" method="post">
                     {% csrf_token %}
                     {{ form|crispy }}
-                    <div class="btn-group btn-block">
-                        <a href="{% url 'department:programme:course:detail' courseName=coursemodel.name pk=coursemodel.pk %}" class="btn btn-outline-primary">Cancel</a>
-                        <button type="submit" class="btn btn-outline-secondary">Save</button>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'department:programme:course:detail' courseName=coursemodel.name pk=coursemodel.pk %}" class="btn btn-outline-primary mx-2 flex-grow-1">Cancel</a>
+                        <button type="submit" class="btn btn-primary mx-2 flex-grow-1">Save</button>
                     </div>
                 </form>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

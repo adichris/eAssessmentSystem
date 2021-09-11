@@ -4,6 +4,7 @@ from .views import (
     LectureStudentScripts, QuizTemplateView, OnGoingQuizTemplateView, QuestionGroupDetailView,
     TheoryMarkingSchemeDetailView, TheoryQuestionSolution, TheoryQuestionSolutionUpdateView,
     TheoryMarkingSchemeHomeTemplateView, MarkTheoryScriptsDetailView, MarkScriptView,
+    DepartmentLecturesTemplateView,
 )
 
 app_name = "lecture"
@@ -27,4 +28,6 @@ urlpatterns = [
     path("assessment/mark/scrpts/<str:question_group_title>/<str:question_group_pk>/", MarkTheoryScriptsDetailView.as_view(), name="mark_scripts"),
     path("assessment/mark/<str:student__index_number>/<int:question_group_id>/<int:student_script_pk>/<int:scheme_pk>/", MarkScriptView.as_view(), name="mark_student_script"),
 
+    # HOD
+    path("in/<str:department_name>", DepartmentLecturesTemplateView.as_view(), name="department_lecture"),
 ]

@@ -7,22 +7,19 @@
                 <div class="col-12">
                     <p class="text-center mt-4 lead">Programme <b>{{ coursemodel.programme }}</b> </p>
                     <p class="text-center mt-4 lead">Course  <b>{{ coursemodel }} </b></p>
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-                        <h5 class="lead mr-4">Assessment</h5>
-                    </div>
                     <hr>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-5 col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
+                    <div class="card border-primary h-100">
+                        <div class="card-header alert-primary">
                             <h5 class="card-header-title text-center">Course Details</h5>
                         </div>
                         <div class="card-body table-borderless">
-                            <table class="table table-striped">
-                                <tr>
+                            <table class="table">
+                                <tr class='alert-primary'>
                                     <td>Title</td>
                                     <th>{{ coursemodel.name }}</th>
                                 </tr>
@@ -30,7 +27,7 @@
                                     <td>Code</td>
                                     <th>{{ coursemodel.code }}</th>
                                 </tr>
-                                <tr>
+                                <tr class='alert-primary'>
                                     <td>Level</td>
                                     <th>{{ coursemodel.level }}</th>
                                 </tr>
@@ -38,23 +35,23 @@
                                     <td>Master</td>
                                     <th>{{ coursemodel.lecture }}</th>
                                 </tr>
-                                <tr>
+                                <tr class='alert-primary'>
                                     <td>Programme</td>
                                     <th>{{ coursemodel.programme }}</th>
                                 </tr>
                             </table>
                         </div>
                         {% if request.user.is_admin %}
-                            <div class="card-footer btn-group">
-                                <a href="{% url 'department:programme:course:delete' courseName=coursemodel.name pk=coursemodel.pk course_programme_pk=coursemodel.programme.pk %}" class="btn btn-outline-danger card-footer-item" onclick="spinOnClick(this)">Delete</a>
-                                <a href="{{ coursemodel.get_update_url }}" class="btn btn-outline-secondary card-footer-item" onclick="spinOnClick(this)">Edit</a>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a href="{% url 'department:programme:course:delete' courseName=coursemodel.name pk=coursemodel.pk course_programme_pk=coursemodel.programme.pk %}" class="btn btn-outline-danger flex-grow-1 mx-1" onclick="spinOnClick(this)">Delete</a>
+                                <a href="{{ coursemodel.get_update_url }}" class="btn btn-outline-warning flex-grow-1 mx-1" onclick="spinOnClick(this)">Edit</a>
                             </div>
                         {% endif %}
                     </div>
                 </div>
                 <div class="col-md-7 col-lg-8">
-                    <div class="card">
-                        <div class="card-header">
+                    <div class="card border-primary h-100">
+                        <div class="card-header alert-primary">
                             <h5 class="card-header-title text-center">Assessment</h5>
                         </div>
                         <div class="card-body">
@@ -69,7 +66,7 @@
                                     <tr>
                                         <td>{{ quiz.get_title_display }}</td>
                                         <td>{{ quiz.total_marks }}</td>
-                                        <td>{{ quiz.preference.due_date|default:"---" }}</td>
+                                        <td>{{ quiz.preference.due_date|default:"---not set--" }}</td>
                                         <td>{{ quiz.get_status_display }}</td>
                                     </tr>
                                 {% endfor %}

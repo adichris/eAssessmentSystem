@@ -59,7 +59,6 @@ class CourseModel(models.Model):
 
     def question_conduct(self):
         return self.conducted_quizzes()
-        #return self.questiongroup_set.filter(status__in=("conducted", "marked", "published"))
 
     def __str__(self):
         return "%s (%s)" % (self.name, self.code)
@@ -73,3 +72,6 @@ class CourseModel(models.Model):
 
     def get_update_url(self):
         return reverse("department:programme:course:update", kwargs={"courseName": self.name, "pk": self.pk})
+
+    def get_student_studying(self):
+        return self.programme.student_set.filter(level=self.level, profile__generalsetting__semester=self.semester)

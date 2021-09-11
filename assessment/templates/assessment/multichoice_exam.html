@@ -37,7 +37,7 @@
                             <div class="card" id="id_time_used">
                                 <div class="card-body">
                                     <p>Time Used</p>
-                                    <h5 class="text-center" id="id_time_remaining">{{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}</h5>
+                                    <h1 class="text-center" id="id_time_remaining">{{ used_time.hour }}:{{ used_time.minute }}:{{ used_time.second }}</h1>
                                     <p id="time_up" class="text-center"></p>
                                 </div>
                             </div>
@@ -56,13 +56,7 @@
                             </div>
                         </div>
                     {% endif %}
-                    <div class="card d-none d-md-block">
-                        <div class="card-body">
-                            <p>Now</p>
-                            <h5 class="text-center" id="id_today_time">{{ today.time }}</h5>
-                            <p class="text-center" id="id_today_date">{{ today.date }}</p>
-                        </div>
-                    </div>
+
                 </div>
                 <hr>
             </div>
@@ -170,11 +164,7 @@
 
             }, 1000);
         {% endif %}
-        setInterval(function (){
-            todayTime.innerHTML = moment().format('LTS');
-            todayDate.innerHTML = moment().format('dddd, MMMM Do YYYY')
 
-        }, 1000);
 
         function onchange(theTag) {
             if (theTag.checked){

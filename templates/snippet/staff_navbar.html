@@ -6,6 +6,8 @@
 {% url 'chat:home' as chat_url %}
 {% url 'about-page' as about_url %}
 {% url 'support-page' as support_url %}
+{% url 'department:hod-dashboard' as hod_dashboard_url %}
+
 
 <nav  class="navbar navbar-expand-lg navbar-primary {% if is_scroll_header %} {% else %} sticky-top {% endif %} shadow-sm transparentBlur bg-white50" >
       <div class="container">
@@ -35,6 +37,13 @@
               <li class="nav-item">
                   <a href="{{ assessment }}" class="nav-link {% if request.path == assessment %} active {% endif %}">Assessment</a>
               </li>
+
+{#              {% if request.user.is_hod %}#}
+                  <li class="nav-item">
+                      <a href="{{ hod_dashboard_url }}" class="nav-link {% if request.path == hod_dashboard_url %} active {% endif %}">HOD Dashboard</a>
+                  </li>
+{#              {% endif %}#}
+
               <li class="nav-item {% if request.path == about_url %} active {% endif %}">
                 <a href="{{ about_url }}" class="nav-link">About</a>
             </li>

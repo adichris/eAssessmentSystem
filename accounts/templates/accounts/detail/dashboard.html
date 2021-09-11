@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-12 text-center">
+                <h1>DASHBOARD</h1>
+                <hr>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-6 col-lg-4 my-3">
+                {% url 'student:list' as stu_link %}
+                {% include 'snippet/dashboard_card.html' with d_link=stu_link d_icon="fa-user-graduate" d_title="All Student" %}
+            </div>
+            <div class="col-md-6 col-lg-4 my-3">
+                {% url 'lecture:list' as lecture_link %}
+                {% include 'snippet/dashboard_card.html' with d_link=lecture_link d_icon="fa-user-tie" d_title="All Lecturers" %}
+            </div>
+            <div class="col-md-6 col-lg-4 my-3">
+                {% url 'department:list' as d_link %}
+                {% include 'snippet/dashboard_card.html' with d_link=d_link d_icon="fa-university" d_title="All Department" %}
+            </div>
+            <div class="col-md-6 col-lg-4 my-3">
+                {% url 'setting:detail' pk=request.user.generalsetting.pk user_id=request.user.id as setting_link %}
+                {% include 'snippet/dashboard_card.html' with d_link=setting_link d_icon="fa-cog" d_title="Setting" %}
+            </div>
+            {% if request.user.is_superuser %}
+                <div class="col-md-6 col-lg-4 my-3">
+                {% include 'snippet/dashboard_card.html' with d_link="/admin" d_icon="fa-warehouse" d_title="Database" %}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}

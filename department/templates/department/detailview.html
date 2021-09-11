@@ -6,13 +6,17 @@
                 <h1 class=" text-center">{{ department }} Department</h1>
             </div>
         </div>
-{% if request.user.is_staff %}
+
+{% if request.user.is_admin %}
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center">
                     <a href="{% url 'department:list'  %}" class="btn btn-link" onclick="appendSpinOnClick(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
 
-                    <a href="{% url 'department:programme:add' departmentName=department.name departmentPK=department.pk %}" class="btn btn-primary" onclick="appendSpinOnClick(this)">Add Programme</a>
+                    <div class="">
+                        <a href="{% url 'department:change-hod' pk=department.pk name=department.name %}?back={{ request.path }}" class="btn btn-outline-warning mr-2" onclick="appendSpinOnClick(this)"><span class="fa fa-user-edit mr-2"></span>  HOD </a>
+                        <a href="{% url 'department:programme:add' departmentName=department.name departmentPK=department.pk %}" class="btn btn-primary" onclick="appendSpinOnClick(this)">Add Programme</a>
+                    </div>
                 </div>
             </div>
     </div>
@@ -22,7 +26,7 @@
     {% if programmes %}
         <div class="row">
             <div class="col-12">
-                <p class="lead text-center">Department Programmes</p>
+                <h5 class=" text-center">Department Programmes</h5>
                 <hr>
             </div>
         </div>
@@ -31,9 +35,11 @@
         <div class="row">
             {% for programme in programmes %}
                 <div class="col-md-5 col-lg-4 my-2">
-                    <div class="card card-hover-shadow card-body">
-                        <h6 class="card-title">{{ programme }}</h6>
-                        <hr style="padding: 0; margin: 0 0 2px 0;">
+                <div class="card alert-primary">
+                    <div class="card-header">
+                        <h6 class="card-title text-center">{{ programme }}</h6>
+                    </div>
+                    <div class="card-hover-shadow card-body">
                         <table class="table table-borderless">
                             <tr>
                                 <td>Student Registered</td>
@@ -45,12 +51,14 @@
                             </tr>
                         </table>
                         <div class="d-flex justify-content-end align-items-center">
-                                <a href="{{ programme.get_absolute_url }}" class="btn btn-primary mr-2" onclick="appendSpinOnClick(this)">View<span class="fa fa-external-link-alt ml-1"></span> </a>
+                                <a href="{{ programme.get_absolute_url }}" class="btn btn-outline-primary mr-2" onclick="appendSpinOnClick(this)">View<span class="fa fa-external-link-alt ml-1"></span> </a>
                                 {% if request.user.is_staff %}
-                                    <a href="{{ programme.get_update_url }}" class="btn btn-secondary" onclick="appendSpinOnClick(this)">Edit<span class="fa fa-edit ml-1"></span></a>
+                                    <a href="{{ programme.get_update_url }}" class="btn btn-outline-warning" onclick="appendSpinOnClick(this)">Edit<span class="fa fa-edit ml-1"></span></a>
                                 {% endif %}
                         </div>
                     </div>
+                </div>
+
                 </div>
             {% endfor %}
         </div>

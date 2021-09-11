@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col text-center">
+                <h1>DASHBOARD</h1>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 col-lg-4 ">
+                {% url 'lecture:department_lecture' department_name=request.user.lecturemodel.department.name as lecturers_link %}
+                {% include 'snippet/dashboard_card.html' with d_icon="fa-user-tie" d_title="Department Lecturers" d_link=lecturers_link %}
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                {% include 'snippet/dashboard_card.html' with d_icon="fa-user-graduate" d_title="Department Students" %}
+            </div>
+
+            <div class="col-md-6 col-lg-4 ">
+                {% include 'snippet/dashboard_card.html' with d_icon="fa-book" d_title="Department Programme" %}
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

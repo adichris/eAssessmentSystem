@@ -8,7 +8,7 @@ from .forms import UserCreateForm, StudentLoginForm, User, UserUpdateForm, Confi
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
-from django.shortcuts import resolve_url, redirect, reverse, render
+from django.shortcuts import resolve_url, redirect, reverse, render, get_object_or_404
 from django.utils.http import is_safe_url
 from eAssessmentSystem.tool_utils import get_not_allowed_render_response
 
@@ -67,7 +67,6 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         if is_safe_url(next_url, self.request.get_host()):
             return next_url
         return super().get_success_url()
-    
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -301,3 +300,24 @@ class ChangePasswordUpdateView(LoginRequiredMixin, View):
         ctx["form"] = form_class
 
         return render(request, self.template_name, ctx)
+
+
+class AdminDashBoard(LoginRequiredMixin, TemplateView):
+    template_name = "accounts/detail/dashboard.html"
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_admin:
+            return super(AdminDashBoard, self).get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(AdminDashBoard, self).get_context_data(**kwargs)
+        ctx["title"] = "Dashboard"
+
+        return ctx
+
+
+class HodEditLecturerDashboard(LoginRequiredMixin, TemplateView):
+    template_name = "accounts/hod/lecturer_view.html"
+

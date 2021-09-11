@@ -1,4 +1,3 @@
-from django.core.checks import messages
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, UserManager as DefaultUserManager
 from phonenumber_field.modelfields import PhoneNumberField
@@ -107,12 +106,11 @@ class User(AbstractBaseUser):
         """Meta definition for User."""
         verbose_name = 'User'
         verbose_name_plural = 'Users'
-        unique_together = ("first_name", "last_name", "dob")
         ordering = ("last_name", "first_name", "username")
 
     def __str__(self):
         """Unicode representation of User."""
-        return self.get_full_name()
+        return self.get_full_name() + " : " + self.username
 
     def get_full_name(self):
         try:
@@ -143,6 +141,10 @@ class User(AbstractBaseUser):
                 return l_abr+f_abr
         except AttributeError:
             return self.first_name
+
+    @property
+    def is_hod(self):
+        return self.hod_user
 
     def get_absolute_url(self):
         """Return absolute url for User."""

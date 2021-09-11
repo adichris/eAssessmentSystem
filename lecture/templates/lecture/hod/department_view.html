@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col text-center">
+                <h1>{{ department.name }} Department</h1>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    {% for lecturer in lecturers %}
+                        <div class="col-md-4 col-lg-3 my-3">
+                                <div class="card card-hover-shadow h-100">
+                                    {% if department.hod and department.hod == lecturer %}
+                                        <span class="badge bg-primary" title="Head of Department">HOD</span>
+                                    {% endif %}
+                                    <a href="{% url 'department:programme:course:lecturer_courses' lecturer_pk=lecturer.pk %}?back={{ request.path }}" class="text-decoration-none">
+                                        <span class="card-body text-center d-flex align-items-center flex-column">
+                                            {% static 'DefaultImg/lecturer.svg' as d_lecturer %}
+                                            <img src="{{ lecturer.profile.url|default:d_lecturer }}" alt="lecturer_img" style="height: 10em" class="img-fluid">
+                                            <p class="flex-grow-1">{{ lecturer.profile.get_full_name }}</p>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

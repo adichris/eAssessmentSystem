@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (AdminCreateView, UserDetailView, StaffLoginView,
                     AdminLoginView, user_logout, student_login, AddAdminView,
                     UserUpdateView, ConfirmPasswordResetView, ChangePasswordView,
-                    ChangePasswordUpdateView
+                    ChangePasswordUpdateView, AdminDashBoard
  )
 from eAssessmentSystem.view import AdminStaffLogin
 
@@ -25,4 +25,5 @@ urlpatterns = [
 
     path("changeyourpwd/", ChangePasswordUpdateView.as_view(), name="change_pwd_update"),
 
+    path("dashboard/", AdminDashBoard.as_view(), name="admin-dashboard"),
 ]
