@@ -4,6 +4,7 @@ from django.utils.text import slugify
 import datetime
 from django.shortcuts import redirect, render
 from django.http.response import HttpResponseForbidden, HttpResponse
+from django.utils.http import is_safe_url
 
 
 def random_string_gen(size=5, characters=ascii_letters + digits):
@@ -56,8 +57,7 @@ def request_level_check(klass, klass_self, allow_lecture, is_post_request=False,
         else:
             return super(klass, klass_self).get(*args, **kwargs)
     else:
-        klass_self.request.session["admin_required"] = admin_required_message(user)
-        return redirect("accounts:staff-login-page")
+        return redirect(get_not_allowed_render_response(klass.request))
 
 
 def is_lecture(current_user):
@@ -131,3 +131,9 @@ def general_setting_not_init(request):
             "settings_icon": True
         }
     )
+
+
+def get_back_url(request):
+    back_url = request.GET.get("back")
+    if back_url and is_safe_url(back_url, request.get_host()):
+        return back_url

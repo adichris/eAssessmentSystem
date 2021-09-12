@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+    {% if alert and alert_level == 1 %}
+        {% include 'snippet/alert_success_beginStart.html' with alert_message=alert %}
+    {% elif alert and alert_level == 0 %}
+        {% include 'snippet/alert_warning_beginStart.html' with alert_message=alert %}
+    {% elif alert and alert_level == -1 %}
+        {% include 'snippet/alert_danger_beginStart.html' with alert_message=alert %}
+    {% endif %}
+    
+    <div class="container">
+    
+        {% if back_url %}
+            <div class="row my-2">
+                <div class="col">
+                    <a href="{{ back_url }}" class="btn btn-link" onclick="onBackSpin(this)"><span class="fa fa-chevron-left"></span> back</a>
+                </div>
+            </div>
+        {% endif %} 
+
+        <div class="row my-3">
+            <div class="col text-center">
+                <h3>Lecturer Course Assigment</h3>
+                <span>{{ lecturer_name }}</span>
+                <hr>
+            </div>
+        </div>
+
+    <div class="row">
+        <div class="col-md-6 position-sticky">
+            <h3 class="text-center">Available Courses</h3>
+            {% if available_courses %}
+                <div class="">
+                <div class="card card-hover-shadow">
+                    <div class="list-group list-group-flush">
+                        {% regroup available_courses by level as availiable_courses_groups %}
+                        {% for avaliable_course in availiable_courses_groups %}
+                            <p class="list-group-item list-group-item list-group-item-dark">{{ avaliable_course.grouper }}</p>
+                            {% for av_course in avaliable_course.list %}
+                                <a title="Add Course" href="?{{ get_variable }}={{ av_course.code }}" class="list-group-item list-group-item-action d-flex justify-content-between">
+                                    <span>
+                                        {{ av_course }}
+                                    </span>
+                                    <span class="fa fa-chevron-right ml-2"></span>
+                                </a>
+                            {% endfor %}
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+            </div>
+            {% else %}
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <img src="{% static 'icons/empty_box.svg' %}" alt="" class="" style="height: 5em">
+                        <h5 class="my-2"><i>Courses available in this department</i></h5>
+                        <p>All Courses has been assigned to their respective lecturers</p>
+                    </div>
+                </div>
+            {% endif %}
+
+
+        </div>
+        <div class="col-md-6 position-sticky">
+            <h3 class="text-center">{{ lecturer_name }} Current Courses</h3>
+            {% if lecturer_courses %}
+                <div class="">
+                    <div class="card card-hover-shadow">
+                    <div class="list-group list-group-flush">
+                        {% regroup lecturer_courses by level as lecturer_courses_groups %}
+                        {% for lecturer_course_grp in lecturer_courses_groups %}
+                            <p class="list-group-item list-group-item list-group-item-dark">{{ lecturer_course_grp.grouper }}</p>
+                            {% for lecturer_course in lecturer_course_grp.list %}
+                                <a href="{% url 'department:programme:course:unassignment' course_code=lecturer_course.code %}?back={{ request.path }}" title="Remove course"  class="list-group-item list-group-item-action d-flex justify-content-between">
+                                    <span>
+                                        {{ lecturer_course }}
+                                    </span>
+                                    <span class="fa fa-times-circle ml-2 text-danger"></span>
+                                </a>
+                            {% endfor %}
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+                </div>
+            {% else %}
+                <div class="">
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center">
+                            <img src="{% static 'icons/empty_box.svg' %}" alt="" class="" style="height: 5em">
+                            <h5 class="my-2"><i>has no course assigned</i></h5>
+                            <p>If there are available course, click on the course to add to this lecturer</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    </div>
+{% endblock %}

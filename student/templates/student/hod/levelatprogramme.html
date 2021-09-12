@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+
+    {% if back_url %}
+        <div class="row my-3">
+            <div class="col">
+                <a href="{{ back_url }}" class="btn btn-link" onclick="onBackSpin(this)"><span class="fa fa-chevron-left"></span> back</a>
+            </div>
+        </div>
+    {% endif %}
+
+        <div class="row my-3">
+            <div class="col text-center">
+                <h4>{{ level }} Students in {{ programme_name }}</h4>
+                <hr>
+            </div>
+        </div>
+
+        {% if p_students %}
+
+            <div class="row my-3">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <th>#</th>
+                                <th>Full Name</th>
+                                <th>Index Number</th>
+                                <th>Date Joined/Registered</th>
+                                <th>Phone Number</th>
+                            </tr>
+                            {% for p_student in p_students %}
+                                <tr>
+                                {% with profile=p_student.profile  %}
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ profile.get_full_name }}</td>
+                                    <td><a href="{{ p_student.get_absolute_url }}?back={{ request.path }}" class="text-center">{{ p_student.index_number }}</a></td>
+                                    <td>{{ profile.timestamp }}</td>
+                                    <td><a href="tel:+{{ profile.phone_number }}" class="text-decoration-none">{{ profile.phone_number.as_international }}</a></td>
+                                {% endwith %}
+
+                                </tr>
+                            {% endfor %}
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            <div class="row my-3">
+                <div class="col-md-6 mx-auto">
+                    <div class="alert alert-info text-center">
+                        <span class="fa fa-exclamation-circle fa-2x"></span><br>
+                        <p>There are no students registered for this {{ programme_name }} at this {{ level }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

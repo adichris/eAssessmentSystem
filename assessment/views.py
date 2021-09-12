@@ -231,7 +231,7 @@ class AddOneMoreTheoryQuestion(LoginRequiredMixin, CreateView):
 class CreateTheoryQuestion(LoginRequiredMixin, View):
     template_name = "assessment/prepareTheoryQuestions.html"
     question_formset = inlineformset_factory(parent_model=QuestionGroup, model=Question, form=QuestionCreateForm,
-                                             can_delete=True, min_num=1, validate_min=True, validate_max=True, max_num=50)
+                                             can_delete=True, min_num=1, validate_min=True, validate_max=True, max_num=15)
 
     def get_question_group_instance(self):
         question_group_pk = self.kwargs.get("QGPK")
@@ -279,7 +279,7 @@ class CreateTheoryQuestion(LoginRequiredMixin, View):
 
 class CreateMultipleChoiceQuestion(LoginRequiredMixin, View):
     objectives_formset = formset_factory(form=MultiChoiceQuestionCreateForm, min_num=2, can_delete=True,
-                                         validate_min=True, extra=2,
+                                         validate_min=True, max_num=6, validate_max=True,
                                          formset=BaseOptionsFormSet)
     question_form_class = QuestionCreateForm
     template_name = "assessment/prepareMCQ.html"
@@ -361,21 +361,26 @@ class AssessmentQuestionGroupDetailView(LoginRequiredMixin, DetailView):
             return self.model.objects.get(
                 course__name=self.kwargs["courseName"],
                 title=self.kwargs["title"],
-                pk=self.kwargs["pk"]
+                pk=self.kwargs["pk"],
+                course__lecture=self.request.user.lecturemodel
             )
         except self.model.DoesNotExist:
-            return get_object_or_404(
-                self.model,
+            return self.model.objects.get(
                 course__name=self.kwargs["courseName"],
-                pk=self.kwargs["pk"]
+                pk=self.kwargs["pk"],
+                course__lecture=self.request.user.lecturemodel
             )
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_active and request.user.is_lecture:
-            returns = super(AssessmentQuestionGroupDetailView, self).get(request, *args, **kwargs)
-            if str(self.request.GET.get("fixquestionnum")) == "1":
-                self.fix_question()
-            return returns
+        try:
+            if request.user.is_active and request.user.is_lecture:
+                returns = super(AssessmentQuestionGroupDetailView, self).get(request, *args, **kwargs)
+                if str(self.request.GET.get("fixquestionnum")) == "1":
+                    self.fix_question()
+                return returns
+        except ObjectDoesNotExist:
+            pass
+
         return get_not_allowed_render_response(request)
 
     def get_context_data(self, **kwargs):
@@ -515,7 +520,9 @@ class MultiChoiceQuestionEdit(LoginRequiredMixin, View):
                                                form=MultiChoiceQuestionCreateForm,
                                                min_num=2, can_delete=True, validate_min=True,
                                                formset=BaseOptionsInlineFormSet,
-                                               extra=0,
+                                               max_num=6,
+                                               validate_max=True,
+
                                                )
     question_form_class = QuestionCreateForm
     template_name = "assessment/prepareMCQ.html"

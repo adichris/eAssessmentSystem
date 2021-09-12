@@ -157,21 +157,20 @@ class LectureCourseRecords(LoginRequiredMixin, DetailView):
     template_name = "record/lecture/course_records.html"
 
     def get(self, request, *args, **kwargs):
-        if self.request.user.is_lecture or (self.request.user.is_staff and self.request.user.is_admin):
+        if self.request.user.is_lecture or (self.request.user.is_hod or self.request.user.is_admin):
             self.init_instances()
             return super(LectureCourseRecords, self).get(request, *args, **kwargs)
         
         return get_not_allowed_render_response(request)
     
     def get_lecture(self):
-        if self.request.user.is_lecture:
+        if self.request.user.is_lecture and not self.request.user.is_hod:
             return self.request.user.lecturemodel
-        lecture_id = self.kwargs.get("lecture_id")
-        if self.request.user.is_admin and lecture_id:
-            try:
-                return LectureModel.objects.get(id=lecture_id)
-            except LectureModel.DoesNotExist:
-                pass
+        try:
+            lecture_id = self.kwargs.get("lecture_id")
+            return LectureModel.objects.get(id=lecture_id)
+        except LectureModel.DoesNotExist:
+            pass
 
     def get_students(self):
         return Student.objects.filter(
@@ -183,9 +182,8 @@ class LectureCourseRecords(LoginRequiredMixin, DetailView):
         self.course_instance = get_object_or_404(
             self.model,
             lecture=self.get_lecture(),
-            semester=self.request.user.generalsetting.semester,
-            pk=self.kwargs.get("course_pk"),
-            code=self.kwargs.get("course_code"),
+            pk=self.kwargs["course_pk"],
+            code=self.kwargs["course_code"],
         )
 
     def get_object(self, queryset=None):

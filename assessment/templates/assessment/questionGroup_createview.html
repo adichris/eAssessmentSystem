@@ -2,10 +2,11 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class="container">
-        <div class="row mt-3">
+        <div class="row my-3">
             <div class="col-md-8 col-lg-6 mx-auto">
                 <h4 class="text-center">{{ course }} Assessment</h4>
-                <p class="text-center">Start by providing question information</p>
+                <hr>
+                <p class="text-center">Start by providing the Quiz information</p>
                 <form action="" method="POST" class="card card-body" autocomplete="off">
                     {% csrf_token %}
                    {{ form|crispy }}

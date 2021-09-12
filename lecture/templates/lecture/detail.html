@@ -57,9 +57,9 @@
                                     <tr>
                                         <td>Permission status</td>
                                         <td>
-                                            <span class = "badge badge-pill p-2 {% if profile.is_active %} alert-success {% else %} alert-danger {% endif %}" title="Is user active?">Active {{ profile.is_active|yesno|title }}</span>
-                                            <span class = "badge badge-pill p-2 {% if profile.is_lecture %} alert-success {% else %} alert-danger {% endif %}" title="Is user lecture?">Lecturer {{ profile.is_lecture|yesno|title }}</span>
-{#                                            <span class = "badge badge-pill p-2 {% if profile %} alert-success {% else %} alert-danger {% endif %}" title="Is user HOD?">HOD {{ profile.is_hod|yesno|title }}</span>#}
+                                            <span class = "badge badge-pill p-2 {% if profile.is_active %} alert-success {% else %} alert-danger {% endif %}" title="Is user active?">Active | {{ profile.is_active|yesno|title }}</span>
+                                            <span class = "badge badge-pill p-2 {% if profile.is_lecture %} alert-success {% else %} alert-danger {% endif %}" title="Is user lecture?">Lecturer | {{ profile.is_lecture|yesno|title }}</span>
+                                            <span class = "badge badge-pill p-2 {% if profile.is_hod %} alert-success {% else %} alert-danger {% endif %}" title="Is user HOD?">HOD | {{ profile.is_hod|yesno|title }}</span>
 
                                         </td>
                                     </tr>
@@ -82,6 +82,7 @@
         {% if request.user.is_admin %}
         <div class="row my-2">
             <div class="col d-flex justify-content-end">
+                <a href="{% url 'department:programme:course:assigment' lecturer_pk=lecturemodel.pk  %}?back={{ request.path }}" class="btn btn-outline-primary mr-2" title="assign and remove course assigned" onclick="appendSpinOnClick(this)"><span class="fa fa-edit mr-2" ></span>Courses </a>
                 <a href="{% url 'accounts:profile_edit' slug=profile.slug pk=profile.pk %}?next={{ request.path }}" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)"><span class="fa fa-edit mr-2"></span> Edit Lecture Profile</a>
             </div>
         </div>

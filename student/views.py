@@ -1,4 +1,4 @@
-from course.models import CourseModel
+from course.models import CourseModel, CourseLevel
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import View, TemplateView, ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -6,7 +6,10 @@ from .form import StudentRegisterForm, PasswordSetForm
 from accounts.forms import StudentProfileCreateForm
 from .models import Student
 from programme.models import Programme
-from eAssessmentSystem.tool_utils import admin_required_message, get_not_allowed_render_response, request_level_check
+from eAssessmentSystem.tool_utils import (
+    admin_required_message, get_not_allowed_render_response,
+    request_level_check, get_back_url
+)
 from django.contrib.auth import login
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -176,3 +179,66 @@ class LectureStudentsListView(LoginRequiredMixin, ListView):
 
     def get_ordering(self):
         return "programme", "level"
+
+
+class HODStudentTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "student/hod/student_templateview.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(HODStudentTemplateView, self).get_context_data(**kwargs)
+        ctx["title"] = "Students"
+        ctx["programmes"] = self.programmes
+        ctx["department_name"] = self.programmes.first().department.name
+        ctx["programme_level"] = self.get_programme_levels()
+        return ctx
+
+    def init_instance(self):
+        self.programmes = Programme.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_hod:
+            self.init_instance()
+            return super(HODStudentTemplateView, self).get(request, *args, **kwargs)
+        return get_not_allowed_render_response(request)
+
+    def get_programme_levels(self):
+        # return all level expect level which has no associate course eg: course.level
+        return CourseLevel.objects.filter(coursemodel__code__isnull=False).distinct()
+
+
+class ProgrammeLevelStudentTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "student/hod/levelatprogramme.html"
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_hod:
+            return super(ProgrammeLevelStudentTemplateView, self).get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def get_level(self):
+        return get_object_or_404(
+            CourseLevel,
+            id=self.kwargs["level_id"]
+        )
+
+    def get_programme(self):
+        return get_object_or_404(
+            Programme,
+            id=self.kwargs["programme_id"],
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProgrammeLevelStudentTemplateView, self).get_context_data(**kwargs)
+        level = self.get_level()
+        ctx["programme_name"] = self.get_programme().name
+        ctx["level"] = level
+        ctx["title"] = "%s Students" % level
+        ctx["p_students"] = self.get_programme_student()
+        ctx["back_url"] = get_back_url(self.request)
+        return ctx
+
+    def get_programme_student(self):
+        return Student.objects.filter(
+            level_id=self.kwargs["level_id"],
+            programme_id=self.kwargs["programme_id"],
+        )

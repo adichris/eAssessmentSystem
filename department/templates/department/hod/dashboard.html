@@ -10,17 +10,26 @@
         </div>
 
         <div class="row">
-            <div class="col-md-6 col-lg-4 ">
+            <div class="col-md-6 col-lg-4 my-3">
                 {% url 'lecture:department_lecture' department_name=request.user.lecturemodel.department.name as lecturers_link %}
                 {% include 'snippet/dashboard_card.html' with d_icon="fa-user-tie" d_title="Department Lecturers" d_link=lecturers_link %}
             </div>
 
-            <div class="col-md-6 col-lg-4">
-                {% include 'snippet/dashboard_card.html' with d_icon="fa-user-graduate" d_title="Department Students" %}
+            <div class="col-md-6 col-lg-4 my-3">
+                {% url 'student:group_4_hod' as stu_link %}
+                {% include 'snippet/dashboard_card.html' with d_icon="fa-user-graduate" d_link=stu_link d_title="Department Students" %}
             </div>
 
-            <div class="col-md-6 col-lg-4 ">
-                {% include 'snippet/dashboard_card.html' with d_icon="fa-book" d_title="Department Programme" %}
+            <div class="col-md-6 col-lg-4 my-3">
+                {% with department=request.user.lecturemodel.department %}
+                    {% url 'department:detail' pk=department.pk name=department.name as department_link %}
+                    {% include 'snippet/dashboard_card.html' with d_icon="fa-book" d_title="Department Programme" d_link=department_link %}
+                {% endwith %}
+            </div>
+
+            <div class="col-md-6 col-lg-4 my-3">
+                {% url 'assessment:all' as assg_link %}
+                {% include 'snippet/dashboard_card.html' with d_icon="fa-book" d_title="Your Assessment" d_link=assg_link %}
             </div>
 
         </div>

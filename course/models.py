@@ -55,7 +55,6 @@ class CourseModel(models.Model):
         verbose_name = "Course"
         verbose_name_plural = "Courses"
         ordering = ("level", "name")
-        # unique_together = ("lecture", "programme")
 
     def question_conduct(self):
         return self.conducted_quizzes()

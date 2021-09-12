@@ -7,7 +7,7 @@
             <div class="col-auto mx-auto mt-10vh pt-lg-5 text-monospace text-center">
                 {%  if request.user.is_authenticated %}
 {#                    <h1>Welcome {{ request.user.get_short_name }} to,</h1>#}
-                    <h1 class="text-white"><b>{{ request.user }}</b></h1>
+                    <h1 style="color: #0967e8"><b>{{ request.user.get_full_name }}</b></h1>
                     <h1 class="text-center bg-white50 transparentBlur rounded p-3 shadow">Your Username is <br> <b>{{ request.user.username }}</b></h1>
 
                 {% else %}

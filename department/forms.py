@@ -11,11 +11,10 @@ class DepartmentCreateForm(forms.ModelForm):
         }
 
 
-class DepartmentSetChangeHODForm(forms.ModelForm):
-    class Meta:
-        model = Department
-        fields = ("hod", )
+class DepartmentSetChangeHODForm(forms.Form):
+    hod = forms.ModelChoiceField(queryset=None, required=False, label="Head of Department",
+                                 help_text="Change Head of Department", empty_label="--- unknown ---")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, instance, *args, **kwargs):
         super(DepartmentSetChangeHODForm, self).__init__(*args, **kwargs)
-        self.fields["hod"].queryset = kwargs["instance"].lecturemodel_set.all()
+        self.fields["hod"].queryset = instance.lecturemodel_set.all()

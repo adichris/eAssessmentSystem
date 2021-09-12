@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+    {% if request.back %}
+    <div class="row my-3">
+        <div class="col">
+            <a href="{{ back_url }}" class="btn btn-link" onclick="onBackSpin(this)"><span class="fa fa-chevron-left"></span> back</a>
+        </div>
+    </div>
+    {% endif %}
+
+        <div class="row my-3">
+            <div class="col">
+                <h3 class="text-center">ALL Registered Student</h3>
+                <hr>
+            </div>
+        </div>
+
+
+        {% regroup programmes by department as programmes_group_lst %}
+        {% for programmes_group in programmes_group_lst %}
+            <div class="row my-3">
+                <div class="col">
+                    <div class="p-2 bg-light rounded shadow-sm">
+                        <span class="h5">{{ programmes_group.grouper }} Department</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row my-3">
+                {% for programme in programmes_group.list %}
+                    <div class="col-md-6 col-lg-4 fa">
+                        <div class="card card-hover-shadow">
+                            <div class="list-group list-group-flush">
+                                <p class="list-group-item">{{ programme.name }}</p>
+                                {% for p_level in programme_level %}
+                                    <a href="{% url 'student:programme_level_4_hod' level_id=p_level.id programme_id=programme.id  %}?back={{ request.path }}" class="list-group-item list-group-item-action" onclick="spinOnClick(this)">{{ p_level }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+{% endblock %}o %}

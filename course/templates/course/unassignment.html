@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col">
+                <h3 class="text-center">Unassigned Course from Lecturer {{ lecturer_name }}</h3>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="col-12">
+                <h4>{{ object.name }} Details</h4>
+            </div>
+            <div class="col-md-12 mx-auto">
+                <div class="card-deck">
+                    <div class="card shadow-sm">
+                    <div class="card-header text-center">
+                        <h5>Course Summary</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <p class="list-group-item">
+                            <small>Name</small> <br>
+                            <span>{{ object.name }}</span>
+                        </p>
+                         <p class="list-group-item">
+                            <small>Code</small> <br>
+                            <span>{{ object.code }}</span>
+                        </p>
+                        <p class="list-group-item">
+                            <small>level</small> <br>
+                            <span>{{ object.level }}</span>
+                        </p>
+                        <p class="list-group-item">
+                            <small>Date registered</small> <br>
+                            <span>{{ object.timestamp }}</span>
+                        </p>
+
+                    </div>
+                </div>
+
+                    <div class="card shadow-sm">
+                    <div class="card-header text-center">
+                        <h5>Department Summary</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <p class="list-group-item">
+                            <small>Programme</small> <br>
+                            <span>{{ object.programme }}</span>
+                        </p>
+                         <p class="list-group-item">
+                            <small>Lecturer</small> <br>
+                            <span>{{ lecturer_name }}</span>
+                        </p>
+                        <p class="list-group-item">
+                            <small>Semester</small> <br>
+                            <span>{{ object.get_semester_display }}</span>
+                        </p>
+                        <p class="list-group-item">
+                            <small>Students Studying</small> <br>
+                            <span>{{ object.get_student_studying.count }}</span>
+                        </p>
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+        </div>
+
+        {% if object.lecture %}
+
+            <div class="row my-4">
+                <div class="col-md-6 mx-auto">
+                    <div class="alert alert-danger text-center">
+                        <span>Removing this course from the lecturer</span><br>
+                        <span>will void his current assessment records</span> <br>
+                        <b>Proceed with caution</b>
+                        <hr>
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="confirmation" value="1">
+                            <button type="submit" class="btn btn-danger" onclick="spinOnClick(this)">Remove Course</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        {% endif %}
+
+            {% if back_url %}
+            <div class="row my-3">
+                <div class="col">
+                    <a href="{{ back_url }}" class="btn btn-link"><span class="fa fa-chevron-left"></span> back</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

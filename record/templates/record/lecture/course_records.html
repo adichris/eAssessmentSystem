@@ -57,6 +57,8 @@
                         {% endfor %}
                         <th class="text-right">Total Score Quiz & Mid</th>
                     </tr>
+                    {% if students %}
+
                     {% for student in students %}
                         <tr class="hover-inset">
                             <td>{{ forloop.counter }}</td>
@@ -68,6 +70,21 @@
                             <th class="text-right">{{ student|get_total_score:coursemodel }}</th>
                         </tr>
                     {% endfor %}
+
+
+                    {% else %}
+                        <tr>
+                        <td colspan="4">
+                            <div class="d-flex justify-content-center">
+                                <div class="alert alert-info text-center">
+                                    <span class="fa fa-exclamation-circle fa-2x"></span> <br>
+                                    <span>NO RECORDS</span><br>
+                                    <span>The course has no quiz conducted, marked, or published</span>
+                                </div>
+                            </div>
+                        </td>
+                        </tr>
+                    {% endif %}
                 </table>
             </div>
         </div>

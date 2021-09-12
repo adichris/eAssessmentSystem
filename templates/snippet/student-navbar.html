@@ -27,7 +27,7 @@
 
             <ul class="navbar-nav ml-md-auto">
                 <li class="nav-item dropdown">
-                    <a href="" class="nav-link dropdown-toggle" id="student_profile" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-graduation-cap fa-fw mr-2"></i>{{ request.user }}</a>
+                    <a href="" class="nav-link dropdown-toggle" id="student_profile" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-graduation-cap fa-fw mr-2"></i>{{ request.user.get_full_name }}</a>
                     <div class="dropdown-menu transparentBlur bg-white50" aria-labelledby="student_profile">
                         <a class="dropdown-item-text text-muted text-monospace" title="Your Index Number">{{ request.user.username }}</a>
                         <div class="dropdown-divider"></div>

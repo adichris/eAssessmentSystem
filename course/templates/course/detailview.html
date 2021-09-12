@@ -92,7 +92,6 @@
 
                             <div class="d-flex flex-column flex-md-row justify-content-center flex-grow-1 flex-md-grow-0">
                                 <a href="{% url 'assessment:create_group' courseName=coursemodel.name coursePK=coursemodel.pk %}" class="btn btn-info flex-grow-1 flex-md-grow-0 mx-md-1 my-1 my-md-0" onclick="appendSpinOnClick(this)"><span class="fa fa-plus-circle mr-2"></span>Add New Quiz</a>
-                                {# <a href="" class="btn btn-outline-primary" onclick="appendSpinOnClick(this)">View Assigment</a> #}
                                 <a href="{% url 'records:course_detail' course_pk=coursemodel.pk course_code=coursemodel.code %}?back={{ request.path }}" class="btn btn-info flex-md-grow-0 flex-grow-1 mx-md-1 my-1 my-md-0" onclick="appendSpinOnClick(this)"><span class="fa fa-newspaper mr-1"></span>View All Records </a>
                             </div>
                         </div>
@@ -105,7 +104,9 @@
                 <h5>Assessment</h5>
             </div>
             </div>
-        <div class="row">
+        {% if coursemodel.questiongroup_set.exists %}
+
+            <div class="row">
             {% for question_group in coursemodel.questiongroup_set.all %}
                 <div class="col-md-6 col-lg-4">
                     <div class="card card-hover-shadow my-3">
@@ -143,7 +144,23 @@
 
         </div>
 
+       {% else %}
+
+            <div class="row">
+                <div class="col-md-6 mx-auto text-center">
+                    <div class="alert alert-info">
+                        <span class="fa fa-exclamation-circle fa-2x"></span><br>
+                        <span>You have no Quiz or Assessment yet</span> <br>
+                        <hr>
+                        <a href="{% url 'assessment:create_group' courseName=coursemodel.name coursePK=coursemodel.pk %}" class="btn btn-link">Add new Quiz</a>
+                    </div>
+                </div>
+            </div>
+
+       {% endif %}
+
     {% else %}
+
         <div class="row">
         {% include "snippet/ooops.html" %}
         </div>

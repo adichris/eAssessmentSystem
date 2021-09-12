@@ -16,8 +16,10 @@
                     {% for lecturer in lecturers %}
                         <div class="col-md-4 col-lg-3 my-3">
                                 <div class="card card-hover-shadow h-100">
-                                    {% if department.hod and department.hod == lecturer %}
-                                        <span class="badge bg-primary" title="Head of Department">HOD</span>
+                                    {% if lecturer.profile.is_hod %}
+                                        <div class="d-flex justify-content-end">
+                                            <span class="badge bg-primary text-white m-1 shadow-sm" title="Head of Department">HOD</span>
+                                        </div>
                                     {% endif %}
                                     <a href="{% url 'department:programme:course:lecturer_courses' lecturer_pk=lecturer.pk %}?back={{ request.path }}" class="text-decoration-none">
                                         <span class="card-body text-center d-flex align-items-center flex-column">
@@ -26,6 +28,11 @@
                                             <p class="flex-grow-1">{{ lecturer.profile.get_full_name }}</p>
                                         </span>
                                     </a>
+                                    {% if request.user == lecturer.profile %}
+                                        <div class="alert-primary text-center">
+                                            <span>You</span>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                     {% endfor %}

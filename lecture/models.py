@@ -24,7 +24,7 @@ class LectureModel(models.Model):
         verbose_name_plural = "Lectures"
 
     def __str__(self):
-        return str(self.profile)
+        return str(self.profile.get_full_name())
 
     def get_absolute_url(self):
         return reverse("lecture:detail", kwargs={"pk": self.pk})

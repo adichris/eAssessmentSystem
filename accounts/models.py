@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, UserManager as DefaultUserManager
 from phonenumber_field.modelfields import PhoneNumberField
 from eAssessmentSystem import tool_utils
+from django.contrib.auth import user_logged_in, user_logged_out
 from django.dispatch import receiver
 
 
@@ -72,6 +73,10 @@ class UserManager(DefaultUserManager):
             is_lecture=False
         )
 
+    def search(self, query):
+        qry = models.Q(first_name__icontains=query) | models.Q(last_name__icontains=query)
+        return self.filter(qry)
+
 
 def upload_user_to_path(instance, filename):
     import os
@@ -95,7 +100,7 @@ class User(AbstractBaseUser):
     is_lecture = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     picture = models.ImageField(null=True, blank=True, upload_to=upload_user_to_path)
-
+    session_key = models.CharField(max_length=32, unique=True, null=True, blank=True)
     REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number']
     USERNAME_FIELD = "username"
     EMAIL_FIELD = "email"
@@ -144,7 +149,11 @@ class User(AbstractBaseUser):
 
     @property
     def is_hod(self):
-        return self.hod_user
+        try:
+            return self.hod_user and self.is_active
+        except models.ObjectDoesNotExist:
+            pass
+        return False
 
     def get_absolute_url(self):
         """Return absolute url for User."""

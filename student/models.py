@@ -16,9 +16,10 @@ class StudentManager(models.Manager):
         return student
 
     def search(self, query):
+        query = query or ""
         query_str = models.Q(index_number__icontains=query) | models.Q(profile__first_name__icontains=query) | models.Q(
             profile__last_name__icontains=query)
-        return self.filter(query_str)
+        return self.filter(query_str, profile__is_active=True)
 
     def search_lecture_student(self, query, lecture):
         if lecture and query:

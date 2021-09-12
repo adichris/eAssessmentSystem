@@ -154,6 +154,7 @@
                                                     <div class="d-flex flex-row">
                                                         <span class="mr-2">{{ forloop.counter }}</span>
                                                         <span class="flex-grow-1">{{ option.option|linebreaksbr }}</span>
+                                                        {% if option.is_answer_option %} <span class="fa fa-check ml-2"></span> {% endif %}
                                                     </div>
 
                                                 </li>
@@ -188,7 +189,7 @@
                                     <ul>
                                         {% for option in question.multichoicequestion_set.all %}
                                             <li style="list-style: upper-alpha">
-                                                <p class="alert {% if option.is_answer_option %} alert-success {% else %} alert-secondary {% endif %}">{{ option|linebreaksbr }}</p>
+                                                <p class="alert {% if option.is_answer_option %} alert-success {% else %} alert-secondary {% endif %}">{{ option|linebreaksbr }} {% if option.is_answer_option %} <span class="fa fa-check  ml-2"></span>{% endif %} </p>
                                             </li>
                                         {% endfor %}
                                     </ul>
@@ -230,16 +231,6 @@
                 <div class="row">
                     <div class="table-responsive">
                         <table class="table">
-        {#                    <tr>#}
-        {#                        <th>#</th>#}
-        {#                        <th>Question</th>#}
-        {#                        <th>Marks</th>#}
-        {#                        <th>Last Updated</th>#}
-        {#                    {% if not questiongroup.status == "conduct" %}#}
-        {#                        <th>Action</th>#}
-        {#                    {% endif %}#}
-        {#                    </tr>#}
-
                             {% for question in questions %}
                                     <tr>
                                         <td class="card card-hover-shadow mb-2">
@@ -264,15 +255,6 @@
                                              </div>
                                             </div>
                                         </td>
-        {#                                <td>{{ question|linebreaksbr }}</td>#}
-        {#                                <td class="text-center">{{ question.max_mark|floatformat|default_if_none:"---" }}</td>#}
-        {#                                <td>{{ question.updated }}</td>#}
-        {#                                {% if questiongroup.status == "prepared" %}#}
-        {#                                <td>#}
-        {#                                    <a href="{% url 'assessment:update_theory' group_title=question.group.title pk=question.pk %}" class="btn btn-outline-secondary" onclick="appendSpinOnClick(this)" title="Edit this Question"><span class="fa fa-edit"></span></a>#}
-        {#                                    <a href="{{ question.get_absolute_delete_url }}" class="btn btn-outline-danger" onclick="appendSpinOnClick(this)" title="Delete this Question"><span class="fa fa-trash"></span></a>#}
-        {#                                </td>#}
-        {#                                {% endif %}#}
 
                                     </tr>
                             {% endfor %}
