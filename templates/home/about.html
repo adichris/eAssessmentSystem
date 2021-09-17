@@ -48,7 +48,7 @@
             </div>
 
         </div>
-
+{% with stu_url='https://stu.edu.gh/' %}
         <div class="row">
             <div class="col-auto mx-auto rounded p-2 transparentBlur bg-white50 shadow-sm">
                 <h5 class="text-center">The Project Developers</h5>
@@ -82,7 +82,7 @@
                         </li>
                         <li class="list-group-item">
                             <small>Institution</small><br>
-                            <a href="http://https://stu.edu.gh/" class="btn btn-link">Sunyani Technical University</a>
+                            <a href="{{ stu_url }}" class="btn btn-link">Sunyani Technical University</a>
                         </li>
                     </ul>
                 </div>
@@ -115,7 +115,7 @@
                         </li>
                         <li class="list-group-item">
                             <small>Institution</small><br>
-                            <a href="http://https://stu.edu.gh/" class="btn btn-link">Sunyani Technical University</a>
+                            <a href="{{ stu_url }}" class="btn btn-link">Sunyani Technical University</a>
                         </li>
                     </ul>
                 </div>
@@ -148,7 +148,7 @@
                         </li>
                         <li class="list-group-item">
                             <small>Institution</small><br>
-                            <a href="http://https://stu.edu.gh/" class="btn btn-link">Sunyani Technical University</a>
+                            <a href="{{ stu_url }}" class="btn btn-link">Sunyani Technical University</a>
                         </li>
                     </ul>
                 </div>
@@ -156,6 +156,7 @@
 
         </div>
     </div>
+{% endwith %}
 
     </div>
 {% endblock content %}

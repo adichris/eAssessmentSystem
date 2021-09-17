@@ -21,8 +21,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '4&+#i#kum3q%#xo%8h20p!4&==-lx0-$1h2nl(cb@bx)r*kne2'
-
+secret_key_path = os.path.join(BASE_DIR, 'secret_key.txt')
+with open(secret_key_path) as file:
+    SECRET_KEY = file.read().strip()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -58,6 +59,12 @@ INSTALLED_APPS = [
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = timedelta(days=3).total_seconds()
 USE_TZ = True
+
+# deployment objects
+# if not DEBUG:
+SESSION_COOKIE_SECURE  = True
+CSRF_COOKIE_SECURE  = True
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
