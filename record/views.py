@@ -219,14 +219,21 @@ class PublishRecordsDetailView(LoginRequiredMixin, DetailView):
             confirm_code = request.GET.get("confirm_code")
 
             logic1 = confirm_code and confirm_code == self.get_confirm_code()
-            logic2 = self.question_group_instance.status in (QuestionGroupStatus.MARKED, QuestionGroupStatus.PUBLISHED)
+            can_publish = self.question_group_instance.status in (QuestionGroupStatus.MARKED, QuestionGroupStatus.PUBLISHED)
+            is_all_marked = self.question_group_instance.is_all_scripts_marked()
+            is_multi_choice = self.question_group_instance.questions_type == QuestionTypeChoice.MULTICHOICE
+            logic2 = can_publish or is_multi_choice or is_all_marked
+
             if logic1 and logic2:
                 return self.publish_scripts()
-            return super(PublishRecordsDetailView, self).get(request, *args, **kwargs)
-        elif self.request.user.is_staff:
-            return get_not_allowed_render_response(request)
-        else:
-            return get_http_forbidden_response()
+            elif logic2:
+                return super(PublishRecordsDetailView, self).get(request, *args, **kwargs)
+            else:
+                from eAssessmentSystem.tool_utils import get_status_tips
+                message = get_status_tips(self.question_group_instance, QuestionGroupStatus)
+                return get_not_allowed_render_response(request, message=message)
+
+        return get_not_allowed_render_response(request)
 
     def publish_scripts(self):
         self.question_group_instance.status = QuestionGroupStatus.PUBLISHED
@@ -250,7 +257,7 @@ class PublishRecordsDetailView(LoginRequiredMixin, DetailView):
         return ctx
 
     def get_confirm_code(self):
-        return slugify(self.question_group_instance.question_set.first().question)
+        return self.request.user.slug
 
     def init_instance(self):
         self.question_group_instance = get_object_or_404(

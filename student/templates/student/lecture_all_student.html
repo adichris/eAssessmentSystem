@@ -28,7 +28,7 @@
                         <p>"{{ query }}" matches {{ student_list.count }} students</p>
                     {% endif %}
                 {% else %}
-                    <p>Showing total of <b>{{ student_list.count|default:"0" }}</b> registered student in {{ request.user.lecturemodel.programme }}</p>
+                    <p>Showing total of <b>{{ student_list.count|default:"0" }}</b> registered student in {{ request.user.lecturemodel.department|default:"the" }} Department</p>
                 {% endif %}
                 <hr>
             </div>

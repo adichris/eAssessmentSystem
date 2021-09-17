@@ -6,10 +6,10 @@
 {% url 'student:list' as list_student %}
 {% url 'lecture:list' as list_lecture %}
 {% url 'about-page' as about_url %}
-{% url 'chat:home' as chat_url %}
 {% url 'support-page' as support_url %}
 {% url 'accounts:admin-dashboard' as dashboard_url %}
 {% load static %}
+
 
 <nav class="navbar navbar-expand-lg navbar-dark  sticky-top shadow-sm  bg-admin-nav">
 
@@ -57,7 +57,6 @@
                       <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown"><span class="caret">{{ request.user.get_full_name|title }}</span></a>
                       <div class="dropdown-menu dropdown-menu-left  bg-admin-nav">
                           <a href="{{ request.user.get_absolute_url }}" class="dropdown-item"><span class="fa fa-id-card mr-2"></span>Profile</a>
-                          <a href="{{ chat_url }}" class="dropdown-item"><span class="fa fa-comment-dots mr-2"></span>Messages</a>
                           <div class="dropdown-divider"></div>
                           <a href="{% url 'setting:redirect' %}" class="dropdown-item"><span class="fa fa-cog mr-2"></span>General Setting</a>
                           <hr class="dropdown-divider">

@@ -97,7 +97,7 @@
                     <div class="card-body">
                         <p class="justify-content-between">
                             <strong>Question {{ question_instance.question_number }} </strong>
-                            <span class="float-right">{{ question_instance.max_mark }} marks</span>
+                            <span class="float-right">{{ question_instance.max_mark|floatformat:2 }} marks</span>
                         </p>
                         <p>
                             <a href="{{ solve_link }}?back={{ request.path }}" class="text-decoration-none text-dark">{{ question_instance.question|linebreaksbr }}</a>
@@ -107,7 +107,7 @@
                             {% if question_instance.pk|is_answered:script_pk %}
                             <a href="{{ solve_link }}?back={{ request.path }}" class="btn btn-success " onclick="spinOnClick(this)" title="Write your solution / view your solution"><span class="fa fa-edit mr-1"></span> Edit</a>
                             {% else %}
-                                <a href="{{ solve_link }}?back={{ request.path }}" class="btn btn-outline-primary " onclick="spinOnClick(this)" title="Write your solution / view your solution"><span class="fa fa-edit mr-1"></span> Edit</a>
+                                <a href="{{ solve_link }}?back={{ request.path }}" class="btn btn-outline-primary " onclick="spinOnClick(this)" title="Write your solution / view your solution"><span class="fa fa-edit mr-1"></span> Solve</a>
                             {% endif %}
                                                            
                         </div>
@@ -121,9 +121,9 @@
 
         <div class="row my-3">
         <div class="col-md-12">
-            <div class="btn-group btn-block">
-                <button class="btn btn-outline-info" title="preview" type="submit" name="button" value="preview" onclick="spinOnClick(this)">Preview your script</button>
-                <button class="btn btn-outline-secondary" title="Submit" value="submit" name="button" type="submit" onclick="spinOnClick(this)">Submit your script</button>
+            <div class="d-flex justify-content-between flex-column flex-md-row">
+                <button class="btn btn-info mx-2 flex-grow-1 my-1 my-md-0" title="preview" type="submit" name="button" value="preview" onclick="spinOnClick(this)">Preview your script</button>
+                <button class="btn btn-primary mx-2 flex-grow-1 my-1 my-md-0" title="Submit" value="submit" name="button" type="submit" onclick="spinOnClick(this)">Submit your script</button>
             </div>
         </div>
     </div>

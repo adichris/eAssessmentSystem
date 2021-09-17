@@ -282,3 +282,22 @@ class CourseUnassignmentView(LoginRequiredMixin, DetailView):
                         return redirect("department:programme:course:assigment", kwargs={"lecturer_pk": self.lecturer.pk})
                 return self.get(request, *args, **kwargs)
         return get_not_allowed_render_response(request)
+
+
+class SelectCourseToChatInView(LoginRequiredMixin, TemplateView):
+    template_name = "course/chat/select_course.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SelectCourseToChatInView, self).get_context_data(**kwargs)
+        ctx["title"] = "Select Course"
+        ctx["courses"] = self.get_courses()
+        return ctx
+
+    def get_courses(self):
+        user_semester = self.request.user.generalsetting.semester
+        try:
+            student = self.request.user.student
+            return CourseModel.objects.filter(programme__student=student, level=student.level, semester=user_semester)
+        except ObjectDoesNotExist:
+            lecturer = self.request.user.lecturemodel
+            return CourseModel.objects.filter(lecture=lecturer, semester=user_semester).order_by("programme", "level")

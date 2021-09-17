@@ -16,17 +16,6 @@
                         </div>
                     </form>
                     <hr>
-                    {% if request.user.is_staff %}
-                        <span class="fa fa-user-friends mr-2"></span>
-                        <span>Staff</span>
-                    <hr>
-                        {% for user in staff_contact %}
-                            <div class="list-group">
-                                <a class="list-group-item list-group-item-action {% if user.profile == current_user  %} active {% endif %}" href="{% url 'chat:individualchats_user' current_user_slug=user.slug %}" style="overflow: auto">{{ user }}</a>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-
                     {% regroup lectures_contact by department as depart_lecturers_list %}
                     {% for d_lecturers  in depart_lecturers_list %}
                         <small>{{ d_lecturers.grouper }} Department Lecturers</small>
@@ -45,7 +34,7 @@
                             <small>{{ student.grouper }} Students</small>
                             <div class="list-group">
                                 {% for user in student.list %}
-                                    <a href="{% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}" class="list-group-item  list-group-item-action {% if user.profile == current_user  %} active {% endif %} " style="overflow: auto">{{ user.profile.get_full_name }} <small>{{ user.level }}</small> </a>
+                                    <a href="{% if request.user.is_lecture %}{% url 'chat:individualchats_user_4lecture' current_user_slug=user.profile.slug level_pk=user.level_id programme_id=user.programme_id %}{% else %} {% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}{% endif %}" class="list-group-item  list-group-item-action {% if user.profile == current_user  %} active {% endif %} " style="overflow: auto">{{ user.profile.get_full_name }} <small>{{ user.level }}</small> </a>
                                 {% endfor %}                                        
                             </div>
                         {% endfor %}
@@ -61,37 +50,29 @@
                     <div class="alert alert-primary">
                         <h5 class="text-center">{{ current_user.get_full_name }} <span class="fa fa-comments"></span></h5>
                     </div>
-                <div class="table-responsive">
-                        <table class="table">
+                <div class="">
                             {% for msg in object_list %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex flex-column {% if msg.from_user != request.user %} justify-content-start {% else %}  justify-content-end {% endif %} ">
-
-                                            <div class="card card-hover-shadow flex-shrink-1" style="overflow: auto">
-                                                <div class="card-header  {% if request.user == msg.to_user %} alert-primary  {% else %}  alert-info  {% endif %} ">
-                                                     {% if msg.from_user != request.user %}
-                                                         <span> {{ msg.from_user.get_short_name }} - {{ msg.from_user.username }} </span>
-                                                    {% else %}
-                                                        <span title="sent by you">You</span>
-                                                    {% endif %}
-                                                    <span class="float-right text-muted">{{ msg.timestamp|timesince }} ago</span>
-                                                </div>
-                                                <div class="card-body">
-                                                    {{ msg.message|linebreaksbr }}
-                                                </div>
-                                            </div>
+                                <div class="d-flex {% if request.user == msg.to_user %} justify-content-start  {% else %}  justify-content-end  {% endif %} my-2">
+                                    <div class="card {% if request.user == msg.to_user %} alert-primary mr-md-4  {% else %}  alert-success ml-md-4 {% endif %} card-hover-shadow text-dark" style="overflow: auto">
+                                        <div class="card-header d-flex justify-content-between">
+                                             {% if msg.from_user != request.user %}
+                                                 <span> {{ msg.from_user.get_short_name }} - {{ msg.from_user.username }} </span>
+                                            {% else %}
+                                                <span title="sent by you">You</span>
+                                            {% endif %}
+                                            <span class="float-right text-muted ml-3">{{ msg.timestamp|timesince }} ago</span>
                                         </div>
-                                    </td>
-                                </tr>
+                                        <div class="card-body">
+                                            {{ msg.message|linebreaksbr }}
+                                        </div>
+                                    </div>
+                                </div>
                             {% endfor %}
-                            <tr>
-                                <td>
-                                    {% url 'chat:add_message' to_user_slug=current_user.slug as new_msg_url %}
-                                    {% include 'chat/message/forminline.html' with send_action=new_msg_url %}
-                                </td>
-                            </tr>
-                        </table>
+                            <div class="card-hover-shadow p-2 my-2 rounded">
+                                {% url 'chat:add_message' to_user_slug=current_user.slug as new_msg_url %}
+                                {% include 'chat/message/forminline.html' with send_action=new_msg_url %}
+                            </div>
+
                     </div>        
                 {% else %}
                     {% if current_user %}

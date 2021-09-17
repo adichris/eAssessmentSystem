@@ -854,6 +854,7 @@ class ConductingAssessment(LoginRequiredMixin, TemplateView):
             QuestionGroup,
             pk=self.kwargs.get("question_group_pk"),
             course_id=self.kwargs.get("course_pk"),
+            course__lecture__profile_id=self.request.user.id,
         )
         generalsettings = self.request.user.generalsetting
         if self.question_group.questions_type == QuestionTypeChoice.MULTICHOICE:
@@ -891,7 +892,8 @@ class ConductingAssessment(LoginRequiredMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         user = get_user(request)
-        logic1 = user.is_lecture and self.is_lecture_course_master()
+        logic1 = self.is_lecture_course_master()
+
         logic2 = self.question_group.status in (QuestionGroupStatus.PREPARED, QuestionGroupStatus.CONDUCT)
         if logic1 and logic2:
             if self.question_group.theory_question_without_max_mark():
@@ -1100,7 +1102,8 @@ class StudentAssessmentView(LoginRequiredMixin, TemplateView):
             level=self.student.level,
             programme__student=self.student,
             semester=self.request.user.generalsetting.semester,
-            questiongroup__status__in=(QuestionGroupStatus.PUBLISHED, QuestionGroupStatus.MARKED,),
+            questiongroup__status__in=(QuestionGroupStatus.PUBLISHED, QuestionGroupStatus.MARKED, QuestionGroupStatus.CONDUCTED,),
+
         ).distinct()
 
     @property

@@ -1,9 +1,8 @@
-from django.views.generic.base import View
 from lecture.models import LectureModel
 from student.models import Student, Programme
 from department.models import Department
 from course.models import CourseModel, CourseLevel
-from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
+from django.views.generic import CreateView, DetailView, UpdateView, TemplateView, View
 from .forms import UserCreateForm, StudentLoginForm, User, UserUpdateForm, ConfirmResetPasswordForm, PasswordSetForm, PasswordUpdateForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -316,8 +315,3 @@ class AdminDashBoard(LoginRequiredMixin, TemplateView):
         ctx["title"] = "Dashboard"
 
         return ctx
-
-
-class HodEditLecturerDashboard(LoginRequiredMixin, TemplateView):
-    template_name = "accounts/hod/lecturer_view.html"
-

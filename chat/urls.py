@@ -1,8 +1,7 @@
 from .views import (
     MessagesCreateView, ChatTemplateView, IndividualChatsTemplateView,
-    ChatHistoryRedirectView,
-    # GroupChatListView, MessageGroupCreateView, GroupMsgCreateView,
-    # GroupMessageDetailView,
+    ChatHistoryRedirectView, CourseMassageChat, ChatPeopleTemplateView,
+    SelectedDepartmentProgrammeLevel,
     )
 from django.urls import path
 
@@ -13,9 +12,10 @@ urlpatterns = [
     path("add/message<slug:to_user_slug>", ChatHistoryRedirectView.as_view(), name="add_message"),
     path("", ChatTemplateView.as_view(), name="home"),
     path("individualschats/", IndividualChatsTemplateView.as_view(), name="individual_chats"),
+    path("individualschats/<int:programme_id>/<int:level_pk>", IndividualChatsTemplateView.as_view(), name="individual_chats4lecture"),
     path("individualchats/<slug:current_user_slug>/", IndividualChatsTemplateView.as_view(), name="individualchats_user"),
-    # path("groupchatdetails/<str:grpname>/<int:grpid>", GroupMessageDetailView.as_view(), name="group_detail"),
-    # path("groupchats/", GroupChatListView.as_view(), name="group_chats"),
-    # path("groupchats/<int:msg_grp_pk>/", GroupMsgCreateView.as_view(), name="group_msg_create"),
-    # path("groupchats/add", MessageGroupCreateView.as_view(), name="group_chat_create"),
+    path("individualchats/<slug:current_user_slug>/<int:programme_id>/<int:level_pk>", IndividualChatsTemplateView.as_view(), name="individualchats_user_4lecture"),
+    path("course/<int:course_id>/", CourseMassageChat.as_view(), name="course_message"),
+    path("course/people/<str:course_code>/", ChatPeopleTemplateView.as_view(), name="course_people"),
+    path("individualselection/", SelectedDepartmentProgrammeLevel.as_view(), name="individual_filter_selection"),
 ]

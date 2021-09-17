@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     CourseCreateView, CourseDetailView, CourseDeleteView,
     CourseUpdateView, LectureCourseListView, CourseAssignmentView,
-    CourseUnassignmentView,
+    CourseUnassignmentView, SelectCourseToChatInView,
 )
 
 
@@ -18,6 +18,7 @@ urlpatterns = [
     # hod and admin
     path("assignment/forlecturer/<int:lecturer_pk>/", CourseAssignmentView.as_view(), name="assigment"),
     path("unassignment/fromlecturer/<str:course_code>/", CourseUnassignmentView.as_view(),
-         name="unassignment")
+         name="unassignment"),
+    path("selecttochat/", SelectCourseToChatInView.as_view(), name="select_to_chat"),
 
 ]

@@ -121,6 +121,7 @@ def get_status_tips(question_group_instance, question_status):
     elif question_group_instance.status == question_status.MARKED:
         return "In marked state student can see their score but can not review the scripts. " +\
                quiz_scheme_disallowed_edit
+    return None
 
 
 def general_setting_not_init(request):

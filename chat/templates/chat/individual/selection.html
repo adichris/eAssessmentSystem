@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row my-3">
+            <div class="col-auto mx-auto">
+                <h4 class="text-center">Select Who You want to chat with</h4>
+                <hr>
+            </div>
+        </div>
+
+        {% if programmes %}
+            {% regroup programmes by department as programmes_department %}
+            <div class="row my-3">
+                {% for programme_group in programmes_department %}
+                    <div class="col-12 p-2 bg-light rounded shadow-sm">
+                        <h5>{{ programme_group.grouper }}</h5>
+                    </div>
+                    {% for programme in programme_group.list %}
+                        <div class="col-md-6 col-lg-4 my-3">
+                            <div class="card card-hover-shadow h-100">
+                                <div class="card-header">
+                                    <h5 class="text-center">{{ programme.name }}</h5>
+                                </div>
+                                {% if levels %}
+                                    <div class="list-group list-group-flush">
+                                       {% for level in levels %}
+                                             <a onclick="spinOnClick(this)" href="{% url 'chat:individual_chats4lecture' level_pk=level.pk programme_id=programme.id %}" class="list-group-item list-group-item-action">{{ level }}</a>
+                                       {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="card-body p-2 alert alert-info text-center">
+                                        <span class="fa fa-exclamation-circle fa-2x"></span>
+                                        <br>
+                                        <p>There are no levels</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                {% endfor %}
+            </div>
+
+        {% endif %}
+    </div>
+{% endblock %}

@@ -67,7 +67,7 @@
 
                                         <tr>
                                             <td>Average Score</td>
-                                            <td>{{ questiongroup.get_scripts_average_score }}</td>
+                                            <td>{{ questiongroup.get_scripts_average_score|floatformat }}</td>
                                         </tr>
                                         {% else %}
                                         <tr>

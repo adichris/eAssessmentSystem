@@ -312,6 +312,9 @@ class StudentTheoryScript(models.Model):
     has_paused = models.BooleanField(default=False)
     total_score = models.FloatField(null=True, blank=True)
 
+    class Meta:
+        unique_together = ("student", "question_group")
+
     @property
     def is_all_marked(self):
         return self.studenttheoryanswer_set.filter(score__isnull=False).count() == \

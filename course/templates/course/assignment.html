@@ -12,15 +12,7 @@
     {% endif %}
     
     <div class="container">
-    
-        {% if back_url %}
-            <div class="row my-2">
-                <div class="col">
-                    <a href="{{ back_url }}" class="btn btn-link" onclick="onBackSpin(this)"><span class="fa fa-chevron-left"></span> back</a>
-                </div>
-            </div>
-        {% endif %} 
-
+        {% include 'snippet/back.html' with back_url=back_url %}
         <div class="row my-3">
             <div class="col text-center">
                 <h3>Lecturer Course Assigment</h3>

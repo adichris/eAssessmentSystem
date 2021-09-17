@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+
+        {% if back_url %}
+            <div class="row my-3">
+                <div class="col">
+                    <a href="{{ back_url }}" class="btn btn-link" onclick="onBackSpin(this)"><span class="fa fa-chevron-left"></span> Back</a>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row my-3">
+            <div class="col-md-6 mx-auto">
+                <h3 class="text-center">{{ course_name }} People</h3>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="col-md-6 mx-auto">
+                <h4 class="text-center">Teachers</h4>
+                <div class="d-flex align-items-center p-2 rounded bg-light">
+                    {% if lecture_profile.picture %}
+                        <img src="{{ lecture_profile.picture.url }}" alt="" style="height: 7em" class="rounded-pill shadow-sm mr-3">
+                    {% else %}
+                        <span class="fa fa-user-circle fa-3x  mr-3"></span>
+                    {% endif %}
+                    <h4>{{ lecture_profile.get_full_name }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <hr>
+            </div>
+        </div>
+    {% if students %}
+
+        <div class="row my-4">
+            <div class="col-12 text-center">
+                {% if request.user.is_lecture %}
+                    <h4>Students</h4>
+                {% else %}
+                    <h4>Classmates</h4>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mx-auto">
+                <div class="list-group-item list-group-flush bg-light rounded p-2">
+                    {% for student in students %}
+                        <a {% if request.user.is_lecture %} href="{{ student.profile.get_absolute_url }}?back={{ request.path }}" onclick="spinOnClick(this)" {% endif %} class="list-group-item"><span class="fa fa-user-circle mr-2"></span> {{ student.profile.get_full_name }}</a>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="row my-3">
+            <div class="col-md-6 mx-auto">
+                <div class="alert alert-info text-center">
+                    <span class="fa fa-exclamation-circle fa-exclamation-circle"></span>
+                    <br>
+                    <p>There are no student registered for this course</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    </div>
+{% endblock %}

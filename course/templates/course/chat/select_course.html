@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+
+            <div class="row mb-1 mt-3">
+                <div class="col">
+                    {% url 'chat:home' as chat_home_url %}
+                    <a href="{{ back_url|default:chat_home_url }}" class="btn btn-link" onclick="onBackSpin(this)"><span class="fa fa-chevron-left"></span> back</a>
+                </div>
+            </div>
+
+        <div class="row my-3">
+            <div class="col text-center">
+                <h3>Chat in Courses</h3>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+           {% if request.user.is_lecture %}
+                {% regroup courses by programme as courses_group_in_programme %}
+                {% for courses_groups in courses_group_in_programme %}
+                    <div class="col-12 p-2 rounded bg-light shadow-sm my-3">
+                        <h4 class="text-center">{{ courses_groups.grouper }}</h4>
+                    </div>
+                    {% for course in courses_groups.list %}
+                         <div class="col-md-6 col-lg-4 my-3">
+                             <a href="{% url 'chat:course_message' course_id=course.id %}" class="text-decoration-none">
+                                <div class="card card-hover-shadow h-100">
+                                <div class="card-body text-center">
+                                    <span class="fa fa-book fa-6x "></span>
+                                    <p></p>
+                                    <h5>{{ course.name }}</h5>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between">
+                                    <span>{{ course.level }}</span>
+                                    <span>{{ course.get_semester_display }}</span>
+                                </div>
+                            </div>
+                             </a>
+                         </div>
+                    {% endfor %}
+
+                {% endfor %}
+
+           {% else %}
+                {% for course in courses %}
+                    <div class="col-md-6 col-lg-4 my-3">
+                             <a href="{% url 'chat:course_message' course_id=course.id %}" class="text-decoration-none">
+                                <div class="card card-hover-shadow h-100">
+                                <div class="card-body text-center">
+                                    <span class="fa fa-book fa-6x "></span>
+                                    <p></p>
+                                    <h5>{{ course.name }}</h5>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between">
+                                    <span>{{ course.level }}</span>
+                                    <span>Master: {{ course.lecture.profile.get_full_name }}</span>
+                                </div>
+                            </div>
+                             </a>
+                         </div>
+                {% endfor %}
+
+           {% endif %}
+
+        </div>
+
+    </div>
+{% endblock %}

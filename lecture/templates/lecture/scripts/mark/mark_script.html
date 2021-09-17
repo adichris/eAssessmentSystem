@@ -32,7 +32,7 @@
                     <div class="alert alert-danger"  onclick="window.scrollBy(screen.availHeight/2, screen.availWidth/2)">
                         <p>Please there are some errors in your markings.</p>
                         <hr>
-                        <span>Score down <i class="fa fa-chevron-circle-down"></i> to address the issues</span>
+                        <span>Scroll down <i class="fa fa-chevron-circle-down"></i> to address the issues</span>
                     </div>
                 </div>
             </div>
@@ -73,7 +73,7 @@
                                     <div class="card-body">
                                             <div class="d-flex justify-content-between">
                                                 <span>Question {{ solution.question.question_number }}</span>
-                                                <span>{{ solution.question.max_mark }} marks</span>
+                                                <span>{{ solution.question.max_mark|floatformat:2 }} marks</span>
                                             </div>
                                             
                                             <div class="">
@@ -107,12 +107,3 @@
 
     </div>
 {% endblock %}
-
-{#{% block afterScripts %}#}
-{#    <script>#}
-{#        function show_on_scheme(question) {#}
-{#            console.log("Question id ", question)#}
-{#            window.location.href = `#goto_${question}`#}
-{#        }#}
-{#    </script>#}
-{#{% endblock %}#}

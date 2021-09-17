@@ -18,14 +18,14 @@
             <div class="col-md-6 mx-auto">
                 <div class="card-deck">
                     <div class="card card-hover-shadow">
-                        <a href="{% url 'chat:individual_chats' %}" class="card-link">
+                        <a href="{% if request.user.is_lecture %}{% url 'chat:individual_filter_selection' %}{% else %}{% url 'chat:individual_chats' %}{% endif %}?back={{ request.path }}" class="card-link">
                             <div class="card-body">
                             <p class="monospace text-center"><span class="fa fa-comment-dots fa-5x"></span><br> Chat Individual</p>
                             </div>
                         </a>
                     </div>
                     <div class="card card-hover-shadow">
-{#                        <a href="{% url 'chat:group_chats' %}" class="card-link">#}
+                        <a href="{% url 'department:programme:course:select_to_chat' %}" class="card-link">
                             <div class="card-body">
                             <p class="monospace text-center"><span class="fa fa-comments fa-5x" ></span><br> Chat Group</p>
                             </div>
