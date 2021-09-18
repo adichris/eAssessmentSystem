@@ -14,7 +14,8 @@
                     <a href="{% url 'department:list'  %}" class="btn btn-link" onclick="appendSpinOnClick(this)"><i class="fa fa-chevron-left mr-2"></i>back</a>
 
                     <div class="">
-                        <a href="{% url 'department:change-hod' pk=department.pk name=department.name %}?back={{ request.path }}" class="btn btn-outline-warning mr-2" onclick="appendSpinOnClick(this)"><span class="fa fa-user-edit mr-2"></span>  HOD </a>
+                        <a href="{% url 'department:change-hod' pk=department.pk name=department.name %}?back={{ request.path }}" class="btn btn-outline-warning mr-2" onclick="appendSpinOnClick(this)"><span class="fa fa-user-edit mr-2"></span>  {{ department.hod.get_short_name|default:"HOD" }} </a>
+                        <a href="{% url 'lecture:add'  %}?dpk={{ department.pk }}" class="btn btn-primary" onclick="appendSpinOnClick(this)">Add New Lecturer</a>
                         <a href="{% url 'department:programme:add' departmentName=department.name departmentPK=department.pk %}" class="btn btn-primary" onclick="appendSpinOnClick(this)">Add Programme</a>
                     </div>
                 </div>

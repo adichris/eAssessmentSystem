@@ -52,7 +52,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         is_me = self.request.user == self.object
-        ctx["title"] = "Edit %s Profile" %  "Your" if is_me else self.object
+        ctx["title"] = "Edit %s Profile" % "Your" if is_me else self.object.get_full_name
         return ctx 
 
     def get(self, request, *args: str, **kwargs):

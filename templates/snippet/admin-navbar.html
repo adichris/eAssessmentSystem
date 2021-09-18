@@ -33,7 +33,7 @@
               <li class="dropdown nav-item {% if request.path == add_department or request.path == list_department %} active {%  endif %}">
                   <a href="#" class="dropdown-toggle nav-link " data-toggle="dropdown"><span class="caret "><i class="fa fa-university mr-2"></i>Department</span></a>
                   <div class="dropdown-menu dropdown-menu-left  bg-admin-nav">
-                      <a href="{{ add_department }}" class="dropdown-item">Add New Department</a>
+                      <a href="{{ add_department }}?back={{ request.path }}" class="dropdown-item">Add New Department</a>
                       <a href="{{ list_department }}" class="dropdown-item">All Departments</a>
                   </div>
               </li>

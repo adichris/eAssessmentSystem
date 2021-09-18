@@ -28,7 +28,7 @@ class LectureCreateView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
             ctx = {
-                "lecture_form": self.lecture_form_class(),
+                "lecture_form": self.lecture_form_class(initial=self.get_initial()),
                 "profile_form": self.profile_form(),
                 "pageTitle": "Add Lecture"
             }
@@ -40,7 +40,7 @@ class LectureCreateView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if request.user.is_staff:
             lecture_form = self.lecture_form_class(request.POST)
-            profile_form = self.profile_form(request.POST)
+            profile_form = self.profile_form(request.POST, files=request.FILES or None)
             if lecture_form.is_valid() and profile_form.is_valid():
                 profile_ins = profile_form.save(False)
                 profile_ins.is_lecture = True
@@ -58,6 +58,21 @@ class LectureCreateView(LoginRequiredMixin, View):
                 "number_error": profile_form.errors.get("phone_number"),
             }
             return render(request, self.template_name, ctx)
+
+    def get_initial(self):
+        department_pk = self.request.GET.get("dpk")
+        if department_pk:
+            try:
+                department_instance = Department.objects.get(pk=department_pk)
+            except Department.DoesNotExist:
+                pass
+            else:
+                return {
+                    "department": department_instance,
+                }
+        return {
+
+        }
 
 
 @login_required

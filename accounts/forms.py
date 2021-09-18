@@ -23,7 +23,8 @@ class UserCreateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "username", "phone_number", "email", "dob", "password", "password2","picture")
+        fields = ("first_name", "last_name", "username", "phone_number", "email", "dob", "password", "password2",
+                  "picture")
         widgets = {
             "password": forms.PasswordInput,
             "dob": forms.DateInput(attrs={"type": "date"}),
@@ -63,7 +64,7 @@ class UserCreateForm(forms.ModelForm):
         pwd2 = self.cleaned_data.get("password2")
 
         if pwd != pwd2:
-            return forms.ValidationError("Password does not match")
+            raise forms.ValidationError("Password does not match")
         return pwd2
 
     def save(self, commit=False):

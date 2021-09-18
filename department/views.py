@@ -8,6 +8,7 @@ from course.models import CourseModel
 from student.models import Student
 from eAssessmentSystem.tool_utils import (
     admin_required_message, get_http_forbidden_response, get_not_allowed_render_response,
+    get_back_url
 )
 
 
@@ -33,6 +34,12 @@ class DepartmentCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form_ = form
         return super(DepartmentCreateView, self).form_valid(form_)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DepartmentCreateView, self).get_context_data(**kwargs)
+        ctx["title"] = "Add new Department"
+        ctx["back_url"] = get_back_url(self.request)
+        return ctx
 
 
 class DepartmentDetailView(LoginRequiredMixin, DetailView):
@@ -160,13 +167,15 @@ class HodStatusUpdateView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         ctx = self.get_context_data()
-        ctx["form"] = self.form_class(instance=self.get_object())
+        department_instance = self.get_object()
+        ctx["form"] = self.form_class(instance=department_instance, initial=self.get_initial(department_instance))
         return render(request, self.template_name, ctx)
 
     def post(self, request, *args, **kwargs):
         ctx = self.get_context_data()
         department_instance = self.get_object()
-        form_instance = self.form_class(instance=department_instance, data=self.request.POST)
+        form_instance = self.form_class(instance=department_instance, data=self.request.POST,
+                                        initial=self.get_initial(department_instance))
         if form_instance.is_valid():
             hod = form_instance.cleaned_data["hod"]
             department_instance.hod = hod.profile
@@ -176,6 +185,15 @@ class HodStatusUpdateView(LoginRequiredMixin, View):
         ctx["form"] = form_instance
 
         return render(request, self.template_name, ctx)
+
+    def get_initial(self, department):
+        try:
+            return {
+                "hod": department.hod
+            }
+        except AttributeError:
+            pass
+        return {}
 
 
 class HodDashboardTemplateView(LoginRequiredMixin, TemplateView):
