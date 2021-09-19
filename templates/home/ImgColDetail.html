@@ -1,0 +1,50 @@
+{% load static %}
+
+ <div class="card card-hover-shadow bg-white50 transparentBlur my-2 w-100">
+     <div class="row m-0 p-0">
+         <div class="col-6 m-0 p-0">
+             <div class="" >
+                 <img class="img-fluid" src="{% static 'DefaultImg/student_male.svg' %}">
+             <ul class="list-group bg-transparent p-1">
+                 <li class="list-group-item bg-transparent">
+                    <small>Name</small><br>
+                    <p>{{ developer.name }}</p>
+                </li>
+                <li class="list-group-item bg-transparent">
+                    <small>Tel</small><br>
+                    <a href="tel:{{ developer.phone.as_e164 }}" class="btn btn-link">{{ developer.phone.as_international }}</a>
+                </li>
+             </ul>
+             </div>
+         </div>
+         <div class="col-6 m-0 p-0">
+             <div class=""  >
+                 <ul class="list-group bg-transparent">
+                 <li class="list-group-item bg-transparent">
+                    <small>Email</small><br>
+                    <a href="mailto:{{ developer.email }}">{{ developer.email }}</a>
+                </li>
+                 <li class="list-group-item bg-transparent">
+                    <small>Location</small><br>
+                    <span>{{ developer.location }}</span>
+                </li>
+
+                <li class="list-group-item bg-transparent">
+                    <small>Programme</small>
+                    <p>Information Communication Technology HND</p>
+                </li>
+                <li class="list-group-item bg-transparent">
+                    <small>Department</small>
+                    <p>Computer Science Department</p>
+                </li>
+                <li class="list-group-item bg-transparent">
+                    <small>Institution</small><br>
+                    <a href="https://stu.edu.gh/" class="btn btn-link">Sunyani Technical University</a>
+                </li>
+            </ul>
+             </div>
+         </div>
+     </div>
+
+
+ </div>

@@ -6,9 +6,9 @@ from lecture.models import LectureModel
 
 class CourseManager(models.Manager):
     def get_lecture_courses(self, lecture, programme=None):
-        if programme:
+        if programme and lecture:
             return self.filter(lecture=lecture, programme=programme, semester=lecture.profile.generalsetting.semester)
-        else:
+        elif lecture:
             return self.filter(lecture=lecture, semester=lecture.profile.generalsetting.semester)
 
 
@@ -17,20 +17,30 @@ class CourseLevel(models.Model):
     The Level can be to access a course.
     example: Level 100 students has their core and objective course
     """
-    name = models.CharField(max_length=10, verbose_name="Level name", default="level")
-    number = models.IntegerField(unique=True, verbose_name="Level Number")
+    name = models.CharField(max_length=10, verbose_name="Level name", default="Level",
+                            help_text="The letter part of the level")
+    number = models.IntegerField(unique=True, verbose_name="Level Number", help_text="The numeric part of the level")
 
     class Meta:
         verbose_name = "Level"
         verbose_name_plural = "Levels"
         unique_together = ("name", "number")
-        ordering = ("number",)
+        ordering = ("name", "number",)
 
     def __str__(self):
         return "%s %s" % (self.name.title(), self.number)
     
     def get_students(self):
         return self.student_set.count()
+
+    def get_absolute_url(self):
+        return reverse("department:programme:course:level_detail", kwargs={"pk": self.pk})
+
+    def get_absolute_update_url(self):
+        return reverse("department:programme:course:level_update", kwargs={"pk": self.pk})
+
+    def get_absolute_delete_url(self):
+        return reverse("department:programme:course:level_delete", kwargs={"pk": self.pk})
 
 
 class CourseSemester(models.TextChoices):
@@ -64,7 +74,10 @@ class CourseModel(models.Model):
 
     def conducted_quizzes(self):
         # return question group and join lecture GeneralSetting where academic_year is the same
-        return self.questiongroup_set.filter(status__in=("conducted", "published"), academic_year=self.lecture.profile.generalsetting.academic_year)
+        if self.lecture:
+            return self.questiongroup_set.filter(status__in=("conducted", "published"), academic_year=self.lecture.profile.generalsetting.academic_year)
+        else:
+            return None
 
     def get_absolute_url(self):
         return reverse("department:programme:course:detail", kwargs={"courseName": self.name, "pk": self.pk})

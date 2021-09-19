@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row my-4">
+            <div class="col-md-6 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="text-center">{{ courselevel }}</h4>
+                        <table class="table">
+                            <tr>
+                                <td>Name</td>
+                                <td>{{ courselevel.name }}</td>
+                            </tr>
+                            <tr>
+                                <td>Number</td>
+                                <td>{{ courselevel.number }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <p class="alert alert-secondary mb-0 " title="total number of student in {{ courselevel }}">Level students are <b> {{ courselevel.get_students }}</b></p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between bg-transparent">
+                        <a href="{{ courselevel.get_absolute_update_url }}" class="btn btn-dark" style="width: 7em;" onclick="spinOnClick(this)">Edit</a>
+                        <a href="{{ courselevel.get_absolute_delete_url }}" class="btn btn-danger" style="width: 7em;" onclick="spinOnClick(this)">Delete</a>
+                    </div>
+                </div>
+                <hr>
+                <a href="{% url 'department:programme:course:level_list' %}" onclick="onBackSpin(this)"><span class="fa fa-chevron-left"></span> back</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

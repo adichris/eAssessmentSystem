@@ -16,7 +16,7 @@ class AddAdminView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/add_admin_view.html"
 
 
-class AdminCreateView(LoginRequiredMixin ,CreateView):
+class AdminCreateView(LoginRequiredMixin, CreateView):
     model = User
     template_name = "accounts/create/superuser_createview.html"
     form_class = UserCreateForm
@@ -122,7 +122,8 @@ def student_login(request):
             stu_login.add_error("password", "Enter a valid credential")
     ctx = {
         "form": stu_login,
-        "cardHeader": " Student Login"
+        "cardHeader": " Student Login",
+        "usr": "student",
     }
     next_url = request.GET.get("next")
     if next_url and is_safe_url(next_url, request.get_host()):
@@ -254,6 +255,11 @@ class ChangePasswordView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         login(self.request, self.get_object())
         return reverse("landing-page")
+
+    def get_form_kwargs(self):
+        kwargs = super(ChangePasswordView, self).get_form_kwargs()
+        kwargs["usr"] = "Index Number" if self.request.GET.get("usr") == "student" else None
+        return kwargs
 
 
 class ChangePasswordUpdateView(LoginRequiredMixin, View):

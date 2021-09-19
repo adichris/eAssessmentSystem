@@ -48,115 +48,21 @@
             </div>
 
         </div>
-{% with stu_url='https://stu.edu.gh/' %}
-        <div class="row">
+
+
+        <div class="row my-3">
             <div class="col-auto mx-auto rounded p-2 transparentBlur bg-white50 shadow-sm">
                 <h5 class="text-center">The Project Developers</h5>
             </div>
         </div>
+
         <div class="row my-3">
-            <div class="col-md-6 col-lg-4 my-3">
-                <div class="card card-hover-shadow bg-white50 transparentBlur h-100">
-                    <img class="img" class="img-fluid card-img-top" src="{% static 'DefaultImg/student_male.svg' %}">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <small>Name</small><br>
-                            <p>Addai Christopher</p>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Tel</small><br>
-                            <a href="tel:+233202662642" class="btn btn-link">020 266 2642</a>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Email</small><br>
-                            <a href="mailto:addaichristopher1@gmail.com" class="btn btn-link">addaichristopher1@gmail.com</a>
-                        </li>
-
-                        <li class="list-group-item">
-                            <small>Programme</small>
-                            <p>Information Communication Technology HND</p>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Department</small>
-                            <p>Computer Science Department</p>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Institution</small><br>
-                            <a href="{{ stu_url }}" class="btn btn-link">Sunyani Technical University</a>
-                        </li>
-                    </ul>
+            {% for developer in developers %}
+                <div class="col-lg-6">
+                    {% include 'home/ImgColDetail.html' with developer=developer %}
                 </div>
-            </div>
-
-            <div class="col-md-6 col-lg-4 my-3">
-                <div class="card card-hover-shadow bg-white50 transparentBlur h-100">
-                    <img class="img" class="img-fluid card-img-top" src="{% static 'DefaultImg/student_male.svg' %}">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <small>Name</small><br>
-                            <p>Fosu Kwame Paul</p>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Tel</small> <br>
-                            <a href="tel:+233554308246" class="btn btn-link">055 430 8246</a>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Email</small>
-                            <p><a href="mailto:wisdomp863@gmail.com">wisdomp863@gmail.com</a></p>
-                        </li>
-
-                        <li class="list-group-item">
-                            <small>Programme</small>
-                            <p>Information Communication Technology HND</p>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Department</small>
-                            <p>Computer Science Department</p>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Institution</small><br>
-                            <a href="{{ stu_url }}" class="btn btn-link">Sunyani Technical University</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-4 my-3">
-                <div class="card card-hover-shadow bg-white50 transparentBlur h-100">
-                    <img  class="img-fluid card-img-top" src="{% static 'DefaultImg/student_male.svg' %}">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <small>Name</small><br>
-                            <p>Attakorah Bernard</p>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Tel</small> <br>
-                            <a href="tel:+233556653210">055 665 3210</a>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Email</small>
-                            <p>---</p>
-                        </li>
-
-                        <li class="list-group-item">
-                            <small>Programme</small>
-                            <p>Information Communication Technology HND</p>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Department</small>
-                            <p>Computer Science Department</p>
-                        </li>
-                        <li class="list-group-item">
-                            <small>Institution</small><br>
-                            <a href="{{ stu_url }}" class="btn btn-link">Sunyani Technical University</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
-    </div>
-{% endwith %}
 
     </div>
 {% endblock content %}

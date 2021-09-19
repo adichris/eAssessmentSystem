@@ -1,4 +1,3 @@
-from typing import Dict
 from django.db import models
 from accounts.models import User
 from programme.models import Programme, Department
@@ -10,7 +9,11 @@ class MassageManager(models.Manager):
     def all_for_both(self, from_user, to_user):
         msg_from = self.filter(from_user=from_user, to_user=to_user)
         msg_to = self.filter(to_user=from_user, from_user=to_user)
+        msg_to.update(read=True)
         return msg_from.union(msg_to)
+
+    def count_unread(self):
+        return self.filter(read=False).count()
 
 
 class Message(models.Model):
@@ -18,6 +21,7 @@ class Message(models.Model):
     to_user = models.ForeignKey(User, related_name="to_user", on_delete=models.CASCADE, verbose_name="To", null=True)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)
     objects = MassageManager()
 
     def __str__(self) -> str:

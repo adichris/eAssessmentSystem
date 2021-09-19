@@ -22,6 +22,10 @@
                 {% include 'snippet/dashboard_card.html' with d_link=lecture_link d_icon="fa-user-tie" d_title="All Lecturers" %}
             </div>
             <div class="col-md-6 col-lg-4 my-3">
+                {% url 'department:programme:course:level_list' as d_link %}
+                {% include 'snippet/dashboard_card.html' with d_link=d_link d_icon="fa-list" d_title="Level" %}
+            </div>
+            <div class="col-md-6 col-lg-4 my-3">
                 {% url 'department:list' as d_link %}
                 {% include 'snippet/dashboard_card.html' with d_link=d_link d_icon="fa-university" d_title="All Department" %}
             </div>

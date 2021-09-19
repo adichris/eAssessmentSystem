@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
-from .models import LectureModel
+from .models import LectureModel, User
+from setting.models import GeneralSetting
 from .forms import LectureCreateForm, StudentTheoryAnswer, StudentAnswerMarkForm, FilterForms, QuestionGroupFilterForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
@@ -49,6 +50,19 @@ class LectureCreateView(LoginRequiredMixin, View):
                 lecture_ins.profile = profile_ins
                 lecture_ins.save()
                 request.session["lecture_created_pk"] = lecture_ins.pk
+                try:
+                    generalsetting = User.objects.filter(is_admin=True,
+                                                         is_active=True,
+                                                         is_superuser=True
+                                                         ).first().generalsetting
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    GeneralSetting.objects.create(user=profile_ins,
+                                                  semester=generalsetting.semester,
+                                                  academic_year=generalsetting.academic_year
+                                                  )
+
                 return redirect("lecture:created")
             ctx = {
                 "lecture_form": lecture_form,

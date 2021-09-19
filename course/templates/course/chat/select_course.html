@@ -18,7 +18,7 @@
         </div>
 
         <div class="row">
-           {% if request.user.is_lecture %}
+           {% if request.user.is_lecture and courses %}
                 {% regroup courses by programme as courses_group_in_programme %}
                 {% for courses_groups in courses_group_in_programme %}
                     <div class="col-12 p-2 rounded bg-light shadow-sm my-3">
@@ -44,7 +44,7 @@
 
                 {% endfor %}
 
-           {% else %}
+           {% elif courses %}
                 {% for course in courses %}
                     <div class="col-md-6 col-lg-4 my-3">
                              <a href="{% url 'chat:course_message' course_id=course.id %}" class="text-decoration-none">
@@ -56,13 +56,21 @@
                                 </div>
                                 <div class="card-footer d-flex justify-content-between">
                                     <span>{{ course.level }}</span>
-                                    <span>Master: {{ course.lecture.profile.get_full_name }}</span>
+                                    <span>Master: {{ course.lecture.profile.get_full_name|default:"No lecturer assigned" }}</span>
                                 </div>
                             </div>
                              </a>
                          </div>
                 {% endfor %}
 
+           {% else %}
+               <div class="col-md-6 mx-auto">
+                    <div class="alert alert-info text-center">
+                        <span class="fa fa-exclamation-circle fa-2x"></span><br>
+                        <hr>
+                        <p>There are no course available to select in this programme</p>
+                    </div>
+               </div>
            {% endif %}
 
         </div>

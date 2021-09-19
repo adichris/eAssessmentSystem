@@ -36,6 +36,13 @@ class AdminStaffLogin(LoginView):
         return ctx
 
 
+class Developer:
+    def __init__(self, phone, **kwargs):
+        self.__dict__.update(**kwargs)
+        from phonenumber_field.phonenumber import PhoneNumber
+        self.phone = PhoneNumber(national_number=phone, country_code="+233")
+
+
 class AboutTemplatePage(TemplateView):
     template_name = "home/about.html"
 
@@ -43,7 +50,15 @@ class AboutTemplatePage(TemplateView):
         ctx = super().get_context_data(**kwargs)
         ctx["title"] = "about"
         ctx["include_footer"] = True
+        ctx["developers"] = self.get_developers()
         return ctx
+
+    def get_developers(self):
+        return (
+            Developer(name="Addai Christopher", email="addaichristopher1@gmail.com", phone="0247128518", location="Sunyani"),
+            Developer(name="Fosu Kwame Paul", email="wisdomp863@gmail.com", phone="0554308246 ", location="Sunyani"),
+            Developer(name="Attakorah Bernard", email="----------", phone="0556653210", location="Sunyani"),
+        )
 
 
 class SupportTemplatePage(TemplateView):

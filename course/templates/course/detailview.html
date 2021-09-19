@@ -43,8 +43,8 @@
                         </div>
                         {% if request.user.is_admin %}
                             <div class="card-footer d-flex justify-content-between">
-                                <a href="{% url 'department:programme:course:delete' courseName=coursemodel.name pk=coursemodel.pk course_programme_pk=coursemodel.programme.pk %}" class="btn btn-outline-danger flex-grow-1 mx-1" onclick="spinOnClick(this)">Delete</a>
-                                <a href="{{ coursemodel.get_update_url }}" class="btn btn-outline-warning flex-grow-1 mx-1" onclick="spinOnClick(this)">Edit</a>
+                                <a href="{{ coursemodel.get_update_url }}" class="btn btn-warning flex-grow-1 mx-1" onclick="spinOnClick(this)">Edit</a>
+                                <a href="{% url 'department:programme:course:delete' courseName=coursemodel.name pk=coursemodel.pk course_programme_pk=coursemodel.programme.pk %}" class="btn btn-danger flex-grow-1 mx-1" onclick="spinOnClick(this)">Delete</a>
                             </div>
                         {% endif %}
                     </div>

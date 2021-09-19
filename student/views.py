@@ -3,8 +3,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import View, TemplateView, ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .form import StudentRegisterForm, PasswordSetForm
+from setting.models import GeneralSetting
 from accounts.forms import StudentProfileCreateForm
-from .models import Student
+from .models import Student, User
 from programme.models import Programme
 from eAssessmentSystem.tool_utils import (
     admin_required_message, get_not_allowed_render_response,
@@ -52,6 +53,19 @@ class StudentCreateView(View):
             profile.save()
             student = student_form.save(False)
             student.profile = profile
+            try:
+                generalsetting = User.objects.filter(
+                    is_admin=True,
+                    is_active=True,
+                    is_superuser=True).first().generalsetting
+            except ObjectDoesNotExist:
+                pass
+            else:
+                GeneralSetting.objects.create(user=profile,
+                                              semester=generalsetting.semester,
+                                              academic_year=generalsetting.academic_year
+                                              )
+
             student.save()
             programme = self.get_initial().get("programme")
             if programme:
@@ -139,7 +153,7 @@ class StudentDetailView(LoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         user = request.user
         is_student = self.get_student() == self.get_object()
-        if user.is_active and (is_student or user.is_lecture  or user.is_admin  or user.is_superuser):
+        if user.is_active and (is_student or user.is_lecture or user.is_admin or user.is_superuser):
             return super().get(request, *args, **kwargs)
         else:
             return get_not_allowed_render_response(request)

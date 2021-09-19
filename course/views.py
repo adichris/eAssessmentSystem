@@ -2,8 +2,9 @@ from django.db.models.query_utils import Q
 from django.shortcuts import redirect, get_object_or_404, reverse, render
 from django.views.generic import CreateView, DetailView, DeleteView, UpdateView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .form import CourseModel, CourseCreateForm
-from eAssessmentSystem.tool_utils import admin_required_message, get_not_allowed_render_response, get_back_url
+from .form import CourseModel, CourseCreateForm, CourseLevel, CourseLevelCreateForm
+from eAssessmentSystem.tool_utils import admin_required_message, get_not_allowed_render_response, get_back_url, \
+    general_setting_not_init
 from programme.models import Programme
 from lecture.models import LectureModel
 from django.db.models import ObjectDoesNotExist
@@ -64,7 +65,12 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         course = self.get_object()
         user = request.user
-        if (course.lecture.profile == user) or user.is_admin:
+        logic1 = False
+        try:
+            logic1 = course.lecture.profile == user
+        except (AttributeError or ObjectDoesNotExist):
+            pass
+        if user.is_admin or logic1:
             return super(CourseDetailView, self).get(request=request, *args, **kwargs)
         else:
             return get_not_allowed_render_response(request)
@@ -172,14 +178,28 @@ class LectureCourseListView(LoginRequiredMixin, ListView):
         except AttributeError:
             ctx["semester"] = self.request.user.generalsetting.get_semester_display()
         ctx["searchCourse"] = searchCourse
-
         return ctx
 
     def get(self, request, *args, **kwargs):
         try:
             return super(LectureCourseListView, self).get(request, *args, **kwargs)
         except ObjectDoesNotExist:
-            return get_not_allowed_render_response(request)
+            try:
+                self.lecturer.profile.generalsetting
+            except ObjectDoesNotExist:
+                tip = f'Please "{self.lecturer.profile.get_full_name()}" has not setup semester and academic year 📅.\n' \
+                      f'So we can not get related assessment information of this lecturer'
+                return general_setting_not_init(request, tip)
+            except AttributeError:
+                pass
+            try:
+                self.request.user.generalsetting
+            except ObjectDoesNotExist:
+                return general_setting_not_init(request)
+
+            except AttributeError:
+                pass
+        return get_not_allowed_render_response(request)
 
 
 class CourseAssignmentView(LoginRequiredMixin, TemplateView):
@@ -301,3 +321,121 @@ class SelectCourseToChatInView(LoginRequiredMixin, TemplateView):
         except ObjectDoesNotExist:
             lecturer = self.request.user.lecturemodel
             return CourseModel.objects.filter(lecture=lecturer, semester=user_semester).order_by("programme", "level")
+
+
+class LevelCreateView(LoginRequiredMixin, CreateView):
+    model = CourseLevel
+    form_class = CourseLevelCreateForm
+    template_name = "course/level/create.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(LevelCreateView, self).get_context_data(**kwargs)
+        ctx["title"] = "Add a New Level"
+        return ctx
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            return super(LevelCreateView, self).get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def post(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            return super(LevelCreateView, self).post(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+
+class LevelListViewView(LoginRequiredMixin, ListView):
+    model = CourseLevel
+    template_name = "course/level/listview.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(LevelListViewView, self).get_context_data(**kwargs)
+        ctx["title"] = "Add a New Level"
+        level_deleted = self.request.session.get("level_deleted")
+        if level_deleted:
+            ctx["level_deleted_msg"] = "You have successful deleted %s from the system" % level_deleted
+            try:
+                del self.request.session["level_deleted"]
+            except KeyError:
+                ctx["level_deleted_msg"] = None
+
+        return ctx
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            return super(LevelListViewView, self).get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+
+class LevelDetailView(LoginRequiredMixin, DetailView):
+    template_name = "course/level/detail.html"
+    model = CourseLevel
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            return super(LevelDetailView, self).get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(LevelDetailView, self).get_context_data(**kwargs)
+        ctx["title"] = str(self.object)
+        return ctx
+
+
+class LevelUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "course/level/create.html"
+    model = CourseLevel
+    form_class = CourseLevelCreateForm
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            return super(LevelUpdateView, self).get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def post(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            return super(LevelUpdateView, self).post(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(LevelUpdateView, self).get_context_data(**kwargs)
+        ctx["title"] = "Update a %s" % self.object
+        return ctx
+
+
+class LevelDeleteView(LoginRequiredMixin, DeleteView):
+    template_name = "course/level/delete.html"
+    model = CourseLevel
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            self.request.session["level_name"] = str(self.get_object())
+            return super(LevelDeleteView, self).get(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def post(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            return super(LevelDeleteView, self).post(request, *args, **kwargs)
+        else:
+            return get_not_allowed_render_response(request)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(LevelDeleteView, self).get_context_data(**kwargs)
+        ctx["title"] = "Delete %s" % self.object
+        return ctx
+
+    def get_success_url(self):
+        return reverse("department:programme:course:level_list")
+
+    def delete(self, request, *args, **kwargs):
+        level_name = self.request.session.get("level_name")
+        self.request.session["level_deleted"] = level_name or 0
+        return super(LevelDeleteView, self).delete(request, *args, **kwargs)
+

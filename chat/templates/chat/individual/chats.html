@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-
+{% load chat_extra %}
 {% block content %}
     <div class="container">
-        <div class="row my-3">
+        <div class="row my-3" style="overflow-x: auto; min-width: 550px">
             <aside class="col-4 col-lg-3  rounded card-hover-shadow pb-1" style="overflow: auto; max-height: 100vh;">
-                <div class="table-responsive">
+                <div class="">
                     <span class="lead">Chat Contacts</span>
                     <hr>
                     <form action="" method="get">
@@ -21,9 +21,11 @@
                         <small>{{ d_lecturers.grouper }} Department Lecturers</small>
                         <div class="list-group">
                             {% for user in d_lecturers.list %}
-                            <a href="{% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}" class="list-group-item  list-group-item-action {% if user.profile == current_user  %} active {% endif %}" style="overflow: auto">
-                                {{ user }}
-                            </a>
+                                 {% with msg_count=user.profile|chat_count:request.user %}
+                                <a href="{% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}" class="list-group-item  list-group-item-action {% if user.profile == current_user  %} active {% endif %} d-flex flex-row justify-content-between align-items-center" style="overflow: auto">
+                                    <span>{{ user }}</span>  {% if msg_count %} <span class="badge badge-pill bg-danger text-center text-white shadow-sm">{{ msg_count }}</span> {% endif %}
+                                </a>
+                                {% endwith %}
                             {% endfor %}
                         </div>
                     {% endfor %}
@@ -34,8 +36,11 @@
                             <small>{{ student.grouper }} Students</small>
                             <div class="list-group">
                                 {% for user in student.list %}
-                                    <a href="{% if request.user.is_lecture %}{% url 'chat:individualchats_user_4lecture' current_user_slug=user.profile.slug level_pk=user.level_id programme_id=user.programme_id %}{% else %} {% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}{% endif %}" class="list-group-item  list-group-item-action {% if user.profile == current_user  %} active {% endif %} " style="overflow: auto">{{ user.profile.get_full_name }} <small>{{ user.level }}</small> </a>
-                                {% endfor %}                                        
+                                    {% with msg_count=user.profile|chat_count:request.user %}
+                                    <a href="{% if request.user.is_lecture %}{% url 'chat:individualchats_user_4lecture' current_user_slug=user.profile.slug level_pk=user.level_id programme_id=user.programme_id %}{% else %} {% url 'chat:individualchats_user' current_user_slug=user.profile.slug %}{% endif %}"
+                                       class="list-group-item  list-group-item-action {% if user.profile == current_user  %} active {% endif %} d-flex flex-row justify-content-between align-items-center" style="overflow: auto"><span>{{ user.profile.get_full_name }}  <small>{{ user.level }}</small> </span> {% if msg_count %}<span class="badge badge-pill bg-danger text-center text-white shadow-sm">{{ msg_count }}</span> {% endif %}</a>
+                                {% endwith %}
+                                {% endfor %}
                             </div>
                         {% endfor %}
                             

@@ -5,18 +5,18 @@
         <div class="row mt-2 mt-md-4">
             <div class="col-auto mx-auto text-center d-flex justify-content-center align-items-center flex-column">
                     {% if object.picture %}
-                        <img src="{{ object.picture.url }}" alt="" class="img-fluid rounded-pill p-2" style="height: 10em">
+                        <a href="{{ object.picture.url }}"><img src="{{ object.picture.url }}" alt="" class="img-fluid  rounded-pill p-2 card-hover-shadow" style="height: 15em"></a>
                     {% else %}
-                         <span class="fa fa-user-circle fa-6x text-center"></span>
+                         <span class="fa fa-user-circle fa-8x text-center"></span>
                     {% endif %}
-                     <span class="font-weight-normal text-center">{{ object.get_short_name }}</span>
+                     <span class="font-weight-normal text-center">{{ object.username }}</span>
             </div>
         </div>
-        <div class="row">
+        <div class="row my-3">
             <div class="col">
 
                 <div class="card-group">
-                    <div class="card">
+                    <div class="card card-hover-shadow">
                         <div class="card-body">
                             <div class="table-responsive">
                                 <h5 class="text-center">Personal Information</h5>
@@ -47,7 +47,7 @@
                         </div>
                     </div>
                     
-                    <div class="card">
+                    <div class="card card-hover-shadow">
                         <div class="card-body">
                             <h5 class="text-center">Roles</h5>
                             <div class="table-responsive">
@@ -57,19 +57,20 @@
                                     <td class="">
                                         
                                         {% if request.user.is_admin or request.user.is_superuser %}
-                                            <span class = "badge badge-pill p-2 {% if object.is_superuser %} alert-success {% else %} alert-danger {% endif %}" title="Is user Super User?">SuperUser {{ object.is_superuser|yesno|title }}</span>
-                                            <span class = "badge badge-pill p-2 {% if object.is_admin %} alert-success {% else %} alert-danger {% endif %}" title="Is user admin?">Admin {{ object.is_admin|yesno|title }}</span>
+                                            <span class = "badge badge-pill p-2 my-1 {% if object.is_superuser %} alert-success {% else %} alert-danger {% endif %}" title="Is user Super User?">SuperUser : {{ object.is_superuser|yesno|title }}</span>
+                                            <span class = "badge badge-pill p-2 my-1 {% if object.is_admin %} alert-success {% else %} alert-danger {% endif %}" title="Is user admin?">Admin : {{ object.is_admin|yesno|title }}</span>
                                         {% endif %}
                                             
                                         
-                                        {% if request.user.is_lecture or request.user.is_superuser %}
+                                        {% if request.user.is_lecture %}
                                             
-                                        <span class = "badge badge-pill p-2 {% if object.is_lecture %} alert-success {% else %} alert-danger {% endif %}" title="Is user Lecture?">Lecture {{ object.is_lecture|yesno|title }}</span>
+                                        <span class = "badge badge-pill p-2 my-1 {% if object.is_lecture %} alert-success {% else %} alert-danger {% endif %}" title="Are you a Lecture?">Lecture : {{ object.is_lecture|yesno|title }}</span>
+                                        <span class = "badge badge-pill p-2 my-1 {% if object.is_hod %} alert-success {% else %} alert-danger {% endif %}" title="Are you a HOD?">HOD : {{ object.is_hod|yesno|title }}</span>
                                         {% endif %}
                                         
-                                        <span class = "badge badge-pill p-2 {% if object.is_active %} alert-success {% else %} alert-danger {% endif %}" title="Is user active?">Active {{ object.is_active|yesno|title }}</span>
+                                        <span class = "badge badge-pill p-2 my-1 {% if object.is_active %} alert-success {% else %} alert-danger {% endif %}" title="Your an active user">Active : {{ object.is_active|yesno|title }}</span>
                                         {% if object.student %}
-                                            <span class = "badge badge-pill p-2 {% if object.student %} alert-success {% else %} alert-danger {% endif %}" title="Is user student?">Student {{ object.student|yesno|title }}</span>
+                                            <span class = "badge badge-pill p-2 my-1 {% if object.student %} alert-success {% else %} alert-danger {% endif %}" title="Is user student?">Student : {{ object.student|yesno|title }}</span>
                                         {% endif %}
 
                                     </td>
@@ -84,7 +85,7 @@
                         </div>
                     </div>
                   {% if not request.user.is_admin %}                          
-                    <div class="card">
+                    <div class="card card-hover-shadow">
                         <div class="card-body">
                             <h5 class="text-center">Faculty</h5>
                             <div class="table-responsive">

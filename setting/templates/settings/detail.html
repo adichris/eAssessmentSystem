@@ -2,10 +2,15 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-md-6 mx-auto mt-3 mt-lg-4">
-                  <h3 class="text-center my-3">Your Settings</h3>
+            <div class="col">
+                 <h3 class="text-center my-3">Your Settings</h3>
                 <hr>
-                <div class="card shadow-sm">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mx-auto my-3">
+                <div class="card h-100 card-hover-shadow">
                     <div class="card-body">
                         <div class="d-flex justify-content-center mb-3">
                             <span class="fa fa-user-cog fa-5x text-warning"></span>
@@ -25,23 +30,24 @@
                             </tr>
                         </table>
 
-                        <a href="{{ generalsetting.get_update_url }}" class="btn btn-warning btn-block mt-3"
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{{ generalsetting.get_update_url }}" class="btn btn-warning btn-block"
                             onclick="spinOnClick(this)">Change setting <i class="fa fa-cog mr-2"></i></a>
                     </div>
                 </div>
-
             </div>
-        </div>
 
-        <div class="row">
             <div class="col-md-6 mx-auto my-3">
-                <div class="card shadow-sm">
+                <div class="card h-100 card-hover-shadow">
                     <div class="card-body">
                         <div class="d-flex justify-content-center mb-3">
                             <span class="fa fa-user-shield fa-5x text-info"></span>
                         </div>
                         <p><b class="mr-2">Last Profile Update: </b>{{ request.user.updated }}</p>
                         <p><b class="mr-2">Last Login: </b>{{ request.user.last_login }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent">
                         <a href="{% url 'accounts:change_pwd_update' %}?back={{ request.path }}" class="btn btn-info btn-block">Change password <span class="fa fa-lock"></span></a>
                     </div>
                 </div>

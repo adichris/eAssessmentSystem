@@ -35,9 +35,9 @@
                     <td>{{ course.name }}</td>
                     <td>{{ course.code }}</td>
                     <td>
-                        {{ course.conducted_quizzes.count }}
+                        {{ course.conducted_quizzes.count|default:0 }}
                     </td>
-                    <td>{{ course.lecture }}</td>
+                    <td>{{ course.lecture|default_if_none:"No Lecturer assigned" }}</td>
                 </tr>
                 {% endfor %}
             </table>

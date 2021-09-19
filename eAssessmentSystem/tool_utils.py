@@ -124,12 +124,13 @@ def get_status_tips(question_group_instance, question_status):
     return None
 
 
-def general_setting_not_init(request):
+def general_setting_not_init(request, tip=None):
     return render(
         request, "assessment/status_not_allowed.html",
         {
-            "tip": "Please setup your semester and academic year 📅 to continue",
-            "settings_icon": True
+            "tip": tip or "Please setup your semester and academic year 📅 to continue",
+            "settings_icon": True,
+            "noBtn": False if tip is None else True
         }
     )
 

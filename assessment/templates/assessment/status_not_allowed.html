@@ -90,7 +90,7 @@
                             <p class="alert alert-info my-1"><i class="fa fa-info-circle mr-2"></i>{{ more }}</p>
                         {% endif %}
 
-                        {% if settings_icon %}
+                        {% if settings_icon and not noBtn %}
                             <div class="d-flex justify-content-end">
                                 <a href="{% url 'setting:create' %}?next={{ request.path }}" class="btn btn-primary " onclick="spinOnClick(this)">Continue <span class="fa fa-chevron-right ml-2"></span></a>
                             </div>

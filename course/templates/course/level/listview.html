@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    {% if level_deleted_msg %}
+        {% include 'snippet/alert_success_beginStart.html' with alert_message=level_deleted_msg %}
+    {% endif %}
+
+    <div class="container">
+    
+        <div class="row my-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-baseline">
+                    {% url 'accounts:admin-dashboard' as dashboard %}
+                    <a href="{{ back_ulr|default:dashboard }}" onclick="onBackSpin(this)"><span class="fa fa-chevron-left"></span> back</a>
+                    <a href="{% url 'department:programme:course:level_add' %}" class="btn btn-link" title="add new academic level" onclick="spinOnClick(this)"><span class="fa fa-plus"></span> Add new level</a>
+                </div>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="col-md-6 mx-auto">
+                {% if courselevel_list or object_list %}
+                    <div class=" alert alert-secondary">Total levels created are <b>{{ courselevel_list.count }}</b></div>
+                    <div class="list-group shadow-sm">
+                        {% for courselevel in courselevel_list %}
+                            <a href="{{ courselevel.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="spinOnClick(this)"><b>{{ courselevel }}</b> <span class="fa fa-chevron-right"></span></a>
+                        {% endfor %}
+
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center">
+                        <span class="fa fa-exclamation-circle fa-2x"></span><br>
+                        <hr>
+                        <span>There are no level yet.</span><br>
+                        <a href="{% url 'department:programme:course:level_add' %}" onclick="spinOnClick(this)">Add new level</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

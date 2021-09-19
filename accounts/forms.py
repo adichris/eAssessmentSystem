@@ -1,5 +1,6 @@
 from django import forms
 from .models import User
+from django.contrib.auth.password_validation import MinimumLengthValidator
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
 import datetime
 
@@ -7,14 +8,16 @@ import datetime
 def clean_dob(self):
     dob = self.cleaned_data.get("dob")
     """
-        Student date of birth can not be less than 9 year 
+        User's date of birth can not be less than 9 year and greater 100
     """
     today = datetime.date.today()
     if dob is None:
         raise forms.ValidationError("Please enter your date of birth.")
-
-    if dob >= datetime.date(year=today.year - 9, month=today.month, day=today.day):
-        raise forms.ValidationError("Sorry we can not accept this as your date of birth. Your too young.")
+    usr_year = today.year - dob.year
+    if usr_year < 9:
+        raise forms.ValidationError(f"Sorry we can not accept this as your date of birth. Your too young ({usr_year} years!)")
+    if usr_year >= 120:
+        raise forms.ValidationError(f"Sorry we can not accept this as your date of birth. Your too old ({usr_year} years!).")
     return dob
 
 
@@ -58,6 +61,12 @@ class UserCreateForm(forms.ModelForm):
             }
 
         }
+
+    def clean_password(self):
+        pwd = self.cleaned_data.get("password")
+        min_5 = MinimumLengthValidator(5)
+        min_5.validate(pwd)
+        return pwd
 
     def clean_password2(self):
         pwd = self.cleaned_data.get("password")
@@ -145,6 +154,12 @@ class StudentProfileCreateForm(forms.ModelForm):
     def clean_dob(self):
         return clean_dob(self)
 
+    def clean_password(self):
+        pwd = self.cleaned_data.get("password")
+        min_5 = MinimumLengthValidator(5)
+        min_5.validate(pwd)
+        return pwd
+
 
 class StudentLoginForm(forms.Form):
     index_number = forms.CharField()
@@ -172,6 +187,12 @@ class PasswordSetForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PasswordSetForm, self).__init__(*args, **kwargs)
+        try:
+            usr = kwargs.pop("usr", None)
+            if usr is not None:
+                self.fields["username"].label = usr
+        except KeyError:
+            pass
 
     def clean_confirm_password(self):
         pwd = self.cleaned_data.get("password")
@@ -187,6 +208,12 @@ class PasswordSetForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+    def clean_password(self):
+        pwd = self.cleaned_data.get("password")
+        min_5 = MinimumLengthValidator(5)
+        min_5.validate(pwd)
+        return pwd
 
 
 class PasswordUpdateForm(forms.Form):

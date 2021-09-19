@@ -57,13 +57,12 @@ INSTALLED_APPS = [
 ]
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_AGE = timedelta(days=3).total_seconds()
 USE_TZ = True
 
 # deployment objects
 # if not DEBUG:
-SESSION_COOKIE_SECURE  = True
-CSRF_COOKIE_SECURE  = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 
 MIDDLEWARE = [
