@@ -38,6 +38,19 @@ class CourseCreateView(LoginRequiredMixin, CreateView):
             ctx["programme"] = programme
         return ctx
 
+    def get_form_kwargs(self):
+        kwrgs = super().get_form_kwargs()
+        p_name, p_pk = self.request.session.get("programme_name"), self.request.session.get("programme_pk")
+        programme = get_object_or_404(Programme, pk=p_pk, name=p_name)
+        lecturers = programme.department.lecturemodel_set.all()
+        if kwrgs:
+            kwrgs["lecturers"] = lecturers
+            return kwrgs
+        else:
+            return {
+                "lecturers": lecturers
+            }
+
     def get_initial(self):
         p_name, p_pk = self.request.session.get("programme_name"), self.request.session.get("programme_pk")
         programme = get_object_or_404(Programme, pk=p_pk, name=p_name)
@@ -276,7 +289,10 @@ class CourseUnassignmentView(LoginRequiredMixin, DetailView):
         user = self.request.user
         if user.is_hod or user.is_admin:
             self.init_instance()
-            if self.lecturer.profile != user:
+            try:
+                if self.lecturer.profile != user:
+                    return super(CourseUnassignmentView, self).get(request, *args, **kwargs)
+            except AttributeError:
                 return super(CourseUnassignmentView, self).get(request, *args, **kwargs)
         return get_not_allowed_render_response(request)
 
@@ -414,15 +430,23 @@ class LevelDeleteView(LoginRequiredMixin, DeleteView):
     model = CourseLevel
 
     def get(self, request, *args, **kwargs):
-        if self.request.user.is_staff:
+        obj = self.get_object()
+        if self.request.user.is_staff and obj.get_students() < 1:
             self.request.session["level_name"] = str(self.get_object())
             return super(LevelDeleteView, self).get(request, *args, **kwargs)
+        elif obj.get_students() > 1:
+            msg = "%s students are in %s deleting this will delete their records too.\n The system can not allow this" % (obj.get_students(), obj)
+            return get_not_allowed_render_response(request, message=msg)
         else:
             return get_not_allowed_render_response(request)
 
     def post(self, request, *args, **kwargs):
-        if self.request.user.is_staff:
+        obj = self.get_object()
+        if self.request.user.is_staff and obj.get_students() < 1:
             return super(LevelDeleteView, self).post(request, *args, **kwargs)
+        elif obj.get_students() > 1:
+            msg = "%s students are in %s deleting this will delete their records too.\n The system can not allow this" % (obj.get_students(), obj)
+            return get_not_allowed_render_response(request, message=msg)
         else:
             return get_not_allowed_render_response(request)
 

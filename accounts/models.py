@@ -155,6 +155,15 @@ class User(AbstractBaseUser):
             pass
         return False
 
+    @property
+    def is_student(self):
+        try:
+            if self.student:
+                return True
+        except models.ObjectDoesNotExist:
+            pass
+        return False
+
     def get_absolute_url(self):
         """Return absolute url for User."""
         from django.urls import reverse

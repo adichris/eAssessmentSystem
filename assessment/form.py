@@ -61,7 +61,8 @@ class QuestionGroupCreateForm(forms.ModelForm):
         fields = ("title", "questions_type", "course", "total_marks", "is_share_total_marks")
         labels = {
             "title": "Select Assessment title",
-            "questions_type": "Assessment Type"
+            "questions_type": "Assessment Type",
+            "is_share_total_marks": "Share total marks"
         }
         error_messages = {
             NON_FIELD_ERRORS: {
@@ -76,7 +77,8 @@ class QuestionGroupUpdateForm(forms.ModelForm):
         fields = ("title", "questions_type", "total_marks", "is_share_total_marks")
         labels = {
             "title": "Select Assessment title",
-            "questions_type": "Assessment Type"
+            "questions_type": "Assessment Type",
+            "is_share_total_marks": "Share total marks"
         }
         widgets = {
             "questions_type": forms.Select(attrs={"class": "no-pointer", "readonly": True})

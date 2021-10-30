@@ -17,8 +17,8 @@
                         <input type="hidden" name="parent_pk" value="{{ coursemodel.get_programme.pk }}">
                         <input type="hidden" name="parent_name" value="{{ coursemodel.get_programme.name }}">
                         <input type="hidden" name="course_name" value="{{ coursemodel }}">
-                        <a href="{% url 'department:programme:course:detail' courseName=coursemodel.name pk=coursemodel.pk %}" class="btn btn-primary btn-lg">Cancel</a>
-                        <button class="btn btn-danger btn-lg" type="submit">Delete </button>
+                        <a href="{% url 'department:programme:course:detail' courseName=coursemodel.name pk=coursemodel.pk %}" onclick="spinOnClick(this)" class="btn btn-primary btn-lg">Cancel</a>
+                        <button class="btn btn-danger btn-lg" type="submit" onclick="spinOnClick(this)">Delete</button>
                     </form>
 
                 </div>

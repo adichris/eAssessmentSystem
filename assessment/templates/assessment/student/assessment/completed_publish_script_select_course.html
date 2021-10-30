@@ -2,13 +2,14 @@
 {% load static %}
 {% block page_content %}
     <div class="row">
-        <div class="col-md-8 col-6 text-center mx-auto bg-light rounded p-2 shadow-sm">
+        <div class="col-md-6 text-center mx-auto bg-light rounded p-2 shadow-sm">
             {% if courses %}
                 <h3>Select <span class="badge badge-secondary">{{ request.user.student.programme }}</span> Course</h3>
             {% else %}
-                <span class="fa fa-exclamation-circle fa-5x fa-spin my-3"></span>
-                <h3>You have not done any Assessment yet, only published and completed assessment will be shown here.</h3>
+                <span class="fa fa-exclamation-circle fa-2x fa-spin my-3"></span>
 {#                <img src="{% static 'icons/empty_box.svg' %}" alt="" class="img-fluid" style="height: 15em;">#}
+                <p>You have not done any Assessment yet, only published and completed assessment will be shown here.</p>
+                     <span>({{ request.user.generalsetting.get_semester_display|upper }})</span>
             {% endif %}
         </div>
 

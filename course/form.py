@@ -7,6 +7,10 @@ class CourseCreateForm(forms.ModelForm):
         model = CourseModel
         fields = ("name", "code", "level", "semester", "lecture", "programme")
 
+    def __init__(self, lecturers, *args, **kwargs):
+        super(CourseCreateForm, self).__init__(*args, **kwargs)
+        self.fields["lecture"].queryset = lecturers
+
 
 class CourseLevelCreateForm(forms.ModelForm):
     class Meta:

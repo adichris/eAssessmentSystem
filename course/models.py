@@ -2,14 +2,16 @@ from django.db import models
 from django.shortcuts import reverse
 from programme.models import Programme
 from lecture.models import LectureModel
-
+from django.utils.text import slugify
 
 class CourseManager(models.Manager):
     def get_lecture_courses(self, lecture, programme=None):
         if programme and lecture:
-            return self.filter(lecture=lecture, programme=programme, semester=lecture.profile.generalsetting.semester)
+            # return self.filter(lecture=lecture, programme=programme, semester=lecture.profile.generalsetting.semester)
+            return self.filter(lecture=lecture, programme=programme)
         elif lecture:
-            return self.filter(lecture=lecture, semester=lecture.profile.generalsetting.semester)
+            # return self.filter(lecture=lecture, semester=lecture.profile.generalsetting.semester)
+            return self.filter(lecture=lecture)
 
 
 class CourseLevel(models.Model):
@@ -80,10 +82,10 @@ class CourseModel(models.Model):
             return None
 
     def get_absolute_url(self):
-        return reverse("department:programme:course:detail", kwargs={"courseName": self.name, "pk": self.pk})
+        return reverse("department:programme:course:detail", kwargs={"courseName": slugify(self.name), "pk": self.pk})
 
     def get_update_url(self):
-        return reverse("department:programme:course:update", kwargs={"courseName": self.name, "pk": self.pk})
+        return reverse("department:programme:course:update", kwargs={"courseName": slugify(self.name), "pk": self.pk})
 
     def get_student_studying(self):
         return self.programme.student_set.filter(level=self.level, profile__generalsetting__semester=self.semester)

@@ -156,7 +156,16 @@
         {% endif %}
 
     {% else %}
-        {% include 'snippet/lecture_has_no_course.html' %}
+        <div class="row">
+            <div class="col-md-6 mx-auto text-center">
+                <span class="fa text-info fa-exclamation-circle fa-4x fa-spin"></span>
+                <div class="alert alert-info my-2">
+                    <span>We can not find any records.</span><br>
+                    <hr>
+                    <span>You have no record course for this semester ({{ request.user.generalsetting.get_semester_display }})</span><br>
+                </div>
+            </div>
+        </div>
     {% endif %}
 
 

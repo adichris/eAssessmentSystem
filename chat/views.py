@@ -122,21 +122,30 @@ class IndividualChatsTemplateView(LoginRequiredMixin, ListView):
         return ctx
     
     def get_lecture_contact(self):
-        from lecture.models import LectureModel
-        returns = LectureModel.objects.filter(
+        from lecture.models import LectureModel, models
+
+        contact_search = self.get_contact_query()
+        filter_dic = dict(
             profile__is_active=True,
             coursemodel__level__student=self.request.user.student
-        ).distinct()
+        )
         user = self.request.user
-        if user.is_staff:
-            return returns
-        elif user.is_lecture:
-
-            return returns.filter(department=user.lecturemodel.department).exclude(profile_id=user.id)
+        if user.is_lecture:
+            filter_dic["department"] = user.lecturemodel.department
         try:
-            return returns.filter(department__programme=user.student.programme)
+            filter_dic["department__programme"] = user.student.programme
         except Student.DoesNotExist:
             pass
+        if contact_search:
+            query = models.Q(profile__first_name__icontains=contact_search) | models.Q(profile__first_name__icontains=contact_search)
+            return LectureModel.objects.filter(
+                query,
+                **filter_dic,
+            ).distinct().exclude(profile_id=user.id)
+
+        return LectureModel.objects.filter(
+                **filter_dic,
+            ).distinct().exclude(profile_id=user.id)
 
     def get_contact_query(self):
         return self.request.GET.get("contactSearch")

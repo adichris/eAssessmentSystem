@@ -44,3 +44,8 @@ class Department(models.Model):
 
     def lectures_count(self):
         return '---'
+
+    @property
+    def all_courses_count(self):
+        from course.models import CourseModel
+        return CourseModel.objects.filter(programme__department=self).count()

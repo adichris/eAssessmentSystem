@@ -9,7 +9,8 @@
             </div>
         </div>
 
-        <div class="row">
+        {% if courses %}
+            <div class="row my-4">
             {% for course in courses %}
                 <div class="col-md-6 col-lg-4 my-2">
                     {% static 'DefaultImg/course.png' as course_img_src %}
@@ -18,6 +19,20 @@
                 </div>
             {% endfor %}
 
-        </div>
+            </div>
+        {% else %}
+            <div class="row my-4">
+                <div class="col-md-6 mx-auto text-center">
+                   <div class="alert alert-info">
+                        <span class="fa fa-exclamation-circle fa-2x"></span><br>
+                        <span>All <b>Course</b> that you have records with will show here</span>
+                        <hr>
+                        <span>There are no records found for you</span><br>
+                       <a href="{{ request.user.generalsetting.get_absolute_url }}">({{ request.user.generalsetting.get_semester_display }})</a>
+                   </div>
+                </div>
+            </div>
+        {% endif %}
+
     </div>
 {% endblock %}

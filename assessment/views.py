@@ -522,6 +522,7 @@ class MultiChoiceQuestionEdit(LoginRequiredMixin, View):
                                                formset=BaseOptionsInlineFormSet,
                                                max_num=6,
                                                validate_max=True,
+                                               extra=1,
 
                                                )
     question_form_class = QuestionCreateForm

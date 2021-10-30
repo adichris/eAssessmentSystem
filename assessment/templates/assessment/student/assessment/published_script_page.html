@@ -119,7 +119,8 @@
                     <img src="{% static 'icons/empty_box.svg' %}" alt="NO UNFINISHED img" class="no-pointer img-fluid" style="height: 15em">
                     <hr>
                 {% filter upper %}
-                    <p class="lead">NO PUBLISHED QUIZ or Midsem </p>
+                    <p class="lead">NO PUBLISHED QUIZ </p>
+                     <span>({{ request.user.generalsetting.get_semester_display|upper }})</span>
                 {% endfilter %}
             </div>
         </div>

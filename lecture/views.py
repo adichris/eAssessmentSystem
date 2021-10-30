@@ -8,7 +8,7 @@ from django.views.generic import View, DetailView, ListView, TemplateView, Creat
 from accounts.forms import UserCreateForm
 from django.forms import inlineformset_factory
 from eAssessmentSystem.tool_utils import (admin_required_message, get_http_forbidden_response, get_status_tips,
-                                          get_not_allowed_render_response
+                                          get_not_allowed_render_response, get_back_url
                                           )
 from assessment.models import (QuestionGroup, QuestionGroupStatus, CourseModel, TheoryMarkingScheme,
                                Question, Solution, QuestionTypeChoice, ScriptStatus, StudentTheoryScript
@@ -483,6 +483,7 @@ class TheoryMarkingSchemeHomeTemplateView(LoginRequiredMixin, TemplateView):
             ctx["course"] = self.course_object
         else:
             ctx["courses_set"] = self.get_queryset()
+        ctx["back_url"] = get_back_url(self.request)
         return ctx
 
     def init_course_object(self):

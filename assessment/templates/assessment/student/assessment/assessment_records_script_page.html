@@ -35,10 +35,11 @@
     {% else %}
         <div class="row my-3">
             <div class="col-auto mx-auto text-center">
-                <span class="fa fa-exclamation-circle fa-spin fa-4x my-2"></span>
+                <span class="fa fa-exclamation-circle fa-spin fa-2x my-2"></span>
                 <div class="alert alert-info">
-                    <h4>You have no records yet</h4>
+                    <h5>You have no records yet</h5>
                     <p>Complete and do more assessment to view your records.</p>
+                     <span>({{ request.user.generalsetting.get_semester_display|upper }})</span>
                 </div>
             </div>
         </div>

@@ -36,7 +36,7 @@
     {% if courses %}
         <div class="row">
             <div class="col-12">
-                <h5 class="text-center">Programme Courses <span class="badge badge-light">({{ programme.coursemodel_set.count }})</span></h5>
+                <h5 class="text-center">Programme Courses <span class="badge badge-light">({{ courses.count }})</span></h5>
                 <hr>
             </div>
         </div>
@@ -61,7 +61,6 @@
                                     <h5 class="card-title text-center">{{ course.name }}</h5></a>
                         </div>
                             <div class="card-body">
-
                                     <table class="table table-borderless">
                                         <tr>
                                             <td>Course Code</td>
@@ -80,6 +79,9 @@
                             <div class="card-footer bg-transparent">
                                 <div class="mt-2 d-flex justify-content-between align-items-center">
                                     <div class="btn-group">
+                                        {% if request.user.is_hod %}
+                                            <a href="{% url 'department:programme:course:unassignment' course_code=course.code  %}?back={{ request.path }}" class="btn btn-sm btn-outline-secondary" onclick="spinOnClick(this)">View</a>
+                                        {% endif %}
                                         <a href="{{ course.get_absolute_url }}?back={{ request.path }}" class="btn btn-sm btn-outline-secondary" onclick="spinOnClick(this)">View</a>
                                         {% if request.user.is_admin %}
                                             <a href="{{ course.get_update_url }}" class="btn btn-sm btn-outline-secondary" onclick="spinOnClick(this)">Edit</a>
@@ -97,10 +99,10 @@
 
 
     {% else %}
-        <div class="row">
+        <div class="row my-3">
             <div class="col-auto mx-auto" style="margin-top: 20vh">
                 {%  if request.user.is_lecture %}
-                    <p class="lead text-center">{{ request.user.first_name }}, your courses are not registered yet</p>
+                    <p class="lead text-center">{{ request.user.first_name }}, your courses are not registered yet for this semester({{ request.user.generalsetting.get_semester_display }})</p>
                 {% elif request.user.is_staff %}
                     <p class="lead text-center">{{ programme }} has no course registered</p>
                 {% endif %}
@@ -112,7 +114,7 @@
 
 
     {% if programme.student_set.exists %}
-            <div class="row">
+            <div class="row my-3">
                 <div class="col-12">
                     <h5 class="text-center" style="margin-top: 5vh;">Programme Students</h5>
                     <hr>

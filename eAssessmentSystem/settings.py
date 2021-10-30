@@ -60,9 +60,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 USE_TZ = True
 
 # deployment objects
-# if not DEBUG:
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 
 MIDDLEWARE = [
@@ -81,7 +81,7 @@ ROOT_URLCONF = 'eAssessmentSystem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -99,15 +99,26 @@ WSGI_APPLICATION = 'eAssessmentSystem.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+# this is the actual database we used for our project work
+# but because the system can not run without an actual postgreSQL database with the below configurations and database
+# we will comment the postgreSQL database configuration out and use SQLITE3 for ease mobility and the system will run well with it too!.
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': 'eAssessmentSystem',
+#        'USER': 'postgres',
+#        'PASSWORD': 'admin',
+#        'HOST': 'localhost',
+#        'PORT': '5432',
+#    }
+#}
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'eAssessmentSystem',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'eAssessmentSystem.sqlite3',
+        'USER': '',
+        'PASSWORD': '',
     }
 }
 

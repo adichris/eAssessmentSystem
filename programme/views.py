@@ -55,8 +55,9 @@ class ProgrammeDetailView(LoginRequiredMixin, DetailView):
             ctx["department"] = self.object.department
             if self.request.user.is_staff:
                 ctx["courses"] = self.object.coursemodel_set.all()
+            elif self.request.user.is_hod:
+                ctx["courses"] = CourseModel.objects.filter(programme=self.object)
             elif self.request.user.is_lecture:
-                # ctx["courses"] = self.request.user.lecturemodel.coursemodel_set.all().filter(programme=programme)
                 ctx["courses"] = CourseModel.objects.get_lecture_courses(self.request.user.lecturemodel, programme=self.object)
 
             course_name = self.request.session.get("course_deleted_name")

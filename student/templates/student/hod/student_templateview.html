@@ -35,7 +35,7 @@
                             <div class="list-group list-group-flush">
                                 <p class="list-group-item">{{ programme.name }}</p>
                                 {% for p_level in programme_level %}
-                                    <a href="{% url 'student:programme_level_4_hod' level_id=p_level.id programme_id=programme.id  %}?back={{ request.path }}" class="list-group-item list-group-item-action" onclick="spinOnClick(this)">{{ p_level }}</a>
+                                    <a href="{% url 'student:programme_level_4_hod' level_id=p_level.id programme_id=programme.id  %}?back={{ request.path }}" class="list-group-item list-group-item-action d-flex justify-content-between" onclick="spinOnClick(this)"><span>{{ p_level }}</span> <span class="fa fa-chevron-right"></span></a>
                                 {% endfor %}
                             </div>
                         </div>

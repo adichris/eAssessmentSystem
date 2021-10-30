@@ -49,7 +49,7 @@
         <div class="row">
             <div class="col-md-8 col-lg-6 mx-auto mt-10vh text-center">
                 <img src="{% static 'icons/empty_box.svg' %}" alt="NO UNFINISHED img" class="no-pointer img-fluid mb-3" style="height: 15em">
-                <h5>You done all Assessment</h5>
+                <h5>You done all new assessment in this {{ request.user.generalsetting.get_semester_display|lower }}</h5>
                 <hr>
                 <p>No new assessment yet.</p>
                 <div class="alert alert-info">

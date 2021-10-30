@@ -126,6 +126,15 @@ class StudentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         query = self.request.GET.get("query")
+        user = self.request.user
+        if user.is_lecture:
+            if query:
+                return Student.objects.search(query).filter(programme__department=user.lecturemodel.department)
+            return Student.objects.filter(programme__department=user.lecturemodel.department)
+        elif user.is_student:
+            if query:
+                return Student.objects.search(query).filter(programme__department=user.student.programme.department)
+            return Student.objects.filter(programme__department=user.student.programme.department)
         if query:
             return self.model.objects.search(query)
         else:
@@ -207,7 +216,10 @@ class HODStudentTemplateView(LoginRequiredMixin, TemplateView):
         return ctx
 
     def init_instance(self):
-        self.programmes = Programme.objects.all()
+        try:
+            self.programmes = self.request.user.lecturemodel.department.programme_set.all()
+        except ObjectDoesNotExist:
+            return set()
 
     def get(self, request, *args, **kwargs):
         if self.request.user.is_hod:

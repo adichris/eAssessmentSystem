@@ -45,13 +45,9 @@ class StudentRecordTemplateView(LoginRequiredMixin, TemplateView):
                 return super(StudentRecordTemplateView, self).get(request, *args, **kwargs)
             except ObjectDoesNotExist as err:
                 return general_setting_not_init(request)
-        elif student:
-            return get_http_forbidden_response()
 
-        elif self.request.user.is_authenticated:
-            return get_http_forbidden_response()
         else:
-            return redirect("accounts:student_login")
+            return get_not_allowed_render_response(request)
 
     def get_context_data(self, **kwargs):
         ctx = super(StudentRecordTemplateView, self).get_context_data(**kwargs)
@@ -89,7 +85,8 @@ class LectureRecordsTemplateView(LoginRequiredMixin, TemplateView):
     def get_courses(self):
         return CourseModel.objects.filter(
             lecture=self.request.user.lecturemodel,
-            semester=self.request.user.generalsetting.semester
+            semester=self.request.user.generalsetting.semester,
+            questiongroup__status__in=(QuestionGroupStatus.MARKED, QuestionGroupStatus.PUBLISHED, QuestionGroupStatus.CONDUCTED)
         )
 
     def get(self, request, *args, **kwargs):
@@ -164,13 +161,14 @@ class LectureCourseRecords(LoginRequiredMixin, DetailView):
         return get_not_allowed_render_response(request)
     
     def get_lecture(self):
-        if self.request.user.is_lecture and not self.request.user.is_hod:
+        lecture_id = self.kwargs.get("lecture_id")
+        if lecture_id:
+            try:
+                return LectureModel.objects.get(id=lecture_id)
+            except LectureModel.DoesNotExist:
+                pass
+        elif self.request.user.is_lecture:
             return self.request.user.lecturemodel
-        try:
-            lecture_id = self.kwargs.get("lecture_id")
-            return LectureModel.objects.get(id=lecture_id)
-        except LectureModel.DoesNotExist:
-            pass
 
     def get_students(self):
         return Student.objects.filter(

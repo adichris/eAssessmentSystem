@@ -53,6 +53,10 @@
                                 <td>Lectures</td>
                                 <th>{{ department.lecturemodel_set.count }}</th>
                             </tr>
+                            <tr>
+                                <td>Courses</td>
+                                <td>{{ department.all_courses_count }}</td>
+                            </tr>
                         </table>
                         <a href="{{ department.get_absolute_url }}" class="btn btn-outline-primary btn-block mt-2" onclick="appendSpinOnClick(this)">Detail</a>
                     </div>
