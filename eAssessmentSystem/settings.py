@@ -96,32 +96,36 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'eAssessmentSystem.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 # this is the actual database we used for our project work
 # but because the system can not run without an actual postgreSQL database with the below configurations and database
 # we will comment the postgreSQL database configuration out and use SQLITE3 for ease mobility and the system will run well with it too!.
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'NAME': 'eAssessmentSystem',
-#        'USER': 'postgres',
-#        'PASSWORD': 'admin',
-#        'HOST': 'localhost',
-#        'PORT': '5432',
-#    }
-#}
 
+
+# commet this out if you don't this postgreSQl database setup and 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'eAssessmentSystem.sqlite3',
-        'USER': '',
-        'PASSWORD': '',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'eAssessmentSystem',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
+# un commmet this to use sqlite for testing
+# the database is empty
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': 'eAssessmentSystem.sqlite3',
+#        'USER': '',
+#        'PASSWORD': '',
+#    }
+#}
+#
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
