@@ -1,4 +1,4 @@
-from django.utils.http import is_safe_url
+from eAssessmentSystem.tool_utils import is_safe_url
 from accounts.models import User
 from django.shortcuts import reverse, redirect
 from django.views.generic import CreateView, UpdateView, DetailView, RedirectView

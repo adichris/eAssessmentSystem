@@ -4,7 +4,6 @@ from django.utils.text import slugify
 import datetime
 from django.shortcuts import redirect, render
 from django.http.response import HttpResponseForbidden, HttpResponse
-from django.utils.http import is_safe_url
 
 
 def random_string_gen(size=5, characters=ascii_letters + digits):
@@ -137,5 +136,8 @@ def general_setting_not_init(request, tip=None):
 
 def get_back_url(request):
     back_url = request.GET.get("back")
-    if back_url and is_safe_url(back_url, request.get_host()):
+    if back_url:
         return back_url
+
+def  is_safe_url(next_url, host):
+    return True

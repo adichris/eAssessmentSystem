@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect, reverse, resol
 from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView, \
     RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.utils.http import is_safe_url
+from eAssessmentSystem.tool_utils import is_safe_url
 from .form import (MultiChoiceQuestionCreateForm, QuestionCreateForm, QuestionGroupCreateForm,
                    BaseOptionsFormSet, BaseOptionsInlineFormSet, AssessmentPreferenceCreateForm,
                    StudentMultiChoiceAnswerForm, StudentTheoryAnswerUpdateForm,

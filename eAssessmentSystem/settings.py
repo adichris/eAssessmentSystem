@@ -106,15 +106,16 @@ WSGI_APPLICATION = 'eAssessmentSystem.wsgi.application'
 
 # commet this out if you don't this postgreSQl database setup and 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'eAssessmentSystem',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
+     'default': {
+         'ENGINE': 'django.db.backends.postgresql',
+         'NAME': 'eAssessmentSystem',
+         'USER': 'postgres',
+         'PASSWORD': 'admin',
+         'HOST': 'localhost',
+         'PORT': '5432',
+     }
+ }
+
 
 # un commmet this to use sqlite for testing
 # the database is empty

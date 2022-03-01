@@ -16,7 +16,6 @@ from assessment.models import (QuestionGroup, QuestionGroupStatus, CourseModel, 
 from assessment.form import LectureQuestionSolutionForm
 from django.utils.html import format_html
 from django.db.models import ObjectDoesNotExist
-from django.utils.http import is_safe_url
 from department.models import Department
 
 

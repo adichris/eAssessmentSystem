@@ -2,7 +2,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from .forms import DepartmentCreateForm, Department, DepartmentSetChangeHODForm
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.utils.http import is_safe_url
+from eAssessmentSystem.tool_utils import is_safe_url
 from programme.forms import ProgrammeCreateForm
 from course.models import CourseModel
 from student.models import Student

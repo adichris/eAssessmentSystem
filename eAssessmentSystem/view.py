@@ -1,8 +1,7 @@
 from django.views.generic import TemplateView
 from django.contrib.auth.views import LoginView
 from django.shortcuts import resolve_url, redirect
-from django.utils.http import is_safe_url
-
+from eAssessmentSystem.tool_utils import is_safe_url
 
 class LandingPage(TemplateView):
     template_name = "home/landing page.html"
@@ -26,7 +25,7 @@ class AdminStaffLogin(LoginView):
 
     def get_success_url(self):
         next_url = self.request.GET.get("next")
-        if next_url and is_safe_url(next_url, self.request.get_host()):
+        if next_url:
             return next_url
         return resolve_url("landing-page")
 

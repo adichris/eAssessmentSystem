@@ -7,9 +7,10 @@ from .forms import UserCreateForm, StudentLoginForm, User, UserUpdateForm, Confi
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
-from django.shortcuts import resolve_url, redirect, reverse, render, get_object_or_404
-from django.utils.http import is_safe_url
+from django.shortcuts import resolve_url, redirect, reverse, render
 from eAssessmentSystem.tool_utils import get_not_allowed_render_response
+
+
 
 
 class AddAdminView(LoginRequiredMixin, TemplateView):

@@ -185,7 +185,7 @@ class PasswordSetForm(forms.ModelForm):
         "password": forms.PasswordInput(attrs={"value": ""})
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, usr=None, **kwargs):
         super(PasswordSetForm, self).__init__(*args, **kwargs)
         try:
             usr = kwargs.pop("usr", None)

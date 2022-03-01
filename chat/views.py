@@ -4,7 +4,7 @@ from django.views.generic import CreateView, ListView, DetailView, RedirectView,
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Message, CourseGroupMessage, CourseModel, CourseLevel
 from .forms import MessageCreateForm, MessageCreateInlineForm, CourseMessageCreationForm
-from django.utils.http import is_safe_url
+from eAssessmentSystem.tool_utils import is_safe_url
 from student.models import Student
 from eAssessmentSystem.tool_utils import get_not_allowed_render_response, get_back_url
 from django.db.models import ObjectDoesNotExist
